@@ -35,7 +35,7 @@ public class DirectoryConnector {
 	 * cuenta como un intento.
 	 */
 	private static final int MAX_NUMBER_OF_ATTEMPTS = 5;
-
+	// HAY QUE DECLARAR EL NUMERO MAXIMO DE BYTES PARA EL ARRAY DE BYTES DE LA FUNCION sendAndRececievDatagrams
 	/**
 	 * Socket UDP usado para la comunicación con el directorio
 	 */
@@ -75,12 +75,12 @@ public class DirectoryConnector {
 		 * guardar la dirección de socket (address:DIRECTORY_PORT) del directorio en el
 		 * atributo directoryAddress, para poder enviar datagramas a dicho destino.
 		 */
+		this.directoryAddress = new InetSocketAddress(InetAddress.getByName(hostname), DIRECTORY_PORT);
 		/*
 		 * TODO: (Boletín SocketsUDP) Crea el socket UDP en cualquier puerto para enviar
 		 * datagramas al directorio
 		 */
-
-
+		this.socket = new DatagramSocket();
 
 	}
 
@@ -93,6 +93,7 @@ public class DirectoryConnector {
 	private byte[] sendAndReceiveDatagrams(byte[] requestData) {
 		byte responseData[] = new byte[DirMessage.PACKET_MAX_SIZE];
 		byte response[] = null;
+		// Si no tenemos directorio, constructor previo, no podemos hacer nada, no hay servidor al que mandar los paquetes
 		if (directoryAddress == null) {
 			System.err.println("DirectoryConnector.sendAndReceiveDatagrams: UDP server destination address is null!");
 			System.err.println(
@@ -100,6 +101,7 @@ public class DirectoryConnector {
 			System.exit(-1);
 
 		}
+		// Si no tenemos socket, no podemos hacer nada
 		if (socket == null) {
 			System.err.println("DirectoryConnector.sendAndReceiveDatagrams: UDP socket is null!");
 			System.err.println(
@@ -111,25 +113,48 @@ public class DirectoryConnector {
 		 * recibir una respuesta. El array devuelto debe contener únicamente los datos
 		 * recibidos, *NO* el búfer de recepción al completo.
 		 */
-		/*
-		 * TODO: (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
-		 * confiable (sin pérdidas) esté terminado y probado, debe implementarse un
-		 * mecanismo de retransmisión usando temporizador, en caso de que no se reciba
-		 * respuesta en el plazo de TIMEOUT. En caso de salte el timeout, se debe volver
-		 * a enviar el datagrama y tratar de recibir respuestas, reintentando como
-		 * máximo en MAX_NUMBER_OF_ATTEMPTS ocasiones.
-		 */
-		/*
-		 * TODO: (Boletín SocketsUDP) Las excepciones que puedan lanzarse al
-		 * leer/escribir en el socket deben ser capturadas y tratadas en este método. Si
-		 * se produce una excepción de entrada/salida (error del que no es posible
-		 * recuperarse), se debe informar y terminar el programa.
-		 */
-		/*
-		 * NOTA: Las excepciones deben tratarse de la más concreta a la más genérica.
-		 * SocketTimeoutException es más concreta que IOException.
-		 */
-
+		DatagramPacket datagrama = new DatagramPacket(requestData, requestData.length, directoryAddress);
+		try {
+			// Mandamos el socket
+			this.socket.send(datagrama);
+			
+			// aqui debemos esperar una respuesta
+			byte[] bufferRespuesta = new byte[10000];	// LUEGO CAMBIAREMOS EL VALOR 1000 POR LA CONSTANTE DE ARRIBA
+			// LUEGO IMPLEMNENTAREMOS EL TIMEOUT QUE VA AQUI
+			DatagramPacket respuesta = new DatagramPacket(bufferRespuesta, bufferRespuesta.length);
+			socket.receive(respuesta);
+			
+			// ya tengo mi respuesta
+			byte[] salida = new byte[respuesta.getLength()];
+			for (int i = 0; i < respuesta.getLength(); i++) 
+				salida[i] = respuesta.getData()[i];
+			//salida = System.arraycopy(respuesta.getData(), 0, salida, 0, respuesta.getData().length);
+			return salida;
+			
+			/*
+			 * TODO: (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
+			 * confiable (sin pérdidas) esté terminado y probado, debe implementarse un
+			 * mecanismo de retransmisión usando temporizador, en caso de que no se reciba
+			 * respuesta en el plazo de TIMEOUT. En caso de salte el timeout, se debe volver
+			 * a enviar el datagrama y tratar de recibir respuestas, reintentando como
+			 * máximo en MAX_NUMBER_OF_ATTEMPTS ocasiones.
+			 */
+			/*
+			 * TODO: (Boletín SocketsUDP) Las excepciones que puedan lanzarse al
+			 * leer/escribir en el socket deben ser capturadas y tratadas en este método. Si
+			 * se produce una excepción de entrada/salida (error del que no es posible
+			 * recuperarse), se debe informar y terminar el programa.
+			 */
+			/*
+			 * NOTA: Las excepciones deben tratarse de la más concreta a la más genérica.
+			 * SocketTimeoutException es más concreta que IOException.
+			 */
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 
 		if (response != null && response.length == responseData.length) {
@@ -146,6 +171,7 @@ public class DirectoryConnector {
 	 * @return verdadero si se ha enviado un datagrama y recibido una respuesta
 	 */
 	public boolean testSendAndReceive() {
+		// ESTE METODO HACE LA PRUEBA
 		/*
 		 * TODO: (Boletín SocketsUDP) Probar el correcto funcionamiento de
 		 * sendAndReceiveDatagrams. Se debe enviar un datagrama con la cadena "ping" y
@@ -154,7 +180,17 @@ public class DirectoryConnector {
 		 */
 		boolean success = false;
 
-
+		//"ping"
+		//respuesta = "pingok"
+		
+		String ping = new String("ping");
+		// transformo el texto en bytes, llamo a la funcion que lo manda al servidor
+		byte[] respuesta = sendAndReceiveDatagrams(ping.getBytes());
+		String pingRespuesta = new String(respuesta);
+		
+		if(pingRespuesta.equals("pingok")) {
+			success = true;
+		}
 
 		return success;
 	}
