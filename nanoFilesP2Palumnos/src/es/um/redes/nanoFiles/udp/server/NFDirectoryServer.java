@@ -19,6 +19,8 @@ public class NFDirectoryServer {
 	 * Número de puerto UDP en el que escucha el directorio
 	 */
 	public static final int DIRECTORY_PORT = 6868;
+	// VARIABLE PARA BUFFER RECEIVE_DATAGRAM
+	public final int MAX_MSG_SIZE_BYTES = 1024;
 
 	/**
 	 * Socket de comunicación UDP con el cliente UDP (DirectoryConnector)
@@ -65,11 +67,12 @@ public class NFDirectoryServer {
 		 * UDP ligado al puerto especificado por el argumento directoryPort en la
 		 * máquina local,
 		 */
+		socket = new DatagramSocket(DIRECTORY_PORT);
 		/*
 		 * TODO: (Boletín SocketsUDP) Inicializar atributos que mantienen el estado del
 		 * servidor de directorio: peers registrados, etc.)
 		 */
-
+		this.registeredPeers = new LinkedHashMap<>();
 
 
 		if (NanoFiles.testModeUDP) {
@@ -89,10 +92,12 @@ public class NFDirectoryServer {
 			 * TODO: (Boletín SocketsUDP) Crear un búfer para recibir datagramas y un
 			 * datagrama asociado al búfer (datagramReceivedFromClient)
 			 */
+			byte[] buf = new byte[MAX_MSG_SIZE_BYTES];
+			datagramReceivedFromClient = new DatagramPacket(buf, buf.length);
 			/*
 			 * TODO: (Boletín SocketsUDP) Recibimos a través del socket un datagrama
 			 */
-
+			socket.receive(datagramReceivedFromClient);
 
 
 			if (datagramReceivedFromClient == null) {
@@ -112,9 +117,7 @@ public class NFDirectoryServer {
 									+ " of size " + datagramReceivedFromClient.getLength() + " bytes.");
 				}
 			}
-
 		}
-
 		return datagramReceivedFromClient;
 	}
 
@@ -137,14 +140,29 @@ public class NFDirectoryServer {
 		 * en el datagrama pkt. A continuación, imprimir por pantalla dicha cadena a
 		 * modo de depuración.
 		 */
-
+		String response = new String(pkt.getData(), pkt.getOffset(), pkt.getLength());
+		System.out.println("[sendResponseTestMode] Cadena de respuesta e partir de los datos del datagrama: " + response);
 		/*
 		 * TODO: (Boletín SocketsUDP) Después, usar la cadena para comprobar que su
 		 * valor es "ping"; en ese caso, enviar como respuesta un datagrama con la
 		 * cadena "pingok". Si el mensaje recibido no es "ping", se informa del error y
 		 * se envía "invalid" como respuesta.
 		 */
-
+		
+		if(response.equalsIgnoreCase("ping")) {
+			response = "pingok";
+			System.out.println("[sendResponseTestMode] Cadena de respuesta " + response);
+		}else {
+			System.out.println("[senResponseTestMode] ERROR: la respuesta " + response + " no es igual a ping");
+			response = "invalid";
+		}
+		
+		// Convertimos mensaje a bytes
+		byte[] responseBytes = response.getBytes();
+		// Creamos paquete de respuesta
+		// pkt.getAddres y getPort, es la IP y puertos de la direccion a donde lo quiero enviar
+		DatagramPacket pktResponse = new DatagramPacket(responseBytes, responseBytes.length, pkt.getAddress(), pkt.getPort());
+		socket.send(pktResponse);
 		/*
 		 * TODO: (Boletín Estructura-NanoFiles) Ampliar el código para que, en el caso
 		 * de que la cadena recibida no sea exactamente "ping", comprobar si comienza
