@@ -193,6 +193,9 @@ public class DirectoryConnector {
 		String ping = new String("ping");
 		// transformo el texto en bytes, llamo a la funcion que lo manda al servidor
 		byte[] respuesta = sendAndReceiveDatagrams(ping.getBytes());
+		if(respuesta == null) {
+			return false;
+		}
 		String pingRespuesta = new String(respuesta);
 		
 		if(pingRespuesta.equals("pingok")) {
