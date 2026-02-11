@@ -19,8 +19,6 @@ public class NFDirectoryServer {
 	 * Número de puerto UDP en el que escucha el directorio
 	 */
 	public static final int DIRECTORY_PORT = 6868;
-	// VARIABLE PARA BUFFER RECEIVE_DATAGRAM
-	public final int MAX_MSG_SIZE_BYTES = 1024;
 
 	/**
 	 * Socket de comunicación UDP con el cliente UDP (DirectoryConnector)
@@ -67,12 +65,12 @@ public class NFDirectoryServer {
 		 * UDP ligado al puerto especificado por el argumento directoryPort en la
 		 * máquina local,
 		 */
-		socket = new DatagramSocket(DIRECTORY_PORT);
+		this.socket = new DatagramSocket(DIRECTORY_PORT);
 		/*
 		 * TODO: (Boletín SocketsUDP) Inicializar atributos que mantienen el estado del
 		 * servidor de directorio: peers registrados, etc.)
 		 */
-		this.registeredPeers = new LinkedHashMap<>();
+		this.registeredPeers = new LinkedHashMap<String, InetSocketAddress>();
 
 
 		if (NanoFiles.testModeUDP) {
@@ -92,19 +90,19 @@ public class NFDirectoryServer {
 			 * TODO: (Boletín SocketsUDP) Crear un búfer para recibir datagramas y un
 			 * datagrama asociado al búfer (datagramReceivedFromClient)
 			 */
-			byte[] buf = new byte[MAX_MSG_SIZE_BYTES];
+			byte[] buf = new byte[DirMessage.PACKET_MAX_SIZE];
 			datagramReceivedFromClient = new DatagramPacket(buf, buf.length);
 			/*
 			 * TODO: (Boletín SocketsUDP) Recibimos a través del socket un datagrama
 			 */
-			socket.receive(datagramReceivedFromClient);
+			this.socket.receive(datagramReceivedFromClient);
 
-
+			/*
 			if (datagramReceivedFromClient == null) {
 				System.err.println("[testMode] NFDirectoryServer.receiveDatagram: code not yet fully functional.\n"
 						+ "Check that all TODOs have been correctly addressed!");
 				System.exit(-1);
-			} else {
+			} else {*/
 				// Vemos si el mensaje debe ser ignorado (simulación de un canal no confiable)
 				double rand = Math.random();
 				if (rand < messageDiscardProbability) {
@@ -116,7 +114,7 @@ public class NFDirectoryServer {
 							.println("Directory received datagram from " + datagramReceivedFromClient.getSocketAddress()
 									+ " of size " + datagramReceivedFromClient.getLength() + " bytes.");
 				}
-			}
+			//}
 		}
 		return datagramReceivedFromClient;
 	}
@@ -140,8 +138,8 @@ public class NFDirectoryServer {
 		 * en el datagrama pkt. A continuación, imprimir por pantalla dicha cadena a
 		 * modo de depuración.
 		 */
-		String response = new String(pkt.getData(), pkt.getOffset(), pkt.getLength());
-		System.out.println("[sendResponseTestMode] Cadena de respuesta e partir de los datos del datagrama: " + response);
+		String response = new String(pkt.getData(), 0, pkt.getLength()); // pkt.getOffset(), pkt.getLength());
+		System.out.println("[sendResponseTestMode] Cadena de respuesta e partir de los datos del datagrama recibido: " + response);
 		/*
 		 * TODO: (Boletín SocketsUDP) Después, usar la cadena para comprobar que su
 		 * valor es "ping"; en ese caso, enviar como respuesta un datagrama con la
@@ -150,33 +148,42 @@ public class NFDirectoryServer {
 		 */
 		
 		if(response.equalsIgnoreCase("ping")) {
-			response = "pingok";
+			response = new String("pingok");
 			System.out.println("[sendResponseTestMode] Cadena de respuesta " + response);
 		}else {
-			System.out.println("[senResponseTestMode] ERROR: la respuesta " + response + " no es igual a ping");
-			response = "invalid";
+			/*
+			 * TODO: (Boletín Estructura-NanoFiles) Ampliar el código para que, en el caso
+			 * de que la cadena recibida no sea exactamente "ping", comprobar si comienza
+			 * por "ping&" (es del tipo "ping&PROTOCOL_ID", donde PROTOCOL_ID será el
+			 * identificador del protocolo diseñado por el grupo de prácticas (ver
+			 * NanoFiles.PROTOCOL_ID). Se debe extraer el "protocol_id" de la cadena
+			 * recibida y comprobar que su valor coincide con el de NanoFiles.PROTOCOL_ID,
+			 * en cuyo caso se responderá con "welcome" (en otro caso, "denied").
+			 */
+			
+			if(response.startsWith("ping&")) {
+				String codigo = (response.split("&"))[1];
+				if(codigo.equals((NanoFiles.PROTOCOL_ID))){
+					response = new String("welcome");
+				}else {
+					response = new String("denied");
+				}
+			}else {
+				System.out.println("[senResponseTestMode] ERROR: la respuesta " + response + " no es igual a ping");
+				response = new String("invalid");
+			}
 		}
 		
 		// Convertimos mensaje a bytes
 		byte[] responseBytes = response.getBytes();
 		// Creamos paquete de respuesta
 		// pkt.getAddres y getPort, es la IP y puertos de la direccion a donde lo quiero enviar
-		DatagramPacket pktResponse = new DatagramPacket(responseBytes, responseBytes.length, pkt.getAddress(), pkt.getPort());
-		socket.send(pktResponse);
-		/*
-		 * TODO: (Boletín Estructura-NanoFiles) Ampliar el código para que, en el caso
-		 * de que la cadena recibida no sea exactamente "ping", comprobar si comienza
-		 * por "ping&" (es del tipo "ping&PROTOCOL_ID", donde PROTOCOL_ID será el
-		 * identificador del protocolo diseñado por el grupo de prácticas (ver
-		 * NanoFiles.PROTOCOL_ID). Se debe extraer el "protocol_id" de la cadena
-		 * recibida y comprobar que su valor coincide con el de NanoFiles.PROTOCOL_ID,
-		 * en cuyo caso se responderá con "welcome" (en otro caso, "denied").
-		 */
+		DatagramPacket pktResponse = new DatagramPacket(responseBytes, responseBytes.length, (InetSocketAddress) pkt.getSocketAddress());// pkt.getAddress(), pkt.getPort());
+		this.socket.send(pktResponse);
+		System.out.println("[sendResponseTestMode] Respuesta enviada: " + response);
 
 		String messageFromClient = new String(pkt.getData(), 0, pkt.getLength());
 		System.out.println("Data received: " + messageFromClient);
-
-
 
 	}
 
