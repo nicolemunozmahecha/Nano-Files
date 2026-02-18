@@ -73,8 +73,7 @@ public class NFControllerLogicDir {
 	 */
 	protected boolean ping() {
 		boolean result = false;
-		System.out.println(
-				"* Checking if the directory at " + directoryConnector.getDirectoryHostname() + " is available...");
+		System.out.println("* Checking if the directory at " + directoryConnector.getDirectoryHostname() + " is available...");
 		result = directoryConnector.pingDirectory();
 		if (result) {
 			System.out.println("* Directory is active and uses compatible protocol " + NanoFiles.PROTOCOL_ID);

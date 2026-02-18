@@ -48,10 +48,8 @@ public class DirectoryConnector {
 	 * Nombre/IP del host donde se ejecuta el directorio
 	 */
 	private String directoryHostname;
-
-
-
-
+	
+	
 
 	public static class DownloadedFile {
 		public final String filename;
@@ -256,18 +254,36 @@ public class DirectoryConnector {
 	public boolean pingDirectory() {
 		boolean success = false;
 		/*
-		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 1.Crear el mensaje a
-		 * enviar (objeto DirMessage) con atributos adecuados (operation, etc.) NOTA:
-		 * Usar como operaciones las constantes definidas en la clase DirMessageOps :
+		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 
+		 * 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados (operation, etc.) 
+		 * NOTA:Usar como operaciones las constantes definidas en la clase DirMessageOps :
 		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
-		 * 3.Crear un datagrama con los bytes en que se codifica la cadena : 4.Enviar
-		 * datagrama y recibir una respuesta (sendAndReceiveDatagrams). : 5.Convertir
-		 * respuesta recibida en un objeto DirMessage (método DirMessage.fromString)
-		 * 6.Extraer datos del objeto DirMessage y procesarlos 7.Devolver éxito/fracaso
-		 * de la operación
+		 * 3.Crear un datagrama con los bytes en que se codifica la cadena : 
+		 * 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams). : 
+		 * 5.Convertir respuesta recibida en un objeto DirMessage (método DirMessage.fromString)
+		 * 6.Extraer datos del objeto DirMessage y procesarlos 
+		 * 7.Devolver éxito/fracaso de la operación
 		 */
+		
+		DirMessage ping = new DirMessage(DirMessageOps.OPERATION_PING);
+		ping.setProtocolID(NanoFiles.PROTOCOL_ID);
+		System.out.println("protocolid: " + ping.toString());
 
-
+		byte[] bytesRespuesta = sendAndReceiveDatagrams(ping.toString().getBytes());
+		
+		if (bytesRespuesta == null) {
+			return success;
+		}
+		
+		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
+		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
+		
+		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_PING_OK)) {
+			System.out.println("Operación recibida: " + dmRespuesta.getOperation());
+			success = true;
+		}else {
+			System.err.println("ERROR: ping no compatible");
+		}
 
 		return success;
 	}

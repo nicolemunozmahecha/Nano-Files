@@ -209,15 +209,18 @@ public class NFDirectoryServer {
 		 * métodos "getter" para procesar el mensaje y consultar/modificar el estado del
 		 * servidor.
 		 */
+		String mensaje = new String(pkt.getData(), 0, pkt.getLength());
+		System.out.println("[sendResponse] Cadena recibida a partir de los datos del datagramPacket: " + mensaje);
 
-
+		DirMessage atributosMensaje = DirMessage.fromString(mensaje);
 
 		/*
 		 * TODO: Una vez construido un objeto DirMessage con el contenido del datagrama
 		 * recibido, obtener el tipo de operación solicitada por el mensaje y actuar en
 		 * consecuencia, enviando uno u otro tipo de mensaje en respuesta.
 		 */
-		String operation = DirMessageOps.OPERATION_INVALID; // TODO: Cambiar!
+		//String operation = DirMessageOps.OPERATION_INVALID; // TODO: Cambiar!
+		String operation = atributosMensaje.getOperation();
 
 		/*
 		 * TODO: (Boletín MensajesASCII) Construir un objeto DirMessage (msgToSend) con
@@ -228,20 +231,19 @@ public class NFDirectoryServer {
 		 * enviar como respuesta (operation, etc.)
 		 */
 
-
-
-
+		DirMessage mensajeAEnviar = null;
 
 		switch (operation) {
 		case DirMessageOps.OPERATION_PING: {
-
-
-
 
 			/*
 			 * TODO: (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
 			 * cliente coincide con el nuestro.
 			 */
+			if(atributosMensaje.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
+				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PING_OK);
+				System.out.println("[sendResponse] Ping recibido. Protocolo compatible");
+			}
 			/*
 			 * TODO: (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
 			 * el éxito/fracaso del ping (compatible, incompatible), y lo devolvemos como
@@ -252,16 +254,13 @@ public class NFDirectoryServer {
 			 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
 			 * modo de depuración en el servidor
 			 */
+			else {
+				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PING_ERROR);
+				System.err.println("[sendResponse] Ping recibido. Protocolo incompatible");
+			}
 
-
-
-			break;
-		}
-
-
-
-		default:
-			System.err.println("Unexpected message operation: \"" + operation + "\"");
+		} default:
+			System.err.println("[sendResponse] Unexpected message operation: \"" + operation + "\"");
 			System.exit(-1);
 		}
 
@@ -270,9 +269,9 @@ public class NFDirectoryServer {
 		 * (msgToSend) con el mensaje de respuesta a enviar, extraer los bytes en que se
 		 * codifica el string y finalmente enviarlos en un datagrama
 		 */
-
-
-
+		
+		byte[] bytesPayload = mensajeAEnviar.toString().getBytes();
+		this.socket.send(new DatagramPacket(bytesPayload, bytesPayload.length, (InetSocketAddress)pkt.getSocketAddress()));
 	}
 
 

@@ -1,8 +1,5 @@
 package es.um.redes.nanoFiles.udp.message;
 
-
-
-
 /**
  * Clase que modela los mensajes del protocolo de comunicación entre pares para
  * implementar el explorador de ficheros remoto (servidor de ficheros). Estos
@@ -17,7 +14,7 @@ public class DirMessage {
 
 	private static final char DELIMITER = ':'; // Define el delimitador
 	private static final char END_LINE = '\n'; // Define el carácter de fin de línea
-
+	private static final char SEPARADOR = ','; // Para datos compuestos
 	/**
 	 * Nombre del campo que define el tipo de mensaje (primera línea)
 	 */
@@ -25,10 +22,11 @@ public class DirMessage {
 	/*
 	 * TODO: (Boletín MensajesASCII) Definir de manera simbólica los nombres de
 	 * todos los campos que pueden aparecer en los mensajes de este protocolo
-	 * (formato campo:valor)
+	 * (formato campo:valor) --> protocolo: ping, dirId: hash
 	 */
-
-
+	 
+	private static final String FIELDNAME_PROTOCOLID = "protocolid";
+	
 
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
@@ -56,13 +54,10 @@ public class DirMessage {
 	 * (campos del mensaje)
 	 */
 
-
-
-
 	public String getOperation() {
 		return operation;
 	}
-
+	
 	/*
 	 * TODO: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
 	 * valores de los atributos de un mensaje. Se aconseja incluir código que
@@ -71,20 +66,14 @@ public class DirMessage {
 	 */
 	public void setProtocolID(String protocolIdent) {
 		if (!operation.equals(DirMessageOps.OPERATION_PING)) {
-			throw new RuntimeException(
-					"DirMessage: setProtocolId called for message of unexpected type (" + operation + ")");
+			throw new RuntimeException("DirMessage: setProtocolId called for message of unexpected type (" + operation + ")");
 		}
 		protocolId = protocolIdent;
 	}
 
 	public String getProtocolId() {
-
-
-
 		return protocolId;
 	}
-
-
 
 
 	/**
@@ -109,12 +98,11 @@ public class DirMessage {
 		// Local variables to save data during parsing
 		DirMessage m = null;
 
-
-
+		System.out.println("DirMessage.fromString()");
 		for (String line : lines) {
 			int idx = line.indexOf(DELIMITER); // Posición del delimitador
 			String fieldName = line.substring(0, idx).toLowerCase(); // minúsculas
-			String value = line.substring(idx + 1).trim();
+			String value = line.substring(idx + 1).trim();			// valor que hay después de los 2 puntos.
 
 			switch (fieldName) {
 			case FIELDNAME_OPERATION: {
@@ -122,8 +110,11 @@ public class DirMessage {
 				m = new DirMessage(value);
 				break;
 			}
-
-
+			case FIELDNAME_PROTOCOLID:{
+				m.setProtocolID(value);
+				break;
+			}
+			
 
 
 			default:
@@ -155,7 +146,12 @@ public class DirMessage {
 		 * una cadena la operación y concatenar el resto de campos necesarios usando los
 		 * valores de los atributos del objeto.
 		 */
-
+		
+		// CUANDO HAYA MÁS CAMPOS HACER UN SWITCH COMO EL DE ARRIBA
+		if(getOperation().equals(DirMessageOps.OPERATION_PING)) {
+			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE); // Construimos el campo
+		}
+		
 
 
 		sb.append(END_LINE); // Marcamos el final del mensaje

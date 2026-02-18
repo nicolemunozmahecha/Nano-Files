@@ -9,9 +9,12 @@ public class DirMessageOps {
 	 */
 	public static final String OPERATION_INVALID = "invalid_operation";
 	public static final String OPERATION_PING = "ping";
+	
 	// TODO: definir las operaciones del protocolo de directorio
-
+	public static final String OPERATION_PING_OK = "ping_ok";
+	public static final String OPERATION_PING_ERROR = "ping_error";
 
 
 
 }
+ 
