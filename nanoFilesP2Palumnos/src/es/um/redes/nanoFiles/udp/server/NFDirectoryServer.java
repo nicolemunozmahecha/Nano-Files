@@ -232,7 +232,7 @@ public class NFDirectoryServer {
 		 */
 
 		DirMessage mensajeAEnviar = null;
-
+		System.out.println("[sendResponse] Operation: " + operation);
 		switch (operation) {
 		case DirMessageOps.OPERATION_PING: {
 
@@ -240,26 +240,40 @@ public class NFDirectoryServer {
 			 * TODO: (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
 			 * cliente coincide con el nuestro.
 			 */
+			System.out.println("[sendResponse] " + atributosMensaje.getProtocolId()+" = "  + NanoFiles.PROTOCOL_ID);
 			if(atributosMensaje.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
+				/*
+				 * TODO: (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
+				 * el éxito/fracaso del ping (compatible, incompatible), y lo devolvemos como
+				 * resultado del método.
+				 */
+				/*
+				 * TODO: (Boletín MensajesASCII) Imprimimos por pantalla el resultado de
+				 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
+				 * modo de depuración en el servidor
+				 */
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PING_OK);
 				System.out.println("[sendResponse] Ping recibido. Protocolo compatible");
 			}
-			/*
-			 * TODO: (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
-			 * el éxito/fracaso del ping (compatible, incompatible), y lo devolvemos como
-			 * resultado del método.
-			 */
-			/*
-			 * TODO: (Boletín MensajesASCII) Imprimimos por pantalla el resultado de
-			 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
-			 * modo de depuración en el servidor
-			 */
 			else {
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PING_ERROR);
 				System.err.println("[sendResponse] Ping recibido. Protocolo incompatible");
 			}
+			break;
 
-		} default:
+		}case DirMessageOps.OPERATION_DIRFILES: {
+			
+			//System.out.println("[sendResponse] " + atributosMensaje.getProtocolId()+" = "  + NanoFiles.);
+			if(!atributosMensaje.getFilesize().equals(new String("-1"))) {
+				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_OK);
+				System.out.println("[sendResponse] File recibido. File no vacio");
+			}
+			else {
+				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_ERROR);
+				System.err.println("[sendResponse] File recibido. File vacio");
+			}
+			break;
+		}default:
 			System.err.println("[sendResponse] Unexpected message operation: \"" + operation + "\"");
 			System.exit(-1);
 		}
@@ -273,8 +287,4 @@ public class NFDirectoryServer {
 		byte[] bytesPayload = mensajeAEnviar.toString().getBytes();
 		this.socket.send(new DatagramPacket(bytesPayload, bytesPayload.length, (InetSocketAddress)pkt.getSocketAddress()));
 	}
-
-
-
-
 }

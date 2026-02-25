@@ -130,9 +130,9 @@ public class DirectoryConnector {
 				socket.receive(respuesta);
 				
 				// ya tengo mi respuesta
-				byte[] salida = new byte[respuesta.getLength()];
-				System.arraycopy(bufferRespuesta, 0, salida, 0, salida.length);
-				System.out.println("[sendAndReceiveDatagram] Respuesta: " + salida);
+				response = new byte[respuesta.getLength()];
+				System.arraycopy(bufferRespuesta, 0, response, 0, response.length);
+				System.out.println("[sendAndReceiveDatagram] Respuesta: " + new String(response));
 				
 				/*
 				 * TODO: (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
@@ -156,6 +156,7 @@ public class DirectoryConnector {
 				
 			} catch(SocketTimeoutException s) {
 				intento++;
+				System.out.println("[sendAndReceiveDatagrams] Tiemout vencido. Reintentamos");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -233,6 +234,7 @@ public class DirectoryConnector {
 		// EL SEND AND RECEIVE HACE PASO 2 Y 4
 		
 		byte[] request = new String("ping&" + NanoFiles.PROTOCOL_ID).getBytes();
+		System.out.println("[pingDirectoryRaw] request; " + request);
 		byte[] response = sendAndReceiveDatagrams(request);
 		
 		if(response == null) {
@@ -267,8 +269,8 @@ public class DirectoryConnector {
 		
 		DirMessage ping = new DirMessage(DirMessageOps.OPERATION_PING);
 		ping.setProtocolID(NanoFiles.PROTOCOL_ID);
-		System.out.println("protocolid: " + ping.toString());
-
+		System.out.println("[pingDirectory] protocolid: " + ping.getProtocolId().toString());
+ 
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(ping.toString().getBytes());
 		
 		if (bytesRespuesta == null) {
@@ -278,11 +280,12 @@ public class DirectoryConnector {
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
+		System.out.println("[pingDirectory] " + dmRespuesta.getOperation() + "= ping_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_PING_OK)) {
-			System.out.println("Operación recibida: " + dmRespuesta.getOperation());
+			System.out.println("[pingDirectory] Operación recibida: " + dmRespuesta.getOperation());
 			success = true;
 		}else {
-			System.err.println("ERROR: ping no compatible");
+			System.err.println("[pingDirectory] ERROR: ping no compatible");
 		}
 
 		return success;
@@ -300,8 +303,6 @@ public class DirectoryConnector {
 
 		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
 
-
-
 		return success;
 	}
 
@@ -316,7 +317,23 @@ public class DirectoryConnector {
 		FileInfo[] filelist = new FileInfo[0];
 		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
 
-
+		DirMessage dirfiles = new DirMessage(DirMessageOps.OPERATION_DIRFILES);
+		
+		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());
+		
+		if (bytesRespuesta == null) {
+			return null;
+		}
+		
+		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
+		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
+		
+		System.out.println("[getFileList] " + dmRespuesta.getOperation() + "= dirfiles_ok"  );
+		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_PING_OK)) {
+			System.out.println("[getFileList] Operación recibida: " + dmRespuesta.getOperation());
+		}else {
+			System.err.println("[getFileList]ERROR: ping no compatible");
+		}
 
 		return filelist;
 	}

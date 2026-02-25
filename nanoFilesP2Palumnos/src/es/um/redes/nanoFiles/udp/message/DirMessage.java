@@ -14,7 +14,7 @@ public class DirMessage {
 
 	private static final char DELIMITER = ':'; // Define el delimitador
 	private static final char END_LINE = '\n'; // Define el carácter de fin de línea
-	private static final char SEPARADOR = ','; // Para datos compuestos
+	//private static final char SEPARADOR = ','; // Para datos compuestos
 	/**
 	 * Nombre del campo que define el tipo de mensaje (primera línea)
 	 */
@@ -26,7 +26,8 @@ public class DirMessage {
 	 */
 	 
 	private static final String FIELDNAME_PROTOCOLID = "protocolid";
-	
+	private static final String FIELDNAME_FILENAME = "filename";
+	private static final String FIELDNAME_FILESIZE = "filesize";
 
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
@@ -41,7 +42,9 @@ public class DirMessage {
 	 * los campos de los diferentes mensajes de este protocolo.
 	 */
 
-
+	private String dirfiles;
+	private String filename;
+	private String filesize;
 
 
 	public DirMessage(String op) {
@@ -76,6 +79,27 @@ public class DirMessage {
 	}
 
 
+	public String getDirfiles() {
+		return dirfiles;
+	}
+	
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public String getFilesize() {
+		return filesize;
+	}
+
+	public void setFilesize(String filesize) {
+		this.filesize = filesize;
+	}
+
 	/**
 	 * Método que convierte un mensaje codificado como una cadena de caracteres, a
 	 * un objeto de la clase PeerMessage, en el cual los atributos correspondientes
@@ -92,18 +116,16 @@ public class DirMessage {
 		 * delimitador DELIMITER, y guardarlo en variables locales.
 		 */
 
-		// System.out.println("DirMessage read from socket:");
-		// System.out.println(message);
 		String[] lines = message.split(END_LINE + "");
 		// Local variables to save data during parsing
 		DirMessage m = null;
 
-		System.out.println("DirMessage.fromString()");
+		System.out.println("[DirMessage.fromString()]");
 		for (String line : lines) {
 			int idx = line.indexOf(DELIMITER); // Posición del delimitador
 			String fieldName = line.substring(0, idx).toLowerCase(); // minúsculas
 			String value = line.substring(idx + 1).trim();			// valor que hay después de los 2 puntos.
-
+			System.out.println("[fromString] fieldname: " + fieldName + "\n[fromString] value: " + value);
 			switch (fieldName) {
 			case FIELDNAME_OPERATION: {
 				assert (m == null);
@@ -114,18 +136,20 @@ public class DirMessage {
 				m.setProtocolID(value);
 				break;
 			}
-			
-
-
+			case FIELDNAME_FILENAME:{
+				m.setFilename(value);
+				break;
+			}
+			case FIELDNAME_FILESIZE:{
+				m.setFilesize(value);
+				break;
+			}
 			default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
 				System.err.println("Message was:\n" + message);
 				System.exit(-1);
 			}
 		}
-
-
-
 
 		return m;
 	}
@@ -146,15 +170,24 @@ public class DirMessage {
 		 * una cadena la operación y concatenar el resto de campos necesarios usando los
 		 * valores de los atributos del objeto.
 		 */
-		
-		// CUANDO HAYA MÁS CAMPOS HACER UN SWITCH COMO EL DE ARRIBA
-		if(getOperation().equals(DirMessageOps.OPERATION_PING)) {
+		String operacion = getOperation();
+		switch(operacion) {
+		case DirMessageOps.OPERATION_PING: {
 			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE); // Construimos el campo
+			break;
 		}
+		case DirMessageOps.OPERATION_DIRFILES: {
+			sb.append(FIELDNAME_FILENAME + DELIMITER + filename + END_LINE);
+			sb.append(FIELDNAME_FILESIZE + DELIMITER + filesize + END_LINE);
+			break;
+		}
+		default:
+			System.err.println("PANIC: DirMessage.toString - message with unknown operation name " + operacion);
+			System.exit(-1);
 		
-
-
+		}
 		sb.append(END_LINE); // Marcamos el final del mensaje
+		System.out.println("[toString] Campos unidos: " + sb.toString());
 		return sb.toString();
 	}
 
