@@ -7,10 +7,6 @@ import java.io.IOException;
 import es.um.redes.nanoFiles.util.FileInfo;
 
 public class PeerMessage {
-
-
-
-
 	private byte opcode;
 
 	/*
@@ -18,7 +14,8 @@ public class PeerMessage {
 	 * específicos para crear mensajes con otros campos, según sea necesario
 	 * 
 	 */
-
+	private FileInfo[] peerfiles;
+	
 
 
 
@@ -28,6 +25,20 @@ public class PeerMessage {
 
 	public PeerMessage(byte op) {
 		opcode = op;
+	}
+	
+	public PeerMessage(byte op, FileInfo[] ficheros) {
+		assert(op==PeerMessageOps.OPCODE_PEER_FILES_REPLY);
+		this.opcode = op;
+		this.setPeerfiles(ficheros);
+	}
+
+	public FileInfo[] getPeerfiles() {
+		return peerfiles;
+	}
+
+	public void setPeerfiles(FileInfo[] peerfiles) {
+		this.peerfiles = peerfiles;
 	}
 
 	/*
@@ -39,9 +50,6 @@ public class PeerMessage {
 	public byte getOpcode() {
 		return opcode;
 	}
-
-
-
 
 
 	/**
@@ -65,8 +73,15 @@ public class PeerMessage {
 		PeerMessage message = new PeerMessage();
 		byte opcode = dis.readByte();
 		switch (opcode) {
-
-
+		case PeerMessageOps.OPCODE_PEER_FILES_REQ:
+			;
+			break;
+		case PeerMessageOps.OPCODE_PEER_FILES_REPLY:
+			int tamanyo = dis.readInt();
+			byte[] bDatos = new byte[tamanyo];
+			dis.readFully(bDatos);
+			message.setPeerfiles(FileInfo.deserializeList(bDatos));
+			break;
 
 		default:
 			System.err.println("PeerMessage.readMessageFromInputStream doesn't know how to parse this message opcode: "
@@ -87,17 +102,22 @@ public class PeerMessage {
 
 		dos.writeByte(opcode);
 		switch (opcode) {
-
-
-
+		case PeerMessageOps.OPCODE_PEER_FILES_REQ:
+			;
+			break;
+		case PeerMessageOps.OPCODE_PEER_FILES_REPLY:
+			// consigo array de bytes que lo representa
+			byte[] bFiles = FileInfo.serializeList(getPeerfiles());
+			// escribo campo longitud
+			dos.writeInt(bFiles.length);
+			dos.write(bFiles);
+			
+			break;
 
 		default:
 			System.err.println("PeerMessage.writeMessageToOutputStream found unexpected message opcode " + opcode + "("
 					+ PeerMessageOps.opcodeToOperation(opcode) + ")");
 		}
 	}
-
-
-
 
 }

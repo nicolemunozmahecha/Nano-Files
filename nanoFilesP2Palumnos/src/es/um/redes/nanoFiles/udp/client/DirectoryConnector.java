@@ -329,10 +329,11 @@ public class DirectoryConnector {
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
 		System.out.println("[getFileList] " + dmRespuesta.getOperation() + "= dirfiles_ok"  );
-		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_PING_OK)) {
+		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
 			System.out.println("[getFileList] Operación recibida: " + dmRespuesta.getOperation());
 		}else {
-			System.err.println("[getFileList]ERROR: ping no compatible");
+			System.err.println("[getFileList]ERROR: file vacio, no pudo satisfacer la solicitud");
+			return null;
 		}
 
 		return filelist;
