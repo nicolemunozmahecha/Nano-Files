@@ -28,6 +28,7 @@ public class DirMessage {
 	private static final String FIELDNAME_PROTOCOLID = "protocolid";
 	private static final String FIELDNAME_FILENAME = "filename";
 	private static final String FIELDNAME_FILESIZE = "filesize";
+	private static final String FIELDNAME_FILEHASH = "filehash";
 
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
@@ -44,7 +45,8 @@ public class DirMessage {
 
 	private String dirfiles;
 	private String filename;
-	private String filesize;
+	private long filesize;
+	private String filehash;
 
 
 	public DirMessage(String op) {
@@ -57,9 +59,14 @@ public class DirMessage {
 	 * (campos del mensaje)
 	 */
 
-	public String getOperation() {
-		return operation;
+	public DirMessage(String op, String hash, long size, String name) {
+		this(op);
+		filehash = hash;
+		filename = name;
+		filesize = size;
 	}
+	
+
 	
 	/*
 	 * TODO: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
@@ -67,6 +74,11 @@ public class DirMessage {
 	 * compruebe que no se modifica/obtiene el valor de un campo (atributo) que no
 	 * esté definido para el tipo de mensaje dado por "operation".
 	 */
+	
+	public String getOperation() {
+		return operation;
+	}
+	
 	public void setProtocolID(String protocolIdent) {
 		if (!operation.equals(DirMessageOps.OPERATION_PING)) {
 			throw new RuntimeException("DirMessage: setProtocolId called for message of unexpected type (" + operation + ")");
@@ -92,12 +104,20 @@ public class DirMessage {
 		this.filename = filename;
 	}
 
-	public String getFilesize() {
+	public long getFilesize() {
 		return filesize;
 	}
 
-	public void setFilesize(String filesize) {
+	public void setFilesize(long filesize) {
 		this.filesize = filesize;
+	}
+	
+	public String getFilehash() {
+		return filehash;
+	}
+
+	public void setFilehash(String filehash) {
+		this.filehash = filehash;
 	}
 
 	/**
@@ -122,6 +142,8 @@ public class DirMessage {
 
 		System.out.println("[DirMessage.fromString()]");
 		for (String line : lines) {
+			System.out.println("[DirMessage] Linea: " + line);
+			
 			int idx = line.indexOf(DELIMITER); // Posición del delimitador
 			String fieldName = line.substring(0, idx).toLowerCase(); // minúsculas
 			String value = line.substring(idx + 1).trim();			// valor que hay después de los 2 puntos.
@@ -141,7 +163,11 @@ public class DirMessage {
 				break;
 			}
 			case FIELDNAME_FILESIZE:{
-				m.setFilesize(value);
+				m.setFilesize(Long.valueOf(value));
+				break;
+			}
+			case FIELDNAME_FILEHASH:{
+				m.setFilehash(value);
 				break;
 			}
 			default:
@@ -176,9 +202,20 @@ public class DirMessage {
 			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE); // Construimos el campo
 			break;
 		}
-		case DirMessageOps.OPERATION_DIRFILES: {
+		case DirMessageOps.OPERATION_PING_OK: {
+			break;
+		}
+		case DirMessageOps.OPERATION_PING_ERROR: {
+			break;
+		}
+		case DirMessageOps.OPERATION_DIRFILES_OK: {
 			sb.append(FIELDNAME_FILENAME + DELIMITER + filename + END_LINE);
-			sb.append(FIELDNAME_FILESIZE + DELIMITER + filesize + END_LINE);
+			sb.append(FIELDNAME_FILEHASH + DELIMITER + filehash + END_LINE);
+			sb.append(FIELDNAME_FILESIZE + DELIMITER + String.valueOf(filesize) + END_LINE);
+
+			break;
+		}
+		case DirMessageOps.OPERATION_DIRFILES: {
 			break;
 		}
 		default:

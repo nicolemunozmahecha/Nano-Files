@@ -20,7 +20,6 @@ public class DirMessageOps {
 	public static final String OPERATION_DIRFILES = "dirfiles";
 	
 	public static final String OPERATION_DIRFILES_OK = "dirfiles_ok";
-	public static final String OPERATION_DIRFILES_ERROR = "dirfiles_error";
 
 
 }

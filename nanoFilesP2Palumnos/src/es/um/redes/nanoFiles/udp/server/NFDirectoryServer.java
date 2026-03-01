@@ -252,6 +252,7 @@ public class NFDirectoryServer {
 				 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
 				 * modo de depuración en el servidor
 				 */
+				
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PING_OK);
 				System.out.println("[sendResponse] Ping recibido. Protocolo compatible");
 			}
@@ -262,16 +263,16 @@ public class NFDirectoryServer {
 			break;
 
 		}case DirMessageOps.OPERATION_DIRFILES: {
+			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_OK, atributosMensaje.getFilehash(), atributosMensaje.getFilesize(), atributosMensaje.getFilename());
 			
-			//System.out.println("[sendResponse] " + atributosMensaje.getProtocolId()+" = "  + NanoFiles.);
-			if(!atributosMensaje.getFilesize().equals(new String("-1"))) {
-				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_OK);
-				System.out.println("[sendResponse] File recibido. File no vacio");
+			// COMPROBAR SI EXISTEN O NO FICHEROS EN LA CARPETA A LEER (DIR-SHARED)
+			if(directoryFiles.length == 0) {
+				System.out.println("[sendResponse] File recibido. File dir-shared vacio, no hay ficheros a imprimir");
 			}
 			else {
-				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_ERROR);
-				System.err.println("[sendResponse] File recibido. File vacio");
+				System.err.println("[sendResponse] File recibido. File dir-shared no vacio, hay ficheros a imprimir");
 			}
+			System.out.println("[sendResponse] Valores dirfiles: " + mensajeAEnviar.toString() );
 			break;
 		}default:
 			System.err.println("[sendResponse] Unexpected message operation: \"" + operation + "\"");
