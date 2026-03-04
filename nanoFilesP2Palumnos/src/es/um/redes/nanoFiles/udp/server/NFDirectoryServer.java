@@ -210,17 +210,16 @@ public class NFDirectoryServer {
 		 * servidor.
 		 */
 		String mensaje = new String(pkt.getData(), 0, pkt.getLength());
-		System.out.println("[sendResponse] Cadena recibida a partir de los datos del datagramPacket: " + mensaje);
+		System.out.println("[sendResponse] DEBUG: Cadena recibida a partir de los datos del datagramPacket: " + mensaje);
 
-		DirMessage atributosMensaje = DirMessage.fromString(mensaje);
-
+		DirMessage mensajeCliente = DirMessage.fromString(mensaje);
+		System.out.println("[sendResponse] DEBUG: Mensaje cliente: " + mensajeCliente.toString());
 		/*
 		 * TODO: Una vez construido un objeto DirMessage con el contenido del datagrama
 		 * recibido, obtener el tipo de operación solicitada por el mensaje y actuar en
 		 * consecuencia, enviando uno u otro tipo de mensaje en respuesta.
 		 */
-		//String operation = DirMessageOps.OPERATION_INVALID; // TODO: Cambiar!
-		String operation = atributosMensaje.getOperation();
+		String operation = mensajeCliente.getOperation();
 
 		/*
 		 * TODO: (Boletín MensajesASCII) Construir un objeto DirMessage (msgToSend) con
@@ -232,7 +231,7 @@ public class NFDirectoryServer {
 		 */
 
 		DirMessage mensajeAEnviar = null;
-		System.out.println("[sendResponse] Operation: " + operation);
+		System.out.println("[sendResponse] DEBUG: Operation: " + operation);
 		switch (operation) {
 		case DirMessageOps.OPERATION_PING: {
 
@@ -240,8 +239,8 @@ public class NFDirectoryServer {
 			 * TODO: (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
 			 * cliente coincide con el nuestro.
 			 */
-			System.out.println("[sendResponse] " + atributosMensaje.getProtocolId()+" = "  + NanoFiles.PROTOCOL_ID);
-			if(atributosMensaje.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
+			System.out.println("[sendResponse] DEBUG: " + mensajeCliente.getProtocolId()+" = "  + NanoFiles.PROTOCOL_ID);
+			if(mensajeCliente.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
 				/*
 				 * TODO: (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
 				 * el éxito/fracaso del ping (compatible, incompatible), y lo devolvemos como
@@ -252,6 +251,7 @@ public class NFDirectoryServer {
 				 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
 				 * modo de depuración en el servidor
 				 */
+				
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PING_OK);
 				System.out.println("[sendResponse] Ping recibido. Protocolo compatible");
 			}
@@ -262,16 +262,16 @@ public class NFDirectoryServer {
 			break;
 
 		}case DirMessageOps.OPERATION_DIRFILES: {
+			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_OK, directoryFiles);
 			
-			//System.out.println("[sendResponse] " + atributosMensaje.getProtocolId()+" = "  + NanoFiles.);
-			if(!atributosMensaje.getFilesize().equals(new String("-1"))) {
-				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_OK);
-				System.out.println("[sendResponse] File recibido. File no vacio");
+			// COMPROBAR SI EXISTEN O NO FICHEROS EN LA CARPETA A LEER (DIR-SHARED)
+			if(directoryFiles.length == 0) {
+				System.out.println("[sendResponse] DEBUG: File recibido. File dir-shared vacio, no hay ficheros a imprimir");
 			}
 			else {
-				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_ERROR);
-				System.err.println("[sendResponse] File recibido. File vacio");
+				System.err.println("[sendResponse] DEBUG: File recibido. File dir-shared no vacio, hay ficheros a imprimir");
 			}
+			System.out.println("[sendResponse] DEBUG: Valores dirfiles: " + mensajeAEnviar.toString() );
 			break;
 		}default:
 			System.err.println("[sendResponse] Unexpected message operation: \"" + operation + "\"");
@@ -284,6 +284,7 @@ public class NFDirectoryServer {
 		 * codifica el string y finalmente enviarlos en un datagrama
 		 */
 		
+		// VER LO DE SERIALIZAR O NO
 		byte[] bytesPayload = mensajeAEnviar.toString().getBytes();
 		this.socket.send(new DatagramPacket(bytesPayload, bytesPayload.length, (InetSocketAddress)pkt.getSocketAddress()));
 	}

@@ -1,5 +1,9 @@
 package es.um.redes.nanoFiles.udp.message;
 
+import java.util.ArrayList;
+
+import es.um.redes.nanoFiles.util.FileInfo;
+
 /**
  * Clase que modela los mensajes del protocolo de comunicación entre pares para
  * implementar el explorador de ficheros remoto (servidor de ficheros). Estos
@@ -28,6 +32,7 @@ public class DirMessage {
 	private static final String FIELDNAME_PROTOCOLID = "protocolid";
 	private static final String FIELDNAME_FILENAME = "filename";
 	private static final String FIELDNAME_FILESIZE = "filesize";
+	private static final String FIELDNAME_FILEHASH = "filehash";
 
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
@@ -42,11 +47,8 @@ public class DirMessage {
 	 * los campos de los diferentes mensajes de este protocolo.
 	 */
 
-	private String dirfiles;
-	private String filename;
-	private String filesize;
-
-
+	private FileInfo[] filelist;
+	
 	public DirMessage(String op) {
 		operation = op;
 	}
@@ -56,17 +58,21 @@ public class DirMessage {
 	 * construir mensajes de diferentes tipos con sus correspondientes argumentos
 	 * (campos del mensaje)
 	 */
-
-	public String getOperation() {
-		return operation;
+	public DirMessage(String op, FileInfo[] lista) {
+		this(op);
+		filelist = lista;
 	}
-	
 	/*
 	 * TODO: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
 	 * valores de los atributos de un mensaje. Se aconseja incluir código que
 	 * compruebe que no se modifica/obtiene el valor de un campo (atributo) que no
 	 * esté definido para el tipo de mensaje dado por "operation".
 	 */
+	
+	public String getOperation() {
+		return operation;
+	}
+	
 	public void setProtocolID(String protocolIdent) {
 		if (!operation.equals(DirMessageOps.OPERATION_PING)) {
 			throw new RuntimeException("DirMessage: setProtocolId called for message of unexpected type (" + operation + ")");
@@ -79,25 +85,13 @@ public class DirMessage {
 	}
 
 
-	public String getDirfiles() {
-		return dirfiles;
+	public FileInfo[] getFilelist() {
+		return filelist;
 	}
 	
 
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	public String getFilesize() {
-		return filesize;
-	}
-
-	public void setFilesize(String filesize) {
-		this.filesize = filesize;
+	public void setFilelist(FileInfo[] filelist) {
+		this.filelist = filelist;
 	}
 
 	/**
@@ -119,17 +113,31 @@ public class DirMessage {
 		String[] lines = message.split(END_LINE + "");
 		// Local variables to save data during parsing
 		DirMessage m = null;
+		ArrayList<FileInfo> temporal = new ArrayList<>();
+		FileInfo aux = new FileInfo();
 
-		System.out.println("[DirMessage.fromString()]");
+		
+		System.out.println("[DirMessage.fromString()] DEBUG:");
 		for (String line : lines) {
+			System.out.println("[DirMessage] DEBUG: Linea: " + line);
+			
 			int idx = line.indexOf(DELIMITER); // Posición del delimitador
 			String fieldName = line.substring(0, idx).toLowerCase(); // minúsculas
 			String value = line.substring(idx + 1).trim();			// valor que hay después de los 2 puntos.
-			System.out.println("[fromString] fieldname: " + fieldName + "\n[fromString] value: " + value);
+			System.out.println("[fromString] DEBUG: fieldname: " + fieldName + "\n[fromString] DEBUG: value: " + value);
 			switch (fieldName) {
 			case FIELDNAME_OPERATION: {
 				assert (m == null);
-				m = new DirMessage(value);
+				//if (value.equals(DirMessageOps.OPERATION_PING) ) {
+					m = new DirMessage(value);
+				//}
+				//if (value.equals(DirMessageOps.OPERATION_DIRFILES) ) {
+					//m = new DirMessage(value);
+				//}
+				/*if (value.equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
+					FileInfo[] lista = new FileInfo[nFicheros];
+					m = new DirMessage(value, lista);
+				}*/
 				break;
 			}
 			case FIELDNAME_PROTOCOLID:{
@@ -137,11 +145,21 @@ public class DirMessage {
 				break;
 			}
 			case FIELDNAME_FILENAME:{
-				m.setFilename(value);
+				aux = new FileInfo();
+				aux.fileName = value;
+				break;
+			}
+			case FIELDNAME_FILEHASH:{
+				//if(aux!=null) {
+					aux.fileHash = value;
+				//}
 				break;
 			}
 			case FIELDNAME_FILESIZE:{
-				m.setFilesize(value);
+				aux.fileSize = Long.valueOf(value);
+				temporal.add(aux);
+				//m.filelist[factual] = aux;
+				//factual++;
 				break;
 			}
 			default:
@@ -150,6 +168,10 @@ public class DirMessage {
 				System.exit(-1);
 			}
 		}
+		
+		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
+	        m.filelist = temporal.toArray(new FileInfo[0]);
+	    }
 
 		return m;
 	}
@@ -176,9 +198,22 @@ public class DirMessage {
 			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE); // Construimos el campo
 			break;
 		}
+		case DirMessageOps.OPERATION_PING_OK: {
+			break;
+		}
+		case DirMessageOps.OPERATION_PING_ERROR: {
+			break;
+		}
+		case DirMessageOps.OPERATION_DIRFILES_OK: {
+			for(FileInfo f : filelist) {
+				sb.append(FIELDNAME_FILENAME + DELIMITER + f.fileName + END_LINE); 
+				sb.append(FIELDNAME_FILEHASH + DELIMITER + f.fileHash + END_LINE); 
+				sb.append(FIELDNAME_FILESIZE + DELIMITER + f.fileSize + END_LINE); 
+			}
+
+			break;
+		}
 		case DirMessageOps.OPERATION_DIRFILES: {
-			sb.append(FIELDNAME_FILENAME + DELIMITER + filename + END_LINE);
-			sb.append(FIELDNAME_FILESIZE + DELIMITER + filesize + END_LINE);
 			break;
 		}
 		default:
@@ -187,7 +222,7 @@ public class DirMessage {
 		
 		}
 		sb.append(END_LINE); // Marcamos el final del mensaje
-		System.out.println("[toString] Campos unidos: " + sb.toString());
+		System.out.println("[toString] DEBUG: Campos unidos: " + sb.toString());
 		return sb.toString();
 	}
 

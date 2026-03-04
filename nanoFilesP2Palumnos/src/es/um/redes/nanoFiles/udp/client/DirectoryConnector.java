@@ -9,7 +9,7 @@ import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
-
+import es.um.redes.nanoFiles.application.Directory;
 import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.udp.message.DirMessage;
 import es.um.redes.nanoFiles.udp.message.DirMessageOps;
@@ -315,12 +315,36 @@ public class DirectoryConnector {
 	 */
 	public FileInfo[] getFileList() {
 		FileInfo[] filelist = new FileInfo[0];
-		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
+		/*
+		 * TODO: (Boletín MensajesASCII)
+		 * 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados (operation, etc.) 
+		 * NOTA:Usar como operaciones las constantes definidas en la clase DirMessageOps :
+		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
+		 * 3.Crear un datagrama con los bytes en que se codifica la cadena : 
+		 * 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams). : 
+		 * 5.Convertir respuesta recibida en un objeto DirMessage (método DirMessage.fromString)
+		 * 6.Extraer datos del objeto DirMessage y procesarlos 
+		 * 7.Devolver éxito/fracaso de la operación
+		 */
 
 		DirMessage dirfiles = new DirMessage(DirMessageOps.OPERATION_DIRFILES);
 		
-		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());
+		System.out.println("[getFileList] DEBUG: Nombre carpeta: " + Directory.DEFAULT_DIRECTORY_FILES_PATH);
+
+		filelist = FileInfo.loadFilesFromFolder(Directory.DEFAULT_DIRECTORY_FILES_PATH);
+		System.out.println("[getFileList] DEBUG: Tamaño carpeta: " + filelist.length);
+
+		/*
+		if (filelist.length != 0) {
+			for(FileInfo f: filelist) {
+				System.out.println("[getFileList] DEBUG Valores ficheros en carpeta: "+f.fileHash + " " + f.fileName + " " + f.fileSize);
+			}
+
+		}*/
 		
+		
+		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());
+		System.out.println("[getFileList] DEBUG: bytesRespuesta: " + bytesRespuesta);
 		if (bytesRespuesta == null) {
 			return null;
 		}
@@ -328,14 +352,11 @@ public class DirectoryConnector {
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
-		System.out.println("[getFileList] " + dmRespuesta.getOperation() + "= dirfiles_ok"  );
+		
+		System.out.println("[getFileList] DEBUG: " + dmRespuesta.getOperation() + "= dirfiles_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
 			System.out.println("[getFileList] Operación recibida: " + dmRespuesta.getOperation());
-		}else {
-			System.err.println("[getFileList]ERROR: file vacio, no pudo satisfacer la solicitud");
-			return null;
 		}
-
 		return filelist;
 	}
 
