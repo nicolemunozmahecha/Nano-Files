@@ -156,7 +156,7 @@ public class DirectoryConnector {
 				
 			} catch(SocketTimeoutException s) {
 				intento++;
-				System.out.println("[sendAndReceiveDatagrams] Tiemout vencido. Reintentamos");
+				System.out.println("[sendAndReceiveDatagrams] Timeout vencido. Reintentamos");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -333,14 +333,6 @@ public class DirectoryConnector {
 
 		filelist = FileInfo.loadFilesFromFolder(Directory.DEFAULT_DIRECTORY_FILES_PATH);
 		System.out.println("[getFileList] DEBUG: Tamaño carpeta: " + filelist.length);
-
-		/*
-		if (filelist.length != 0) {
-			for(FileInfo f: filelist) {
-				System.out.println("[getFileList] DEBUG Valores ficheros en carpeta: "+f.fileHash + " " + f.fileName + " " + f.fileSize);
-			}
-
-		}*/
 		
 		
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());

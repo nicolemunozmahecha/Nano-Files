@@ -33,6 +33,11 @@ public class DirMessage {
 	private static final String FIELDNAME_FILENAME = "filename";
 	private static final String FIELDNAME_FILESIZE = "filesize";
 	private static final String FIELDNAME_FILEHASH = "filehash";
+	
+	private static final String FIELDNAME_PEER_NICK = "nick";
+	private static final String FIELDNAME_PEER_IP = "ip";
+	private static final String FIELDNAME_PEER_PORT = "port";
+
 
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
@@ -128,16 +133,7 @@ public class DirMessage {
 			switch (fieldName) {
 			case FIELDNAME_OPERATION: {
 				assert (m == null);
-				//if (value.equals(DirMessageOps.OPERATION_PING) ) {
-					m = new DirMessage(value);
-				//}
-				//if (value.equals(DirMessageOps.OPERATION_DIRFILES) ) {
-					//m = new DirMessage(value);
-				//}
-				/*if (value.equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
-					FileInfo[] lista = new FileInfo[nFicheros];
-					m = new DirMessage(value, lista);
-				}*/
+				m = new DirMessage(value);
 				break;
 			}
 			case FIELDNAME_PROTOCOLID:{
@@ -158,8 +154,6 @@ public class DirMessage {
 			case FIELDNAME_FILESIZE:{
 				aux.fileSize = Long.valueOf(value);
 				temporal.add(aux);
-				//m.filelist[factual] = aux;
-				//factual++;
 				break;
 			}
 			default:

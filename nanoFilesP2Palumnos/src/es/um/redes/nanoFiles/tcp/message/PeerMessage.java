@@ -16,7 +16,12 @@ public class PeerMessage {
 	 */
 	private FileInfo[] peerfiles;
 	
-
+	private String subhash;
+	// si se manda sin offset no caben mas de 65 bytes
+	private Long offset;
+	private int length;
+	private byte[] data;
+	
 
 
 	public PeerMessage() {
@@ -41,6 +46,7 @@ public class PeerMessage {
 		this.peerfiles = peerfiles;
 	}
 
+
 	/*
 	 * TODO: (Boletín MensajesBinarios) Crear métodos getter y setter para obtener
 	 * los valores de los atributos de un mensaje. Se aconseja incluir código que
@@ -50,7 +56,38 @@ public class PeerMessage {
 	public byte getOpcode() {
 		return opcode;
 	}
+	
+	public String getSubhash() {
+		return subhash;
+	}
 
+	public void setSubhash(String subhash) {
+		this.subhash = subhash;
+	}
+
+	public Long getOffset() {
+		return offset;
+	}
+
+	public void setOffset(Long offset) {
+		this.offset = offset;
+	}
+
+	public int getLength() {
+		return length;
+	}
+
+	public void setLength(int length) {
+		this.length = length;
+	}
+
+	public byte[] getData() {
+		return data;
+	}
+
+	public void setData(byte[] data) {
+		this.data = data;
+	}
 
 	/**
 	 * Método de clase para parsear los campos de un mensaje y construir el objeto
@@ -82,7 +119,12 @@ public class PeerMessage {
 			dis.readFully(bDatos);
 			message.setPeerfiles(FileInfo.deserializeList(bDatos));
 			break;
-
+		case PeerMessageOps.OPCODE_PEER_FILES_DL:
+			break;
+		case PeerMessageOps.OPCODE_PEER_FILES_DL_DATA:
+			break;
+		case PeerMessageOps.OPCODE_PEER_FILES_DL_ERROR:
+			break;		
 		default:
 			System.err.println("PeerMessage.readMessageFromInputStream doesn't know how to parse this message opcode: "
 					+ PeerMessageOps.opcodeToOperation(opcode));
@@ -113,7 +155,20 @@ public class PeerMessage {
 			dos.write(bFiles);
 			
 			break;
-
+		case PeerMessageOps.OPCODE_PEER_FILES_DL:
+			byte[] bHash = getSubhash().getBytes();
+			dos.writeLong(offset);
+			dos.writeInt(length);
+			dos.writeInt(bHash.length);
+			dos.write(bHash);
+			break;
+		case PeerMessageOps.OPCODE_PEER_FILES_DL_DATA:
+			byte[] bData = getData();
+			dos.writeInt(bData.length);
+			dos.write(bData);
+			break;
+		case PeerMessageOps.OPCODE_PEER_FILES_DL_ERROR:
+			break;
 		default:
 			System.err.println("PeerMessage.writeMessageToOutputStream found unexpected message opcode " + opcode + "("
 					+ PeerMessageOps.opcodeToOperation(opcode) + ")");

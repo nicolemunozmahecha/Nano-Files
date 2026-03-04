@@ -180,7 +180,7 @@ public class NFDirectoryServer {
 		// pkt.getAddres y getPort, es la IP y puertos de la direccion a donde lo quiero enviar
 		DatagramPacket pktResponse = new DatagramPacket(responseBytes, responseBytes.length, (InetSocketAddress) pkt.getSocketAddress());// pkt.getAddress(), pkt.getPort());
 		this.socket.send(pktResponse);
-		System.out.println("[sendResponseTestMode] Respuesta enviada: " + response);
+		System.out.println("[sendResponseTestMode] DEBUG: Respuesta enviada: " + response);
 
 		String messageFromClient = new String(pkt.getData(), 0, pkt.getLength());
 		System.out.println("Data received: " + messageFromClient);

@@ -234,6 +234,9 @@ public class NFController {
 			return;
 		}
 		switch (currentCommand) {
+		
+		//case :
+			//;
 		default:
 		}
 

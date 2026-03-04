@@ -18,8 +18,11 @@ public class DirMessageOps {
 	
 	// DIRFILES
 	public static final String OPERATION_DIRFILES = "dirfiles";
-	
 	public static final String OPERATION_DIRFILES_OK = "dirfiles_ok";
+
+	// PEERFILES
+	public static final String OPERATION_PEERFILES = "peerfiles";
+	public static final String OPERATION_PEERFILES_OK = "peerfiles_ok";
 
 
 }
