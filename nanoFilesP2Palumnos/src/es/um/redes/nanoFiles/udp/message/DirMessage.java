@@ -1,5 +1,9 @@
 package es.um.redes.nanoFiles.udp.message;
 
+import java.util.ArrayList;
+
+import es.um.redes.nanoFiles.util.FileInfo;
+
 /**
  * Clase que modela los mensajes del protocolo de comunicación entre pares para
  * implementar el explorador de ficheros remoto (servidor de ficheros). Estos
@@ -43,12 +47,8 @@ public class DirMessage {
 	 * los campos de los diferentes mensajes de este protocolo.
 	 */
 
-	private String dirfiles;
-	private String filename;
-	private long filesize;
-	private String filehash;
-
-
+	private FileInfo[] filelist;
+	
 	public DirMessage(String op) {
 		operation = op;
 	}
@@ -58,16 +58,10 @@ public class DirMessage {
 	 * construir mensajes de diferentes tipos con sus correspondientes argumentos
 	 * (campos del mensaje)
 	 */
-
-	public DirMessage(String op, String hash, long size, String name) {
+	public DirMessage(String op, FileInfo[] lista) {
 		this(op);
-		filehash = hash;
-		filename = name;
-		filesize = size;
+		filelist = lista;
 	}
-	
-
-	
 	/*
 	 * TODO: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
 	 * valores de los atributos de un mensaje. Se aconseja incluir código que
@@ -91,33 +85,13 @@ public class DirMessage {
 	}
 
 
-	public String getDirfiles() {
-		return dirfiles;
+	public FileInfo[] getFilelist() {
+		return filelist;
 	}
 	
 
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	public long getFilesize() {
-		return filesize;
-	}
-
-	public void setFilesize(long filesize) {
-		this.filesize = filesize;
-	}
-	
-	public String getFilehash() {
-		return filehash;
-	}
-
-	public void setFilehash(String filehash) {
-		this.filehash = filehash;
+	public void setFilelist(FileInfo[] filelist) {
+		this.filelist = filelist;
 	}
 
 	/**
@@ -139,19 +113,31 @@ public class DirMessage {
 		String[] lines = message.split(END_LINE + "");
 		// Local variables to save data during parsing
 		DirMessage m = null;
+		ArrayList<FileInfo> temporal = new ArrayList<>();
+		FileInfo aux = new FileInfo();
 
-		System.out.println("[DirMessage.fromString()]");
+		
+		System.out.println("[DirMessage.fromString()] DEBUG:");
 		for (String line : lines) {
-			System.out.println("[DirMessage] Linea: " + line);
+			System.out.println("[DirMessage] DEBUG: Linea: " + line);
 			
 			int idx = line.indexOf(DELIMITER); // Posición del delimitador
 			String fieldName = line.substring(0, idx).toLowerCase(); // minúsculas
 			String value = line.substring(idx + 1).trim();			// valor que hay después de los 2 puntos.
-			System.out.println("[fromString] fieldname: " + fieldName + "\n[fromString] value: " + value);
+			System.out.println("[fromString] DEBUG: fieldname: " + fieldName + "\n[fromString] DEBUG: value: " + value);
 			switch (fieldName) {
 			case FIELDNAME_OPERATION: {
 				assert (m == null);
-				m = new DirMessage(value);
+				//if (value.equals(DirMessageOps.OPERATION_PING) ) {
+					m = new DirMessage(value);
+				//}
+				//if (value.equals(DirMessageOps.OPERATION_DIRFILES) ) {
+					//m = new DirMessage(value);
+				//}
+				/*if (value.equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
+					FileInfo[] lista = new FileInfo[nFicheros];
+					m = new DirMessage(value, lista);
+				}*/
 				break;
 			}
 			case FIELDNAME_PROTOCOLID:{
@@ -159,15 +145,21 @@ public class DirMessage {
 				break;
 			}
 			case FIELDNAME_FILENAME:{
-				m.setFilename(value);
-				break;
-			}
-			case FIELDNAME_FILESIZE:{
-				m.setFilesize(Long.valueOf(value));
+				aux = new FileInfo();
+				aux.fileName = value;
 				break;
 			}
 			case FIELDNAME_FILEHASH:{
-				m.setFilehash(value);
+				//if(aux!=null) {
+					aux.fileHash = value;
+				//}
+				break;
+			}
+			case FIELDNAME_FILESIZE:{
+				aux.fileSize = Long.valueOf(value);
+				temporal.add(aux);
+				//m.filelist[factual] = aux;
+				//factual++;
 				break;
 			}
 			default:
@@ -176,6 +168,10 @@ public class DirMessage {
 				System.exit(-1);
 			}
 		}
+		
+		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
+	        m.filelist = temporal.toArray(new FileInfo[0]);
+	    }
 
 		return m;
 	}
@@ -209,9 +205,11 @@ public class DirMessage {
 			break;
 		}
 		case DirMessageOps.OPERATION_DIRFILES_OK: {
-			sb.append(FIELDNAME_FILENAME + DELIMITER + filename + END_LINE);
-			sb.append(FIELDNAME_FILEHASH + DELIMITER + filehash + END_LINE);
-			sb.append(FIELDNAME_FILESIZE + DELIMITER + String.valueOf(filesize) + END_LINE);
+			for(FileInfo f : filelist) {
+				sb.append(FIELDNAME_FILENAME + DELIMITER + f.fileName + END_LINE); 
+				sb.append(FIELDNAME_FILEHASH + DELIMITER + f.fileHash + END_LINE); 
+				sb.append(FIELDNAME_FILESIZE + DELIMITER + f.fileSize + END_LINE); 
+			}
 
 			break;
 		}
@@ -224,7 +222,7 @@ public class DirMessage {
 		
 		}
 		sb.append(END_LINE); // Marcamos el final del mensaje
-		System.out.println("[toString] Campos unidos: " + sb.toString());
+		System.out.println("[toString] DEBUG: Campos unidos: " + sb.toString());
 		return sb.toString();
 	}
 

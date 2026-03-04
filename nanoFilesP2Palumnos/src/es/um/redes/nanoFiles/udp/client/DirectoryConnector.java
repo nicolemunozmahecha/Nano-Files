@@ -329,25 +329,22 @@ public class DirectoryConnector {
 
 		DirMessage dirfiles = new DirMessage(DirMessageOps.OPERATION_DIRFILES);
 		
-		System.out.println("[getFileList] Nombre carpeta: " + Directory.DEFAULT_DIRECTORY_FILES_PATH);
+		System.out.println("[getFileList] DEBUG: Nombre carpeta: " + Directory.DEFAULT_DIRECTORY_FILES_PATH);
 
 		filelist = FileInfo.loadFilesFromFolder(Directory.DEFAULT_DIRECTORY_FILES_PATH);
-		System.out.println("[getFileList] Tamaño carpeta: " + filelist.length);
+		System.out.println("[getFileList] DEBUG: Tamaño carpeta: " + filelist.length);
 
+		/*
 		if (filelist.length != 0) {
 			for(FileInfo f: filelist) {
 				System.out.println("[getFileList] DEBUG Valores ficheros en carpeta: "+f.fileHash + " " + f.fileName + " " + f.fileSize);
-				dirfiles.setFilehash(f.fileHash);
-				dirfiles.setFilename(f.fileName);
-				dirfiles.setFilesize(f.fileSize);
-				System.out.println("[getFileList] DEBUG Valores ficheros en carpeta actualizados: "+ dirfiles.getFilehash() + " " + dirfiles.getFilename() + " " + dirfiles.getFilesize());
 			}
 
-		}
+		}*/
 		
 		
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());
-		System.out.println("[getFileList] bytesRespuesta: " + bytesRespuesta);
+		System.out.println("[getFileList] DEBUG: bytesRespuesta: " + bytesRespuesta);
 		if (bytesRespuesta == null) {
 			return null;
 		}
@@ -356,13 +353,9 @@ public class DirectoryConnector {
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
 		
-		System.out.println("[getFileList] " + dmRespuesta.getOperation() + "= dirfiles_ok"  );
+		System.out.println("[getFileList] DEBUG: " + dmRespuesta.getOperation() + "= dirfiles_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
 			System.out.println("[getFileList] Operación recibida: " + dmRespuesta.getOperation());
-			System.out.println("[getFileList] Nombre: " + dmRespuesta.getFilename());
-			System.out.println("[getFileList] Hash: " + dmRespuesta.getFilehash());
-			System.out.println("[getFileList] Tamaño: " + dmRespuesta.getFilesize());
-
 		}
 		return filelist;
 	}
