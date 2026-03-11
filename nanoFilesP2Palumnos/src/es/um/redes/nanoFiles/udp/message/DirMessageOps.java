@@ -20,6 +20,14 @@ public class DirMessageOps {
 	public static final String OPERATION_DIRFILES = "dirfiles";
 	public static final String OPERATION_DIRFILES_OK = "dirfiles_ok";
 
+	// PEERS
+	public static final String OPERATION_PEERS = "peers";
+	public static final String OPERATION_PEERS_OK = "peers_ok";
+	
+	// SERVE
+	public static final String OPERATION_SERVE = "serve";
+	public static final String OPERATION_SERVE_OK = "serve_ok";
+	
 	// PEERFILES
 	public static final String OPERATION_PEERFILES = "peerfiles";
 	public static final String OPERATION_PEERFILES_OK = "peerfiles_ok";

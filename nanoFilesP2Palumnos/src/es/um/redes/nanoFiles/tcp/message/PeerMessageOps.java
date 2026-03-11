@@ -14,7 +14,6 @@ public class PeerMessageOps {
 	 */
 	public static final byte OPCODE_PEER_FILES_REQ = 1;
 	public static final byte OPCODE_PEER_FILES_REPLY = 2;
-	
 	public static final byte OPCODE_PEER_FILES_DL = 3;
 	public static final byte OPCODE_PEER_FILES_DL_DATA = 4;
 	public static final byte OPCODE_PEER_FILES_DL_ERROR = 5;

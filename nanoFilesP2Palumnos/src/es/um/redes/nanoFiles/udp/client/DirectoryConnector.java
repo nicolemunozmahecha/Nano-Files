@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
@@ -301,8 +302,8 @@ public class DirectoryConnector {
 	public boolean registerFileServer(int serverPort) {
 		boolean success = false;
 
-		// TODO: Ver TODOs en pingDirectory y seguir esquema similar
-
+		//DirMessage serve = new DirMessage(DirMessageOps.OPERATION_SERVE);
+		
 		return success;
 	}
 
@@ -354,7 +355,7 @@ public class DirectoryConnector {
 
 	public Map<String, InetSocketAddress> getPeerList() {
 		Map<String, InetSocketAddress> peers = new LinkedHashMap<String, InetSocketAddress>();
-
+		
 
 
 		return peers;

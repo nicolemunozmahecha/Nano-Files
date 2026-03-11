@@ -34,9 +34,13 @@ public class DirMessage {
 	private static final String FIELDNAME_FILESIZE = "filesize";
 	private static final String FIELDNAME_FILEHASH = "filehash";
 	
-	private static final String FIELDNAME_PEER_NICK = "nick";
-	private static final String FIELDNAME_PEER_IP = "ip";
-	private static final String FIELDNAME_PEER_PORT = "port";
+	private static final String FIELDNAME_SERVEPORT = "serveport";
+	private static final String FIELDNAME_SERVEPEER = "servepeer";
+	private static final String FIELDNAME_SERVEIP = "serveip";
+
+	private static final String FIELDNAME_PEERNICKNAME = "peernickname";
+	private static final String FIELDNAME_PEERIP = "peerip";
+	private static final String FIELDNAME_PEERPORT = "peerport";
 
 
 	/**
@@ -146,14 +150,24 @@ public class DirMessage {
 				break;
 			}
 			case FIELDNAME_FILEHASH:{
-				//if(aux!=null) {
-					aux.fileHash = value;
-				//}
+				aux.fileHash = value;
 				break;
 			}
 			case FIELDNAME_FILESIZE:{
 				aux.fileSize = Long.valueOf(value);
 				temporal.add(aux);
+				break;
+			}
+			case FIELDNAME_PEERNICKNAME:{
+
+				break;
+			}
+			case FIELDNAME_PEERIP:{
+
+				break;
+			}
+			case FIELDNAME_PEERPORT:{
+
 				break;
 			}
 			default:
@@ -210,13 +224,24 @@ public class DirMessage {
 		case DirMessageOps.OPERATION_DIRFILES: {
 			break;
 		}
+		case DirMessageOps.OPERATION_PEERS: {
+			break;
+		}
+		case DirMessageOps.OPERATION_PEERS_OK: {
+			//for(FileInfo f : filelist) {
+				sb.append(FIELDNAME_PEERNICKNAME + DELIMITER + "" + END_LINE); 
+				sb.append(FIELDNAME_PEERIP+ DELIMITER + "" + END_LINE); 
+				sb.append(FIELDNAME_PEERPORT + DELIMITER + "" + END_LINE); 
+			//}
+			break;
+		}
 		default:
 			System.err.println("PANIC: DirMessage.toString - message with unknown operation name " + operacion);
 			System.exit(-1);
 		
 		}
 		sb.append(END_LINE); // Marcamos el final del mensaje
-		System.out.println("[toString] DEBUG: Campos unidos: " + sb.toString());
+		System.out.println("[toString] DEBUG:\nCampos unidos:\n" + sb.toString());
 		return sb.toString();
 	}
 
