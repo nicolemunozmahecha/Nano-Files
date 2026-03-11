@@ -1,32 +1,30 @@
 package es.um.redes.nanoFiles.tcp.server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-
 
 
 public class NFServer implements Runnable {
 
 	public static final int PORT = 10000;
-
-
-
 	private ServerSocket serverSocket = null;
 
 	public NFServer() throws IOException {
 		/*
-		 * TODO: (Boletín SocketsTCP) Crear una direción de socket a partir del puerto
+		 * (Boletín SocketsTCP) Crear una direción de socket a partir del puerto
 		 * especificado (PORT)
 		 */
+		InetSocketAddress dirSocket = new InetSocketAddress(PORT);
 		/*
-		 * TODO: (Boletín SocketsTCP) Crear un socket servidor y ligarlo a la dirección
+		 * (Boletín SocketsTCP) Crear un socket servidor y ligarlo a la dirección
 		 * de socket anterior
 		 */
-
-
-
+		serverSocket = new ServerSocket();
+		serverSocket.bind(dirSocket);
 	}
 
 	/**
@@ -45,20 +43,32 @@ public class NFServer implements Runnable {
 					.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
 		}
 
+		Socket clientSocket = null;
+		DataInputStream dis = null;
+		DataOutputStream dos = null;
 		while (true) {
 			/*
-			 * TODO: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
+			 * (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 			 * otros peers que soliciten descargar ficheros.
 			 */
-			/*
-			 * TODO: (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
-			 * comunicación con dicho cliente para servir los ficheros solicitados se debe
-			 * implementar en el método serveFilesToClient, al cual hay que pasarle el
-			 * socket devuelto por accept.
-			 */
-
-
-
+			try {
+				clientSocket = this.serverSocket.accept();
+				/*
+				 * (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
+				 * comunicación con dicho cliente para servir los ficheros solicitados se debe
+				 * implementar en el método serveFilesToClient, al cual hay que pasarle el
+				 * socket devuelto por accept.
+				 */
+				dis = new DataInputStream(clientSocket.getInputStream());
+				dos = new DataOutputStream(clientSocket.getOutputStream());
+				
+				// leer y escribir 
+				int numero = dis.readInt();
+				System.out.println("Hemos leido el numero: " + numero + " y lo mando de vuelta");
+				dos.writeInt(numero);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

@@ -70,13 +70,13 @@ public class DirectoryConnector {
 		// Guardamos el string con el nombre/IP del host
 		directoryHostname = hostname;
 		/*
-		 * TODO: (Boletín SocketsUDP) Convertir el string 'hostname' a InetAddress y
+		 * (Boletín SocketsUDP) Convertir el string 'hostname' a InetAddress y
 		 * guardar la dirección de socket (address:DIRECTORY_PORT) del directorio en el
 		 * atributo directoryAddress, para poder enviar datagramas a dicho destino.
 		 */
 		this.directoryAddress = new InetSocketAddress(InetAddress.getByName(hostname), DIRECTORY_PORT);
 		/*
-		 * TODO: (Boletín SocketsUDP) Crea el socket UDP en cualquier puerto para enviar
+		 * (Boletín SocketsUDP) Crea el socket UDP en cualquier puerto para enviar
 		 * datagramas al directorio
 		 */
 		this.socket = new DatagramSocket();
@@ -108,13 +108,13 @@ public class DirectoryConnector {
 			System.exit(-1);
 		}
 		/*
-		 * TODO: (Boletín SocketsUDP) Enviar datos en un datagrama al directorio y
+		 * (Boletín SocketsUDP) Enviar datos en un datagrama al directorio y
 		 * recibir una respuesta. El array devuelto debe contener únicamente los datos
 		 * recibidos, *NO* el búfer de recepción al completo.
 		 */
 		DatagramPacket datagrama = new DatagramPacket(requestData, requestData.length, directoryAddress);
 		int intento = 0;
-		while((intento <=MAX_NUMBER_OF_ATTEMPTS) && (response == null)) {	// BUCLE TERCER TODO
+		while((intento <=MAX_NUMBER_OF_ATTEMPTS) && (response == null)) {	// BUCLE TERCER TO-do
 			try {
 				// Mandamos el socket
 				System.out.printf("[sendAndReceiveDatagram] Enviamos datagrama [%d/%d]...%n", intento, MAX_NUMBER_OF_ATTEMPTS);
@@ -136,7 +136,7 @@ public class DirectoryConnector {
 				System.out.println("[sendAndReceiveDatagram] Respuesta: " + new String(response));
 				
 				/*
-				 * TODO: (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
+				 * (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
 				 * confiable (sin pérdidas) esté terminado y probado, debe implementarse un
 				 * mecanismo de retransmisión usando temporizador, en caso de que no se reciba
 				 * respuesta en el plazo de TIMEOUT. En caso de salte el timeout, se debe volver
@@ -144,7 +144,7 @@ public class DirectoryConnector {
 				 * máximo en MAX_NUMBER_OF_ATTEMPTS ocasiones.
 				 */
 				/*
-				 * TODO: (Boletín SocketsUDP) Las excepciones que puedan lanzarse al
+				 * (Boletín SocketsUDP) Las excepciones que puedan lanzarse al
 				 * leer/escribir en el socket deben ser capturadas y tratadas en este método. Si
 				 * se produce una excepción de entrada/salida (error del que no es posible
 				 * recuperarse), se debe informar y terminar el programa.
@@ -180,7 +180,7 @@ public class DirectoryConnector {
 	public boolean testSendAndReceive() {
 		// ESTE METODO HACE LA PRUEBA
 		/*
-		 * TODO: (Boletín SocketsUDP) Probar el correcto funcionamiento de
+		 * (Boletín SocketsUDP) Probar el correcto funcionamiento de
 		 * sendAndReceiveDatagrams. Se debe enviar un datagrama con la cadena "ping" y
 		 * comprobar que la respuesta recibida empieza por "pingok". En tal caso,
 		 * devuelve verdadero, falso si la respuesta no contiene los datos esperados.
@@ -218,7 +218,7 @@ public class DirectoryConnector {
 	public boolean pingDirectoryRaw() {
 		boolean success = false;
 		/*
-		 * TODO: (Boletín EstructuraNanoFiles) Basándose en el código de
+		 * (Boletín EstructuraNanoFiles) Basándose en el código de
 		 * "testSendAndReceive", contactar con el directorio, enviándole nuestro
 		 * PROTOCOL_ID (ver clase NanoFiles). Se deben usar mensajes "en crudo" (sin un
 		 * formato bien definido) para la comunicación.
@@ -257,7 +257,7 @@ public class DirectoryConnector {
 	public boolean pingDirectory() {
 		boolean success = false;
 		/*
-		 * TODO: (Boletín MensajesASCII) Hacer ping al directorio 
+		 * (Boletín MensajesASCII) Hacer ping al directorio 
 		 * 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados (operation, etc.) 
 		 * NOTA:Usar como operaciones las constantes definidas en la clase DirMessageOps :
 		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
@@ -317,7 +317,7 @@ public class DirectoryConnector {
 	public FileInfo[] getFileList() {
 		FileInfo[] filelist = new FileInfo[0];
 		/*
-		 * TODO: (Boletín MensajesASCII)
+		 * (Boletín MensajesASCII)
 		 * 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados (operation, etc.) 
 		 * NOTA:Usar como operaciones las constantes definidas en la clase DirMessageOps :
 		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)

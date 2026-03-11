@@ -87,13 +87,13 @@ public class NFDirectoryServer {
 		boolean datagramReceived = false;
 		while (!datagramReceived) {
 			/*
-			 * TODO: (Boletín SocketsUDP) Crear un búfer para recibir datagramas y un
+			 * (Boletín SocketsUDP) Crear un búfer para recibir datagramas y un
 			 * datagrama asociado al búfer (datagramReceivedFromClient)
 			 */
 			byte[] buf = new byte[DirMessage.PACKET_MAX_SIZE];
 			datagramReceivedFromClient = new DatagramPacket(buf, buf.length);
 			/*
-			 * TODO: (Boletín SocketsUDP) Recibimos a través del socket un datagrama
+			 * (Boletín SocketsUDP) Recibimos a través del socket un datagrama
 			 */
 			this.socket.receive(datagramReceivedFromClient);
 
@@ -134,14 +134,14 @@ public class NFDirectoryServer {
 
 	private void sendResponseTestMode(DatagramPacket pkt) throws IOException {
 		/*
-		 * TODO: (Boletín SocketsUDP) Construir un String partir de los datos recibidos
+		 * (Boletín SocketsUDP) Construir un String partir de los datos recibidos
 		 * en el datagrama pkt. A continuación, imprimir por pantalla dicha cadena a
 		 * modo de depuración.
 		 */
 		String response = new String(pkt.getData(), 0, pkt.getLength()); // pkt.getOffset(), pkt.getLength());
 		System.out.println("[sendResponseTestMode] Cadena de respuesta e partir de los datos del datagrama recibido: " + response);
 		/*
-		 * TODO: (Boletín SocketsUDP) Después, usar la cadena para comprobar que su
+		 * (Boletín SocketsUDP) Después, usar la cadena para comprobar que su
 		 * valor es "ping"; en ese caso, enviar como respuesta un datagrama con la
 		 * cadena "pingok". Si el mensaje recibido no es "ping", se informa del error y
 		 * se envía "invalid" como respuesta.
@@ -152,7 +152,7 @@ public class NFDirectoryServer {
 			System.out.println("[sendResponseTestMode] Cadena de respuesta " + response);
 		}else {
 			/*
-			 * TODO: (Boletín Estructura-NanoFiles) Ampliar el código para que, en el caso
+			 * (Boletín Estructura-NanoFiles) Ampliar el código para que, en el caso
 			 * de que la cadena recibida no sea exactamente "ping", comprobar si comienza
 			 * por "ping&" (es del tipo "ping&PROTOCOL_ID", donde PROTOCOL_ID será el
 			 * identificador del protocolo diseñado por el grupo de prácticas (ver
@@ -236,18 +236,18 @@ public class NFDirectoryServer {
 		case DirMessageOps.OPERATION_PING: {
 
 			/*
-			 * TODO: (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
+			 * (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
 			 * cliente coincide con el nuestro.
 			 */
 			System.out.println("[sendResponse] DEBUG: " + mensajeCliente.getProtocolId()+" = "  + NanoFiles.PROTOCOL_ID);
 			if(mensajeCliente.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
 				/*
-				 * TODO: (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
+				 * (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
 				 * el éxito/fracaso del ping (compatible, incompatible), y lo devolvemos como
 				 * resultado del método.
 				 */
 				/*
-				 * TODO: (Boletín MensajesASCII) Imprimimos por pantalla el resultado de
+				 * (Boletín MensajesASCII) Imprimimos por pantalla el resultado de
 				 * procesar la petición recibida (éxito o fracaso) con los datos relevantes, a
 				 * modo de depuración en el servidor
 				 */
