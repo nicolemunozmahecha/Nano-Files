@@ -315,7 +315,7 @@ public class DirectoryConnector {
 	 *         pudo satisfacer nuestra solicitud
 	 */
 	public FileInfo[] getFileList() {
-		FileInfo[] filelist = new FileInfo[0];
+		//FileInfo[] filelist = null; // new FileInfo[0];
 		/*
 		 * (Boletín MensajesASCII)
 		 * 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados (operation, etc.) 
@@ -332,8 +332,8 @@ public class DirectoryConnector {
 		
 		System.out.println("[getFileList] DEBUG: Nombre carpeta: " + Directory.DEFAULT_DIRECTORY_FILES_PATH);
 
-		filelist = FileInfo.loadFilesFromFolder(Directory.DEFAULT_DIRECTORY_FILES_PATH);
-		System.out.println("[getFileList] DEBUG: Tamaño carpeta: " + filelist.length);
+		//filelist = FileInfo.loadFilesFromFolder(Directory.DEFAULT_DIRECTORY_FILES_PATH);
+		//System.out.println("[getFileList] DEBUG: Tamaño carpeta: " + filelist.length);
 		
 		
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());
@@ -350,7 +350,7 @@ public class DirectoryConnector {
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
 			System.out.println("[getFileList] Operación recibida: " + dmRespuesta.getOperation());
 		}
-		return filelist;
+		return dmRespuesta.getFilelist();
 	}
 
 	public Map<String, InetSocketAddress> getPeerList() {
