@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.LinkedHashMap;
@@ -239,7 +240,7 @@ public class NFDirectoryServer {
 			 * (Boletín MensajesASCII) Comprobamos si el protocolId del mensaje del
 			 * cliente coincide con el nuestro.
 			 */
-			System.out.println("[sendResponse] DEBUG: " + mensajeCliente.getProtocolId()+" = "  + NanoFiles.PROTOCOL_ID);
+			//System.out.println("[sendResponse] DEBUG: " + mensajeCliente.getProtocolId()+" = "  + NanoFiles.PROTOCOL_ID);
 			if(mensajeCliente.getProtocolId().equals(NanoFiles.PROTOCOL_ID)) {
 				/*
 				 * (Boletín MensajesASCII) Construimos un mensaje de respuesta que indique
@@ -273,7 +274,20 @@ public class NFDirectoryServer {
 			}
 			System.out.println("[sendResponse] DEBUG: Valores dirfiles: " + mensajeAEnviar.toString() );
 			break;
-		}default:
+		}case DirMessageOps.OPERATION_PEERS: {
+			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PEERS_OK, registeredPeers);
+			break;
+		}case DirMessageOps.OPERATION_SERVE: {
+			String cadIp = String.valueOf(pkt.getAddress());
+			String nombrePeer = NanoFiles.peerNickname;
+			int puerto =  mensajeCliente.getServePort();
+			InetSocketAddress pareja =  new InetSocketAddress(InetAddress.getByName(cadIp), puerto);
+			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_SERVE_OK, nombrePeer, cadIp, puerto);
+			registeredPeers.put(nombrePeer, pareja);
+			break;
+		}
+		
+		default:
 			System.err.println("[sendResponse] Unexpected message operation: \"" + operation + "\"");
 			System.exit(-1);
 		}

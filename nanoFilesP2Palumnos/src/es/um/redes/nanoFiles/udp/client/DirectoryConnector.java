@@ -281,7 +281,7 @@ public class DirectoryConnector {
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
-		System.out.println("[pingDirectory] " + dmRespuesta.getOperation() + "= ping_ok"  );
+		System.out.println("[pingDirectory]] DEBUG: " + dmRespuesta.getOperation() + "= ping_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_PING_OK)) {
 			System.out.println("[pingDirectory] Operación recibida: " + dmRespuesta.getOperation());
 			success = true;
@@ -301,8 +301,26 @@ public class DirectoryConnector {
 	 */
 	public boolean registerFileServer(int serverPort) {
 		boolean success = false;
-
-		//DirMessage serve = new DirMessage(DirMessageOps.OPERATION_SERVE);
+		DirMessage serve = new DirMessage(DirMessageOps.OPERATION_SERVE);
+		serve.setServePort(serverPort);
+ 
+		byte[] bytesRespuesta = sendAndReceiveDatagrams(serve.toString().getBytes());
+		
+		if (bytesRespuesta == null) {
+			return success;
+		}
+		
+		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
+		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
+		
+		System.out.println("[registerFileServer]] DEBUG: " + dmRespuesta.getOperation() + "= serve_ok"  );
+		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_SERVE_OK)) {
+			System.out.println("[registerFileServer] Operación recibida: " + dmRespuesta.getOperation());
+			success = true;
+		}else {
+			System.err.println("[registerFileServer] ERROR: puerto no compatible");
+		}
+		
 		
 		return success;
 	}
@@ -315,7 +333,6 @@ public class DirectoryConnector {
 	 *         pudo satisfacer nuestra solicitud
 	 */
 	public FileInfo[] getFileList() {
-		//FileInfo[] filelist = null; // new FileInfo[0];
 		/*
 		 * (Boletín MensajesASCII)
 		 * 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados (operation, etc.) 
@@ -330,14 +347,14 @@ public class DirectoryConnector {
 
 		DirMessage dirfiles = new DirMessage(DirMessageOps.OPERATION_DIRFILES);
 		
-		System.out.println("[getFileList] DEBUG: Nombre carpeta: " + Directory.DEFAULT_DIRECTORY_FILES_PATH);
+		//System.out.println("[getFileList] DEBUG: Nombre carpeta: " + Directory.DEFAULT_DIRECTORY_FILES_PATH);
 
 		//filelist = FileInfo.loadFilesFromFolder(Directory.DEFAULT_DIRECTORY_FILES_PATH);
 		//System.out.println("[getFileList] DEBUG: Tamaño carpeta: " + filelist.length);
 		
 		
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());
-		System.out.println("[getFileList] DEBUG: bytesRespuesta: " + bytesRespuesta);
+		//System.out.println("[getFileList] DEBUG: bytesRespuesta: " + bytesRespuesta);
 		if (bytesRespuesta == null) {
 			return null;
 		}
@@ -350,14 +367,31 @@ public class DirectoryConnector {
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
 			System.out.println("[getFileList] Operación recibida: " + dmRespuesta.getOperation());
 		}
-		return dmRespuesta.getFilelist();
+		
+		FileInfo[] filelist = dmRespuesta.getFilelist();
+		return filelist;
 	}
 
 	public Map<String, InetSocketAddress> getPeerList() {
 		Map<String, InetSocketAddress> peers = new LinkedHashMap<String, InetSocketAddress>();
 		
+		DirMessage listaPeers = new DirMessage(DirMessageOps.OPERATION_PEERS);
+		
+		byte[] bytesRespuesta = sendAndReceiveDatagrams(listaPeers.toString().getBytes());
 
-
+		if (bytesRespuesta == null) {
+			return null;
+		}
+		
+		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
+		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
+		
+		System.out.println("[getPeerList] DEBUG: " + dmRespuesta.getOperation() + "= peers_ok"  );
+		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_PEERS_OK)) {
+			System.out.println("[getPeerList] Operación recibida: " + dmRespuesta.getOperation());
+		}
+		
+		peers = dmRespuesta.getPeers();
 		return peers;
 	}
 

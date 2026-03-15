@@ -1,6 +1,11 @@
 package es.um.redes.nanoFiles.udp.message;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import es.um.redes.nanoFiles.util.FileInfo;
 
@@ -30,17 +35,19 @@ public class DirMessage {
 	 */
 	 
 	private static final String FIELDNAME_PROTOCOLID = "protocolid";
+	
 	private static final String FIELDNAME_FILENAME = "filename";
 	private static final String FIELDNAME_FILESIZE = "filesize";
 	private static final String FIELDNAME_FILEHASH = "filehash";
+	
+	private static final String FIELDNAME_PEERNICKNAME = "peernickname";
+	private static final String FIELDNAME_PEERIP = "peerip";
+	private static final String FIELDNAME_PEERPORT = "peerport";
 	
 	private static final String FIELDNAME_SERVEPORT = "serveport";
 	private static final String FIELDNAME_SERVEPEER = "servepeer";
 	private static final String FIELDNAME_SERVEIP = "serveip";
 
-	private static final String FIELDNAME_PEERNICKNAME = "peernickname";
-	private static final String FIELDNAME_PEERIP = "peerip";
-	private static final String FIELDNAME_PEERPORT = "peerport";
 
 
 	/**
@@ -58,6 +65,12 @@ public class DirMessage {
 
 	private FileInfo[] filelist;
 	
+	private Map<String, InetSocketAddress> peers;
+	
+	int servePort;
+	String serveNombrePeer;
+	String serveIp;
+	
 	public DirMessage(String op) {
 		operation = op;
 	}
@@ -70,6 +83,18 @@ public class DirMessage {
 	public DirMessage(String op, FileInfo[] lista) {
 		this(op);
 		filelist = lista;
+	}
+	
+	public DirMessage(String op, Map<String, InetSocketAddress> lista) {
+		this(op);
+		peers = lista;
+	}
+	
+	public DirMessage(String op, String nombre, String ip, int puerto) {
+		this(op);
+		serveNombrePeer = nombre;
+		serveIp = ip;
+		servePort = puerto;
 	}
 	/*
 	 * TODO: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
@@ -102,6 +127,39 @@ public class DirMessage {
 	public void setFilelist(FileInfo[] filelist) {
 		this.filelist = filelist;
 	}
+	
+
+	public Map<String, InetSocketAddress> getPeers() {
+		return peers;
+	}
+
+	public void setPeers(Map<String, InetSocketAddress> peers) {
+		this.peers = peers;
+	}
+	
+	public int getServePort() {
+		return servePort;
+	}
+
+	public void setServePort(int servePort) {
+		this.servePort = servePort;
+	}
+
+	public String getServeNombrePeer() {
+		return serveNombrePeer;
+	}
+
+	public void setServeNombrePeer(String serveNombrePeer) {
+		this.serveNombrePeer = serveNombrePeer;
+	}
+
+	public String getServeIp() {
+		return serveIp;
+	}
+
+	public void setServeIp(String serveIp) {
+		this.serveIp = serveIp;
+	}
 
 	/**
 	 * Método que convierte un mensaje codificado como una cadena de caracteres, a
@@ -124,7 +182,9 @@ public class DirMessage {
 		DirMessage m = null;
 		ArrayList<FileInfo> temporal = new ArrayList<>();
 		FileInfo aux = new FileInfo();
-
+		Map<String, InetSocketAddress> mapaTemp = new LinkedHashMap<String, InetSocketAddress>();
+		String cadAux = null;
+		String ipAux = null;
 		
 		System.out.println("[DirMessage.fromString()] DEBUG:");
 		for (String line : lines) {
@@ -159,15 +219,31 @@ public class DirMessage {
 				break;
 			}
 			case FIELDNAME_PEERNICKNAME:{
-
+				cadAux = value;
 				break;
 			}
 			case FIELDNAME_PEERIP:{
-
+				ipAux = value;
 				break;
 			}
 			case FIELDNAME_PEERPORT:{
-
+				int puerto = Integer.parseInt(value);
+				InetSocketAddress pareja;
+				try {
+					pareja = new InetSocketAddress(InetAddress.getByName(ipAux), puerto);
+					mapaTemp.put(cadAux, pareja);
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
+				break;
+			}case FIELDNAME_SERVEPEER :{
+				m.serveNombrePeer = value;
+				break;
+			}case FIELDNAME_SERVEIP:{
+				m.serveIp = value;
+				break;
+			}case FIELDNAME_SERVEPORT:{
+				m.servePort = Integer.valueOf(value);
 				break;
 			}
 			default:
@@ -179,6 +255,10 @@ public class DirMessage {
 		
 		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
 	        m.filelist = temporal.toArray(new FileInfo[0]);
+	    }
+		
+		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_PEERS_OK)) {
+	        m.peers = mapaTemp;
 	    }
 
 		return m;
@@ -228,11 +308,20 @@ public class DirMessage {
 			break;
 		}
 		case DirMessageOps.OPERATION_PEERS_OK: {
-			//for(FileInfo f : filelist) {
-				sb.append(FIELDNAME_PEERNICKNAME + DELIMITER + "" + END_LINE); 
-				sb.append(FIELDNAME_PEERIP+ DELIMITER + "" + END_LINE); 
-				sb.append(FIELDNAME_PEERPORT + DELIMITER + "" + END_LINE); 
-			//}
+			for(Map.Entry<String, InetSocketAddress> i : peers.entrySet()) {
+				sb.append(FIELDNAME_PEERNICKNAME + DELIMITER + i.getKey() + END_LINE); 
+				sb.append(FIELDNAME_PEERIP+ DELIMITER + i.getValue().getHostName() + END_LINE); 
+				sb.append(FIELDNAME_PEERPORT + DELIMITER + i.getValue().getPort() + END_LINE); 
+			}
+			break;
+		}case DirMessageOps.OPERATION_SERVE: {
+			sb.append(FIELDNAME_SERVEPORT + DELIMITER + servePort + END_LINE);
+			break;
+		}case DirMessageOps.OPERATION_SERVE_OK: {
+			sb.append(FIELDNAME_SERVEPEER + DELIMITER + serveNombrePeer + END_LINE);
+			sb.append(FIELDNAME_SERVEIP + DELIMITER + serveIp + END_LINE);
+			sb.append(FIELDNAME_SERVEPORT + DELIMITER + servePort + END_LINE);
+
 			break;
 		}
 		default:
