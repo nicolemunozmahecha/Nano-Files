@@ -237,13 +237,13 @@ public class DirMessage {
 				}
 				break;
 			}case FIELDNAME_SERVEPEER :{
-				m.serveNombrePeer = value;
+				m.setServeNombrePeer(value);
 				break;
 			}case FIELDNAME_SERVEIP:{
-				m.serveIp = value;
+				m.setServeIp(value);
 				break;
 			}case FIELDNAME_SERVEPORT:{
-				m.servePort = Integer.valueOf(value);
+				m.setServePort(Integer.valueOf(value));
 				break;
 			}
 			default:
@@ -315,6 +315,7 @@ public class DirMessage {
 			}
 			break;
 		}case DirMessageOps.OPERATION_SERVE: {
+			sb.append(FIELDNAME_SERVEPEER + DELIMITER + serveNombrePeer + END_LINE);
 			sb.append(FIELDNAME_SERVEPORT + DELIMITER + servePort + END_LINE);
 			break;
 		}case DirMessageOps.OPERATION_SERVE_OK: {

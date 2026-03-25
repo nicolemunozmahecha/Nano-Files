@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.udp.message.DirMessage;
@@ -279,11 +280,20 @@ public class NFDirectoryServer {
 			break;
 		}case DirMessageOps.OPERATION_SERVE: {
 			String cadIp = String.valueOf(pkt.getAddress());
-			String nombrePeer = NanoFiles.peerNickname;
+			
 			int puerto =  mensajeCliente.getServePort();
+			String nombrePeer = mensajeCliente.getServeNombrePeer();
 			InetSocketAddress pareja =  new InetSocketAddress(InetAddress.getByName(cadIp), puerto);
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_SERVE_OK, nombrePeer, cadIp, puerto);
-			registeredPeers.put(nombrePeer, pareja);
+			boolean estaRegistrado = false;
+			for(Map.Entry<String, InetSocketAddress> i : registeredPeers.entrySet()) {
+				if(i.getKey().equals(nombrePeer)) {
+					estaRegistrado = true;
+				}
+			}
+			if(!estaRegistrado) {
+				registeredPeers.put(nombrePeer, pareja);	
+			}
 			break;
 		}
 		

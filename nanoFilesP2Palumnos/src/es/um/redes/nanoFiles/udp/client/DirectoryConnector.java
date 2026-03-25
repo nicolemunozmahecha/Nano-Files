@@ -300,8 +300,10 @@ public class DirectoryConnector {
 	 *         y acepta la lista de ficheros, falso en caso contrario.
 	 */
 	public boolean registerFileServer(int serverPort) {
+		System.out.println("[registerFileServer] DEBUG: ENTRA EN FUNCION");
 		boolean success = false;
 		DirMessage serve = new DirMessage(DirMessageOps.OPERATION_SERVE);
+		serve.setServeNombrePeer(NanoFiles.peerNickname);
 		serve.setServePort(serverPort);
  
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(serve.toString().getBytes());

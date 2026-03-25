@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<list key="installedFeatures">
+		<item value="org.eclipse.egit:6.10.0.202406032230-r"/>
+		<item value="org.eclipse.emf.common:2.38.0.v20251210-1145"/>
+		<item value="org.eclipse.emf.ecore:2.43.0.v20251210-1145"/>
+		<item value="org.eclipse.epp.mpc:1.10.3.v20240228-1000"/>
+		<item value="org.eclipse.help:2.3.1800.v20240601-0610"/>
+		<item value="org.eclipse.jgit.gpg.bc:6.10.0.202406032230-r"/>
+		<item value="org.eclipse.jgit.http.apache:6.10.0.202406032230-r"/>
+		<item value="org.eclipse.jgit.ssh.apache:6.10.0.202406032230-r"/>
+		<item value="org.eclipse.jgit:6.10.0.202406032230-r"/>
+		<item value="org.eclipse.m2e.feature:2.6.1.20240602-2342"/>
+		<item value="org.eclipse.m2e.logback.feature:2.6.1.20240411-1743"/>
+		<item value="org.eclipse.mylyn.builds.feature:4.3.0.v20240509-0539"/>
+		<item value="org.eclipse.mylyn.commons.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.mylyn.commons.identity.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.mylyn.commons.notifications.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.mylyn.commons.repositories.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.mylyn.context.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.mylyn.egit.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.mylyn.git.feature:4.3.0.v20240509-0539"/>
+		<item value="org.eclipse.mylyn.github.feature:6.5.0.v20240601-0538"/>
+		<item value="org.eclipse.mylyn.ide.feature:4.3.0.v20240509-0539"/>
+		<item value="org.eclipse.mylyn.jdt.feature:4.3.0.v20240514-0726"/>
+		<item value="org.eclipse.mylyn.jenkins.feature:4.3.0.v20240509-0539"/>
+		<item value="org.eclipse.mylyn.monitor.feature:4.3.0.v20240509-0539"/>
+		<item value="org.eclipse.mylyn.reviews.feature:4.3.0.v20240509-0539"/>
+		<item value="org.eclipse.mylyn.tasks.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.mylyn.team.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.mylyn.versions.feature:4.3.0.v20240509-0539"/>
+		<item value="org.eclipse.mylyn.wikitext.feature:4.3.0.v20240602-0603"/>
+		<item value="org.eclipse.oomph.p2:1.30.0.v20240520-1504"/>
+		<item value="org.eclipse.oomph.setup.core:1.31.0.v20240520-1504"/>
+		<item value="org.eclipse.oomph.setup:1.32.0.v20240602-1435"/>
+		<item value="org.eclipse.platform:4.32.0.v20240601-0610"/>
+		<item value="org.eclipse.rcp:4.32.0.v20240601-0610"/>
+		<item value="org.eclipse.tm.terminal.connector.ssh.feature:11.6.0.202403071917"/>
+		<item value="org.eclipse.tm.terminal.control.feature:11.6.0.202403071917"/>
+		<item value="org.eclipse.tm.terminal.feature:11.6.0.202403071917"/>
+		<item value="org.eclipse.tm.terminal.view.feature:11.6.0.202403071917"/>
+		<item value="org.eclipse.userstorage:1.2.0.v20210517-0327"/>
+		<item value="org.sonarlint.eclipse.feature:11.25.0.84457"/>
+	</list>
+</section>

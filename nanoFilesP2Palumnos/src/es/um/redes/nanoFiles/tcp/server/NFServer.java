@@ -39,8 +39,7 @@ public class NFServer implements Runnable {
 					"[fileServerTestMode] Failed to run file server, server socket is null or not bound to any port");
 			return;
 		} else {
-			System.out
-					.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
+			System.out.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
 		}
 
 		Socket clientSocket = null;
