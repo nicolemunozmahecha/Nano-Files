@@ -41,6 +41,9 @@ public class NFDirectoryServer {
 	 */
 	private LinkedHashMap<String, InetSocketAddress> registeredPeers;
 
+	// AÑADIDO
+	//LISTA DE FICHEROS DE UN PEER
+	private FileInfo[] peerfileslist;
 	/**
 	 * Probabilidad de descartar un mensaje recibido en el directorio (para simular
 	 * enlace no confiable y testear el código de retransmisión)
@@ -203,7 +206,7 @@ public class NFDirectoryServer {
 
 	private void sendResponse(DatagramPacket pkt) throws IOException {
 		/*
-		 * TODO: (Boletín MensajesASCII) Construir String partir de los datos recibidos
+		 * (Boletín MensajesASCII) Construir String partir de los datos recibidos
 		 * en el datagrama pkt. A continuación, imprimir por pantalla dicha cadena a
 		 * modo de depuración. Después, usar la cadena para construir un objeto
 		 * DirMessage que contenga en sus atributos los valores del mensaje. A partir de
@@ -217,14 +220,14 @@ public class NFDirectoryServer {
 		DirMessage mensajeCliente = DirMessage.fromString(mensaje);
 		System.out.println("[sendResponse] DEBUG: Mensaje cliente: " + mensajeCliente.toString());
 		/*
-		 * TODO: Una vez construido un objeto DirMessage con el contenido del datagrama
+		 * Una vez construido un objeto DirMessage con el contenido del datagrama
 		 * recibido, obtener el tipo de operación solicitada por el mensaje y actuar en
 		 * consecuencia, enviando uno u otro tipo de mensaje en respuesta.
 		 */
 		String operation = mensajeCliente.getOperation();
 
 		/*
-		 * TODO: (Boletín MensajesASCII) Construir un objeto DirMessage (msgToSend) con
+		 * (Boletín MensajesASCII) Construir un objeto DirMessage (msgToSend) con
 		 * la respuesta a enviar al cliente, en función del tipo de mensaje recibido,
 		 * leyendo/modificando según sea necesario el "estado" guardado en el servidor
 		 * de directorio (atributos files, etc.). Los atributos del objeto DirMessage
@@ -295,6 +298,18 @@ public class NFDirectoryServer {
 				registeredPeers.put(nombrePeer, pareja);	
 			}
 			break;
+		}case DirMessageOps.OPERATION_PEERFILES: {
+			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PEERFILES_OK, peerfileslist);
+			
+			// COMPROBAR SI EXISTEN O NO FICHEROS EN LA CARPETA A LEER (DIR-SHARED)
+			if(peerfileslist.length == 0) {
+				System.out.println("[sendResponse] DEBUG: File recibido. File del peer vacio, no hay ficheros a imprimir");
+			}
+			else {
+				System.err.println("[sendResponse] DEBUG: File recibido. File del peer no vacio, hay ficheros a imprimir");
+			}
+			System.out.println("[sendResponse] DEBUG: Valores dirfiles: " + mensajeAEnviar.toString() );
+			break;
 		}
 		
 		default:
@@ -303,7 +318,7 @@ public class NFDirectoryServer {
 		}
 
 		/*
-		 * TODO: (Boletín MensajesASCII) Convertir a String el objeto DirMessage
+		 * (Boletín MensajesASCII) Convertir a String el objeto DirMessage
 		 * (msgToSend) con el mensaje de respuesta a enviar, extraer los bytes en que se
 		 * codifica el string y finalmente enviarlos en un datagrama
 		 */

@@ -10,19 +10,18 @@ public class PeerMessage {
 	private byte opcode;
 
 	/*
-	 * TODO: (Boletín MensajesBinarios) Añadir atributos u otros constructores
+	 * (Boletín MensajesBinarios) Añadir atributos u otros constructores
 	 * específicos para crear mensajes con otros campos, según sea necesario
 	 * 
 	 */
-	private FileInfo[] peerfiles;
+	private FileInfo[] peerfiles;	// GUARDAR LISTA DE FICHEROS opcode 2
 	
-	private String subhash;
 	// si se manda sin offset no caben mas de 65 bytes
-	private Long offset;
-	private int length;
-	private byte[] data;
-	
+	//private Long peerfileOffset;
 
+	// NO ESTAMOS INCLUYENDO EL OFFSET, TAMAÑO Y NOMBRE PORQUE EN EL FORMATO NO LOS HEMOS PUESTO
+    private String peerfileSubhash;     // Para guardar el hash solicitado (Opcode 3)
+    private byte[] peerfileData;		// Para guardar el fichero descargado
 
 	public PeerMessage() {
 		opcode = PeerMessageOps.OPCODE_INVALID_CODE;
@@ -33,7 +32,7 @@ public class PeerMessage {
 	}
 	
 	public PeerMessage(byte op, FileInfo[] ficheros) {
-		assert(op==PeerMessageOps.OPCODE_PEER_FILES_REPLY);
+		assert(op==PeerMessageOps.OPCODE_PEER_FILES_OK);
 		this.opcode = op;
 		this.setPeerfiles(ficheros);
 	}
@@ -48,46 +47,59 @@ public class PeerMessage {
 
 
 	/*
-	 * TODO: (Boletín MensajesBinarios) Crear métodos getter y setter para obtener
+	 * (Boletín MensajesBinarios) Crear métodos getter y setter para obtener
 	 * los valores de los atributos de un mensaje. Se aconseja incluir código que
 	 * compruebe que no se modifica/obtiene el valor de un campo (atributo) que no
-	 * esté definido para el tipo de mensaje dado por "operation".
+	 * esté definido para el tipo de mensaje dado por "operation".		SE HA COMPROBADO CON LA FUNCION checkValidOpcode, con los opcodes de PeerMessageOps
 	 */
-	public byte getOpcode() {
-		return opcode;
-	}
 	
-	public String getSubhash() {
-		return subhash;
-	}
+	public byte getOpcode() {
+        return opcode;
+    }
 
-	public void setSubhash(String subhash) {
-		this.subhash = subhash;
-	}
+    public void setOpcode(byte opcode) {
+        this.opcode = opcode;
+    }
 
-	public Long getOffset() {
-		return offset;
-	}
+    public String getPeerfileSubhash() {
+        checkValidOpcode("fileHash", PeerMessageOps.OPCODE_PEER_DL);
+        return peerfileSubhash;
+    }
 
-	public void setOffset(Long offset) {
-		this.offset = offset;
-	}
+    public void setPeerfileSubhash(String fileHash) {
+        checkValidOpcode("fileHash", PeerMessageOps.OPCODE_PEER_DL);
+        this.peerfileSubhash = fileHash;
+    }
 
-	public int getLength() {
-		return length;
-	}
+    public byte[] getPeerfileData() {
+        checkValidOpcode("fileData", PeerMessageOps.OPCODE_PEER_DL_OK);
+        return peerfileData;
+    }
 
-	public void setLength(int length) {
-		this.length = length;
-	}
-
-	public byte[] getData() {
-		return data;
-	}
-
-	public void setData(byte[] data) {
-		this.data = data;
-	}
+    public void setPeerfileData(byte[] fileData) {
+        checkValidOpcode("fileData", PeerMessageOps.OPCODE_PEER_DL_OK);
+        this.peerfileData = fileData;
+    }
+	
+    /**
+     * Método auxiliar para validar si el opcode actual permite el acceso al campo.
+     * @param fieldName Nombre del atributo que se intenta acceder.
+     * @param validOpcodes Lista de opcodes en los que este campo tiene sentido.
+     */
+    private void checkValidOpcode(String fieldName, byte... validOpcodes) {
+        if (this.opcode == PeerMessageOps.OPCODE_INVALID_CODE) {
+            throw new IllegalStateException("No se puede acceder a '" + fieldName + "' porque el opcode no ha sido inicializado (INVALID_CODE).");
+        }
+        
+        for (byte valid : validOpcodes) {
+            if (this.opcode == valid) {
+                return;
+            }
+        }
+        
+        throw new IllegalStateException("El campo '" + fieldName + 
+            "' no está definido para el tipo de mensaje actual (opcode: " + this.opcode + ")");
+    }
 
 	/**
 	 * Método de clase para parsear los campos de un mensaje y construir el objeto
@@ -100,7 +112,7 @@ public class PeerMessage {
 	 */
 	public static PeerMessage readMessageFromInputStream(DataInputStream dis) throws IOException {
 		/*
-		 * TODO: (Boletín MensajesBinarios) En función del tipo de mensaje, leer del
+		 * (Boletín MensajesBinarios) En función del tipo de mensaje, leer del
 		 * socket a través del "dis" el resto de campos para ir extrayendo con los
 		 * valores y establecer los atributos del un objeto DirMessage que contendrá
 		 * toda la información del mensaje, y que será devuelto como resultado. NOTA:
@@ -110,21 +122,30 @@ public class PeerMessage {
 		PeerMessage message = new PeerMessage();
 		byte opcode = dis.readByte();
 		switch (opcode) {
-		case PeerMessageOps.OPCODE_PEER_FILES_REQ:
-			;
+		case PeerMessageOps.OPCODE_PEER_FILES:
 			break;
-		case PeerMessageOps.OPCODE_PEER_FILES_REPLY:
+		case PeerMessageOps.OPCODE_PEER_FILES_OK:
 			int tamanyo = dis.readInt();
 			byte[] bDatos = new byte[tamanyo];
 			dis.readFully(bDatos);
 			message.setPeerfiles(FileInfo.deserializeList(bDatos));
 			break;
-		case PeerMessageOps.OPCODE_PEER_FILES_DL:
+		case PeerMessageOps.OPCODE_PEER_DL:
+			int tamanyoHash = dis.readInt();   // 8 bytes
+            byte[] bytesHash = new byte[tamanyoHash];
+            dis.readFully(bytesHash);            // n bytes
+            message.setPeerfileSubhash(new String(bytesHash));
 			break;
-		case PeerMessageOps.OPCODE_PEER_FILES_DL_DATA:
+		case PeerMessageOps.OPCODE_PEER_DL_OK:
+			int longitudFichero = dis.readInt(); // 8 bytes
+            byte[] datosFichero = new byte[longitudFichero];
+            dis.readFully(datosFichero);           // n bytes
+            message.setPeerfileData(datosFichero);
 			break;
-		case PeerMessageOps.OPCODE_PEER_FILES_DL_ERROR:
-			break;		
+		case PeerMessageOps.OPCODE_PEER_DL_ERROR_CONCORDANCIA:
+			break;	
+		case PeerMessageOps.OPCODE_PEER_DL_ERROR_AMIBGUEDAD:
+			break;	
 		default:
 			System.err.println("PeerMessage.readMessageFromInputStream doesn't know how to parse this message opcode: "
 					+ PeerMessageOps.opcodeToOperation(opcode));
@@ -133,21 +154,23 @@ public class PeerMessage {
 		return message;
 	}
 
+
 	public void writeMessageToOutputStream(DataOutputStream dos) throws IOException {
 		/*
-		 * TODO (Boletín MensajesBinarios): Escribir los bytes en los que se codifica el
+		 * (Boletín MensajesBinarios): Escribir los bytes en los que se codifica el
 		 * mensaje en el socket a través del "dos", teniendo en cuenta opcode del
 		 * mensaje del que se trata y los campos relevantes en cada caso. NOTA: Usar
 		 * dos.write para leer un array de bytes, dos.writeInt para escribir un entero,
 		 * etc.
 		 */
+		
+		//CREO RECORDAR QUE ESTA FUNCION ESTA TERMINADA
 
 		dos.writeByte(opcode);
 		switch (opcode) {
-		case PeerMessageOps.OPCODE_PEER_FILES_REQ:
-			;
+		case PeerMessageOps.OPCODE_PEER_FILES:
 			break;
-		case PeerMessageOps.OPCODE_PEER_FILES_REPLY:
+		case PeerMessageOps.OPCODE_PEER_FILES_OK:
 			// consigo array de bytes que lo representa
 			byte[] bFiles = FileInfo.serializeList(getPeerfiles());
 			// escribo campo longitud
@@ -155,19 +178,19 @@ public class PeerMessage {
 			dos.write(bFiles);
 			
 			break;
-		case PeerMessageOps.OPCODE_PEER_FILES_DL:
-			byte[] bHash = getSubhash().getBytes();
-			dos.writeLong(offset);
-			dos.writeInt(length);
+		case PeerMessageOps.OPCODE_PEER_DL:
+			byte[] bHash = getPeerfileSubhash().getBytes();
 			dos.writeInt(bHash.length);
 			dos.write(bHash);
 			break;
-		case PeerMessageOps.OPCODE_PEER_FILES_DL_DATA:
-			byte[] bData = getData();
+		case PeerMessageOps.OPCODE_PEER_DL_OK:
+			byte[] bData = getPeerfileData();
 			dos.writeInt(bData.length);
 			dos.write(bData);
 			break;
-		case PeerMessageOps.OPCODE_PEER_FILES_DL_ERROR:
+		case PeerMessageOps.OPCODE_PEER_DL_ERROR_CONCORDANCIA:
+			break;	
+		case PeerMessageOps.OPCODE_PEER_DL_ERROR_AMIBGUEDAD:
 			break;
 		default:
 			System.err.println("PeerMessage.writeMessageToOutputStream found unexpected message opcode " + opcode + "("

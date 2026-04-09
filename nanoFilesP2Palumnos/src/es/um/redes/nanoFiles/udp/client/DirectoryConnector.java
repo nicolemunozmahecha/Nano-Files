@@ -349,14 +349,7 @@ public class DirectoryConnector {
 
 		DirMessage dirfiles = new DirMessage(DirMessageOps.OPERATION_DIRFILES);
 		
-		//System.out.println("[getFileList] DEBUG: Nombre carpeta: " + Directory.DEFAULT_DIRECTORY_FILES_PATH);
-
-		//filelist = FileInfo.loadFilesFromFolder(Directory.DEFAULT_DIRECTORY_FILES_PATH);
-		//System.out.println("[getFileList] DEBUG: Tamaño carpeta: " + filelist.length);
-		
-		
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());
-		//System.out.println("[getFileList] DEBUG: bytesRespuesta: " + bytesRespuesta);
 		if (bytesRespuesta == null) {
 			return null;
 		}

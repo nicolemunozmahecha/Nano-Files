@@ -48,7 +48,9 @@ public class DirMessage {
 	private static final String FIELDNAME_SERVEPEER = "servepeer";
 	private static final String FIELDNAME_SERVEIP = "serveip";
 
-
+	private static final String FIELDNAME_PEERFILENAME = "peerfileName";
+	private static final String FIELDNAME_PEERFILELENGTH = "peerfileLength";
+	private static final String FIELDNAME_PEERFILESUBHASH = "peerfileSubhash";
 
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
@@ -70,6 +72,10 @@ public class DirMessage {
 	int servePort;
 	String serveNombrePeer;
 	String serveIp;
+	
+	// ASUMO QUE AQUI HABRA QUE AÑADIR LA LISTA DE FICHEROS DE UN PEER
+	private FileInfo[] peerfiles;
+	
 	
 	public DirMessage(String op) {
 		operation = op;
@@ -160,6 +166,14 @@ public class DirMessage {
 	public void setServeIp(String serveIp) {
 		this.serveIp = serveIp;
 	}
+	
+	public FileInfo[] getPeerfiles() {
+		return peerfiles;
+	}
+
+	public void setPeerfiles(FileInfo[] peerfiles) {
+		this.peerfiles = peerfiles;
+	}
 
 	/**
 	 * Método que convierte un mensaje codificado como una cadena de caracteres, a
@@ -246,6 +260,21 @@ public class DirMessage {
 				m.setServePort(Integer.valueOf(value));
 				break;
 			}
+			// IGUAL QUE CON LOS CAMPOS DE DIRFILES
+			case FIELDNAME_PEERFILENAME:{
+				aux = new FileInfo();
+				aux.fileName = value;
+				break;
+			}
+			case FIELDNAME_PEERFILESUBHASH:{
+				aux.fileHash = value;
+				break;		
+			}
+			case FIELDNAME_PEERFILELENGTH:{
+				aux.fileSize = Long.valueOf(value);
+				temporal.add(aux);
+				break;
+			}
 			default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
 				System.err.println("Message was:\n" + message);
@@ -259,6 +288,10 @@ public class DirMessage {
 		
 		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_PEERS_OK)) {
 	        m.peers = mapaTemp;
+	    }
+		
+		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_PEERFILES_OK)) {
+	        m.peerfiles = temporal.toArray(new FileInfo[0]);
 	    }
 
 		return m;
@@ -323,6 +356,16 @@ public class DirMessage {
 			sb.append(FIELDNAME_SERVEIP + DELIMITER + serveIp + END_LINE);
 			sb.append(FIELDNAME_SERVEPORT + DELIMITER + servePort + END_LINE);
 
+			break;
+		}case DirMessageOps.OPERATION_PEERFILES: {
+			break;
+		}
+		case DirMessageOps.OPERATION_PEERFILES_OK: {
+			for(FileInfo f : filelist) {
+				sb.append(FIELDNAME_FILENAME + DELIMITER + f.fileName + END_LINE); 
+				sb.append(FIELDNAME_FILEHASH + DELIMITER + f.fileHash + END_LINE); 
+				sb.append(FIELDNAME_FILESIZE + DELIMITER + f.fileSize + END_LINE); 
+			}
 			break;
 		}
 		default:

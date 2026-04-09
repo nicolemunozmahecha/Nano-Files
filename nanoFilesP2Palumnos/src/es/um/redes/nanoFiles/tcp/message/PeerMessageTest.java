@@ -47,7 +47,7 @@ public class PeerMessageTest {
 		System.out.println("*Directoy loaded "+directoryFiles.length + " files from " + directoryFilesPath);
 		
 		// simulamos envio
-		PeerMessage peerListReq = new PeerMessage(PeerMessageOps.OPCODE_PEER_FILES_REPLY, directoryFiles);
+		PeerMessage peerListReq = new PeerMessage(PeerMessageOps.OPCODE_PEER_FILES, directoryFiles);
 		peerListReq.writeMessageToOutputStream(fos);
 		
 		PeerMessage peerListRep = PeerMessage.readMessageFromInputStream(fis);

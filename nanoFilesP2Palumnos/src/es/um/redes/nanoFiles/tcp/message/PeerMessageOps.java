@@ -8,37 +8,41 @@ public class PeerMessageOps {
 	public static final byte OPCODE_INVALID_CODE = 0;
 
 	/*
-	 * TODO: (Boletín MensajesBinarios) Añadir aquí todas las constantes que definen
+	 * (Boletín MensajesBinarios) Añadir aquí todas las constantes que definen
 	 * los diferentes tipos de mensajes del protocolo de comunicación con un par
 	 * servidor de ficheros (valores posibles del campo "operation").
 	 */
-	public static final byte OPCODE_PEER_FILES_REQ = 1;
-	public static final byte OPCODE_PEER_FILES_REPLY = 2;
-	public static final byte OPCODE_PEER_FILES_DL = 3;
-	public static final byte OPCODE_PEER_FILES_DL_DATA = 4;
-	public static final byte OPCODE_PEER_FILES_DL_ERROR = 5;
+	public static final byte OPCODE_PEER_FILES = 1;
+	public static final byte OPCODE_PEER_FILES_OK = 2;
+	public static final byte OPCODE_PEER_DL = 3;
+	public static final byte OPCODE_PEER_DL_OK = 4;
+	public static final byte OPCODE_PEER_DL_ERROR_CONCORDANCIA = 5;
+	public static final byte OPCODE_PEER_DL_ERROR_AMIBGUEDAD = 6;
+
 
 
 	/*
-	 * TODO: (Boletín MensajesBinarios) Definir constantes con nuevos opcodes de
+	 * (Boletín MensajesBinarios) Definir constantes con nuevos opcodes de
 	 * mensajes definidos anteriormente, añadirlos al array "valid_opcodes" y añadir
 	 * su representación textual a "valid_operations_str" EN EL MISMO ORDEN.
 	 */
 	private static final Byte[] _valid_opcodes = { 
 			OPCODE_INVALID_CODE,
-			OPCODE_PEER_FILES_REQ,
-			OPCODE_PEER_FILES_REPLY,
-			OPCODE_PEER_FILES_DL,
-			OPCODE_PEER_FILES_DL_DATA,
-			OPCODE_PEER_FILES_DL_ERROR
+			OPCODE_PEER_FILES,
+			OPCODE_PEER_FILES_OK,
+			OPCODE_PEER_DL,
+			OPCODE_PEER_DL_OK,
+			OPCODE_PEER_DL_ERROR_CONCORDANCIA,
+			OPCODE_PEER_DL_ERROR_AMIBGUEDAD
 
 	};
 	private static final String[] _valid_operations_str = { "INVALID_OPCODE",
-			"PEER_FILES_REQ",
-			"PEER_FILES_REPLY",
-			"PEER_FILES_DL",
-			"PEER_FILES_DL_DATA",
-			"PEER_FILES_DL_ERROR"
+			"PEER_FILES",
+			"PEER_FILES_OK",
+			"PEER_DL",
+			"PEER_DL_OK",
+			"PEER_DL_ERROR_CONCORDANCIA",
+			"PEER_DL_ERROR_AMBIGUEDAD"
 
 	};
 
