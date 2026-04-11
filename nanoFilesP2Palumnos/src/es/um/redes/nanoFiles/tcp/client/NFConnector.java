@@ -44,6 +44,7 @@ public class NFConnector {
 		 * después recibir otro entero, comprobando que se trata del mismo valor.
 		 */
 		// mandar con dis escribir con dos mandar con dis
+		System.out.println("[DEBUG] Entra en NFConnector ");
 		try {
 			dos.writeInt(55);
 			int numero = dis.readInt();

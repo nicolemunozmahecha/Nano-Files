@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
+
+import es.um.redes.nanoFiles.tcp.message.PeerMessage;
 
 
 public class NFServer implements Runnable {
@@ -41,23 +44,31 @@ public class NFServer implements Runnable {
 		} else {
 			System.out.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
 		}
+		System.out.println("[fileServerTestMode] DEBUG");
 
-		Socket clientSocket = null;
-		DataInputStream dis = null;
-		DataOutputStream dos = null;
+		//Socket clientSocket = null;
+		//DataInputStream dis = null;
+		//DataOutputStream dos = null;
+		//utilizamos el serversocket
 		while (true) {
+			System.out.println("[fileServerTestMode] DEBUG entra en el true");
 			/*
 			 * (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 			 * otros peers que soliciten descargar ficheros.
 			 */
 			try {
-				clientSocket = this.serverSocket.accept();
+				System.out.println("[fileServerTestMode] DEBUG entra en el try");
+				Socket clientSocket = this.serverSocket.accept();
+				System.out.println("\nNew client connected: " +
+						clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort());
 				/*
 				 * (Boletín SocketsTCP) Tras aceptar la conexión con un peer cliente, la
 				 * comunicación con dicho cliente para servir los ficheros solicitados se debe
 				 * implementar en el método serveFilesToClient, al cual hay que pasarle el
 				 * socket devuelto por accept.
 				 */
+				serveFilesToClient(clientSocket);
+				/*
 				dis = new DataInputStream(clientSocket.getInputStream());
 				dos = new DataOutputStream(clientSocket.getOutputStream());
 				
@@ -65,7 +76,9 @@ public class NFServer implements Runnable {
 				int numero = dis.readInt();
 				System.out.println("Hemos leido el numero: " + numero + " y lo mando de vuelta");
 				dos.writeInt(numero);
+				*/
 			} catch (IOException e) {
+				System.out.println("[fileServerTestMode] DEBUG entra en el cath");
 				e.printStackTrace();
 			}
 		}
@@ -121,22 +134,44 @@ public class NFServer implements Runnable {
 		/*
 		 * TODO: (Boletín SocketsTCP) Crear dis/dos a partir del socket
 		 */
-		/*
-		 * TODO: (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
-		 * de socket, convertirlo a un objeto PeerMessage y luego actuar en función del
-		 * tipo de mensaje recibido, enviando los correspondientes mensajes de
-		 * respuesta.
-		 */
-		/*
-		 * TODO: (Boletín SocketsTCP) Para servir un fichero, hay que localizarlo a
-		 * partir de su hash (o subcadena) en nuestra base de datos de ficheros
-		 * compartidos. Los ficheros compartidos se pueden obtener con
-		 * NanoFiles.db.getFiles(). Los métodos lookupHashSubstring y
-		 * lookupFilenameSubstring de la clase FileInfo son útiles para buscar ficheros
-		 * coincidentes con una subcadena dada del hash o del nombre del fichero. El
-		 * método lookupFilePath() de FileDatabase devuelve la ruta al fichero a partir
-		 * de su hash completo.
-		 */
+		
+		try {
+			DataInputStream dis =  new DataInputStream(socket.getInputStream());
+			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+		
+			/*
+			 * TODO: (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
+			 * de socket, convertirlo a un objeto PeerMessage y luego actuar en función del
+			 * tipo de mensaje recibido, enviando los correspondientes mensajes de
+			 * respuesta.
+			 */
+			
+			PeerMessage dataFromClient = PeerMessage.readMessageFromInputStream(dis);
+			System.out.println("Response from client...\n" + dataFromClient);
+
+			dataFromClient.writeMessageToOutputStream(dos);
+			
+		
+			
+			/*
+			 * TODO: (Boletín SocketsTCP) Para servir un fichero, hay que localizarlo a
+			 * partir de su hash (o subcadena) en nuestra base de datos de ficheros
+			 * compartidos. Los ficheros compartidos se pueden obtener con
+			 * NanoFiles.db.getFiles(). Los métodos lookupHashSubstring y
+			 * lookupFilenameSubstring de la clase FileInfo son útiles para buscar ficheros
+			 * coincidentes con una subcadena dada del hash o del nombre del fichero. El
+			 * método lookupFilePath() de FileDatabase devuelve la ruta al fichero a partir
+			 * de su hash completo.
+			 */
+
+
+		
+		} catch (IOException e) {	
+			e.printStackTrace();
+		}
+		
+		
+		
 
 
 

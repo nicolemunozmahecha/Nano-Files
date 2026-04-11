@@ -165,6 +165,7 @@ public class PeerMessage {
 		 */
 		
 		//CREO RECORDAR QUE ESTA FUNCION ESTA TERMINADA
+		//EL OPCODE ES VACIO?
 
 		dos.writeByte(opcode);
 		switch (opcode) {
