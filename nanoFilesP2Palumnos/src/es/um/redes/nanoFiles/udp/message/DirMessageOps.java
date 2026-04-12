@@ -32,6 +32,11 @@ public class DirMessageOps {
 	public static final String OPERATION_PEERFILES = "peerfiles";
 	public static final String OPERATION_PEERFILES_OK = "peerfiles_ok";
 
+	// PEERDL
+	public static final String OPERATION_PEERDL = "peerdl";
+	public static final String OPERATION_PEERDL_OK = "peerdl_ok";
+	public static final String OPERATION_PEERDL_ERROR_CONC = "peerdl_error_concordancia";
+	public static final String OPERATION_PEERDL_ERROR_AMB= "peerdl_error_ambiguedad";
 
 }
  

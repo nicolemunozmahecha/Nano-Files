@@ -367,6 +367,8 @@ public class DirMessage {
 				sb.append(FIELDNAME_FILESIZE + DELIMITER + f.fileSize + END_LINE); 
 			}
 			break;
+		}case DirMessageOps.OPERATION_PEERDL_OK: {
+			break;
 		}
 		default:
 			System.err.println("PANIC: DirMessage.toString - message with unknown operation name " + operacion);
