@@ -62,6 +62,7 @@ public class NFControllerLogicP2P {
 		 */
 		assert (fileServer == null);
 		try {
+			System.out.println("DEBUG: entra en el try testTCPServer");
 
 			fileServer = new NFServer();
 			/*
@@ -82,7 +83,7 @@ public class NFControllerLogicP2P {
 	}
 
 	public void testTCPClient() {
-
+		System.out.println("DEBUG: entra en testTCPClient");
 		assert (NanoFiles.testModeTCP);
 		/*
 		 * (Boletín SocketsTCP) Inicialmente, se creará un NFConnector (cliente TCP)
@@ -94,8 +95,10 @@ public class NFControllerLogicP2P {
 		 */
 
 		try {
+			System.out.println("DEBUG: entra en el try testTCPClient");
 			NFConnector nfConnector = new NFConnector(new InetSocketAddress(NFServer.PORT));
 			nfConnector.test();
+			//NanoFiles.testModeTCP = false;
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

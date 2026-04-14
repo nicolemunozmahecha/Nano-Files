@@ -52,6 +52,8 @@ public class DirMessage {
 	private static final String FIELDNAME_PEERFILELENGTH = "peerfileLength";
 	private static final String FIELDNAME_PEERFILESUBHASH = "peerfileSubhash";
 
+	private static final String FIELDNAME_DIRDLHASHSUBSTRING = "dirdlHashSubstring";
+	
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
 	 */
@@ -75,6 +77,13 @@ public class DirMessage {
 	
 	// ASUMO QUE AQUI HABRA QUE AÑADIR LA LISTA DE FICHEROS DE UN PEER
 	private FileInfo[] peerfiles;
+	
+	// AMPLIACIÓN
+	// dirdl
+	private String dirdlhash;
+	private String dirdlHashSubstring;
+	private String dirdlName;
+	private Long dirdlSize;
 	
 	
 	public DirMessage(String op) {
@@ -102,6 +111,20 @@ public class DirMessage {
 		serveIp = ip;
 		servePort = puerto;
 	}
+	
+	public DirMessage(String op, String hash, String name, Long size) {
+		this(op);
+		dirdlhash = hash;
+		dirdlName = name;
+		dirdlSize = size;
+		
+	}
+	public DirMessage(String op, String subhash) {
+		this(op);
+		dirdlHashSubstring = subhash;
+		
+	}
+	
 	/*
 	 * TODO: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
 	 * valores de los atributos de un mensaje. Se aconseja incluir código que
@@ -173,6 +196,40 @@ public class DirMessage {
 
 	public void setPeerfiles(FileInfo[] peerfiles) {
 		this.peerfiles = peerfiles;
+	}
+	
+	// AMPLIACIÓN
+	public String getDirdlHashSubstring() {
+		return dirdlHashSubstring;
+	}
+
+	public void setDirdlHashSubstring(String dirdlHashSubstring) {
+		this.dirdlHashSubstring = dirdlHashSubstring;
+	}
+	
+
+	public String getDirdlName() {
+		return dirdlName;
+	}
+
+	public void setDirdlName(String dirdlName) {
+		this.dirdlName = dirdlName;
+	}
+
+	public Long getDirdlSize() {
+		return dirdlSize;
+	}
+
+	public void setDirdlSize(Long dirdlSize) {
+		this.dirdlSize = dirdlSize;
+	}
+
+	public String getDirdlhash() {
+		return dirdlhash;
+	}
+
+	public void setDirdlhash(String dirdlhash) {
+		this.dirdlhash = dirdlhash;
 	}
 
 	/**
@@ -275,6 +332,11 @@ public class DirMessage {
 				temporal.add(aux);
 				break;
 			}
+			// AMPLIACIÓN
+			case FIELDNAME_DIRDLHASHSUBSTRING:{
+				//
+				break;
+			}
 			default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
 				System.err.println("Message was:\n" + message);
@@ -359,8 +421,7 @@ public class DirMessage {
 			break;
 		}case DirMessageOps.OPERATION_PEERFILES: {
 			break;
-		}
-		case DirMessageOps.OPERATION_PEERFILES_OK: {
+		}case DirMessageOps.OPERATION_PEERFILES_OK: {
 			for(FileInfo f : filelist) {
 				sb.append(FIELDNAME_FILENAME + DELIMITER + f.fileName + END_LINE); 
 				sb.append(FIELDNAME_FILEHASH + DELIMITER + f.fileHash + END_LINE); 
@@ -368,6 +429,10 @@ public class DirMessage {
 			}
 			break;
 		}case DirMessageOps.OPERATION_PEERDL_OK: {
+			break;
+		}case DirMessageOps.OPERATION_DIRDL: {
+			break;
+		}case DirMessageOps.OPERATION_DIRDL_OK: {
 			break;
 		}
 		default:

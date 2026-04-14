@@ -14,6 +14,7 @@ import es.um.redes.nanoFiles.application.Directory;
 import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.udp.message.DirMessage;
 import es.um.redes.nanoFiles.udp.message.DirMessageOps;
+import es.um.redes.nanoFiles.util.FileDatabase;
 import es.um.redes.nanoFiles.util.FileInfo;
 
 /**
@@ -404,8 +405,25 @@ public class DirectoryConnector {
 		long filesize = -1;
 		String filehash = null;
 
+		DirMessage dirdl = new DirMessage(DirMessageOps.OPERATION_DIRDL, hashSubstring);
 
-
+		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirdl.toString().getBytes());
+		if (bytesRespuesta == null) {
+			return null;
+		}
+		
+		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
+		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
+		
+		
+		System.out.println("[DownloadedFile] DEBUG: " + dmRespuesta.getOperation() + "= dirdl_ok"  );
+		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_OK)) {
+			System.out.println("[DownloadedFile] Operación recibida: " + dmRespuesta.getOperation());
+			filename = dmRespuesta.getDirdlName();
+			filehash = dmRespuesta.getDirdlhash();
+			filesize = dmRespuesta.getDirdlSize();
+		}
+			
 		return new DownloadedFile(filename, filesize, fileData, filehash);
 	}
 

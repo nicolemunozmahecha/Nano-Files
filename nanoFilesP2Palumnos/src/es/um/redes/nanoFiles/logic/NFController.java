@@ -154,6 +154,7 @@ public class NFController {
 			 * disponibles.
 			 */
 			if (NanoFiles.testModeTCP) {
+				System.out.println("DEBUG: Entra en el comando serve y testModeTCP");
 				controllerPeer.testTCPServer();
 			} else {
 				boolean serverRunning = controllerPeer.startFileServer();
@@ -198,6 +199,7 @@ public class NFController {
 			commandSucceeded = true;
 			break;
 		default:
+			System.out.println("DEBUG: NO HA ENTRADO EN NINGUNA OPCION");
 		}
 
 		updateCurrentState(commandSucceeded);

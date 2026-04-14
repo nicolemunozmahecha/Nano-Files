@@ -6,6 +6,7 @@ import java.util.Map;
 import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.udp.client.DirectoryConnector;
 import es.um.redes.nanoFiles.util.FileInfo;
+import es.um.redes.nanoFiles.util.NickGenerator;
 
 public class NFControllerLogicDir {
 
@@ -126,11 +127,19 @@ public class NFControllerLogicDir {
 	 * @return Verdadero si el registro se hace con éxito
 	 */
 	protected boolean registerFileServer(int serverPort) {
+		System.out.println("DEBUG: Entra a registerFileServer");
 		boolean result = false;
+		// RECORRER LISTA DE PEERS 
+		for(Map.Entry<String, InetSocketAddress> p : directoryConnector.getPeerList().entrySet()) {
+			System.out.println("DEBUG: Recorre lista de peers");
+			if (NanoFiles.peerNickname.equals(p.getKey())) {
+				System.out.println("DEBUG: Ya hay un nickname registrado, generamos nuevo");
+				NanoFiles.peerNickname = NickGenerator.randomNickname();
+				break;
+			}
+		}
 		if (this.directoryConnector.registerFileServer(serverPort)) {
-
-
-
+			
 			System.out.println("* File server successfully registered with the directory");
 			result = true;
 		} else {

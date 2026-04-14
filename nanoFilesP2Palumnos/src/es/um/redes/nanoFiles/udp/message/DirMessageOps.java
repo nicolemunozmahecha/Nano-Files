@@ -37,6 +37,11 @@ public class DirMessageOps {
 	public static final String OPERATION_PEERDL_OK = "peerdl_ok";
 	public static final String OPERATION_PEERDL_ERROR_CONC = "peerdl_error_concordancia";
 	public static final String OPERATION_PEERDL_ERROR_AMB= "peerdl_error_ambiguedad";
+	
+	// AMPLIACIÓN DIRDL
+	public static final String OPERATION_DIRDL = "dirdl";
+	public static final String OPERATION_DIRDL_OK = "dirdl_ok";
+	public static final String OPERATION_DIRDL_ERROR = "dirdl_error";
 
 }
  

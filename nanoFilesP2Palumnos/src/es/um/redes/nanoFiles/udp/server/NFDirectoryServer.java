@@ -14,7 +14,6 @@ import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.udp.message.DirMessage;
 import es.um.redes.nanoFiles.udp.message.DirMessageOps;
 import es.um.redes.nanoFiles.util.FileInfo;
-import es.um.redes.nanoFiles.util.NickGenerator;
 
 public class NFDirectoryServer {
 	/**
@@ -311,7 +310,28 @@ public class NFDirectoryServer {
 			System.out.println("[sendResponse] DEBUG: Valores dirfiles: " + mensajeAEnviar.toString() );
 			break;
 		}
-		
+		// AMPLIACIÓN
+		case DirMessageOps.OPERATION_DIRDL: {
+			String subhash = mensajeCliente.getDirdlHashSubstring();
+			String name = null;
+			String hash = null;
+			Long size = (long) 0;
+			for (FileInfo f: directoryFiles) {
+				if (f.fileHash.contains(subhash)) {
+					hash = f.fileHash;
+					name = f.fileName;
+					size = f.fileSize;
+					break;
+				}
+			}
+			if (name.equals(null)) {
+				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_ERROR);
+
+			}else {
+				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size);
+			}
+			break;
+		}
 		default:
 			System.err.println("[sendResponse] Unexpected message operation: \"" + operation + "\"");
 			System.exit(-1);
