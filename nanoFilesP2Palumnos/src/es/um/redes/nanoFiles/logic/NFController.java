@@ -121,6 +121,7 @@ public class NFController {
 			 * Pedir al controllerDir que obtenga del directorio la lista de pares que están
 			 * sirviendo ficheros y la imprima por pantalla.
 			 */
+			System.err.println("[NFController] DEBUG: pasa por controler case PEERLIST");
 			controllerDir.getAndPrintPeerList();
 			break;
 		case NFCommands.COM_FILELIST_PEER:
