@@ -158,6 +158,7 @@ public class NFController {
 				System.out.println("DEBUG: Entra en el comando serve y testModeTCP");
 				controllerPeer.testTCPServer();
 			} else {
+				System.out.println("[NFController]DEBUG: Entra en el comando serve");
 				boolean serverRunning = controllerPeer.startFileServer();
 				if (serverRunning) {
 					commandSucceeded = controllerDir.registerFileServer(controllerPeer.getServerPort());

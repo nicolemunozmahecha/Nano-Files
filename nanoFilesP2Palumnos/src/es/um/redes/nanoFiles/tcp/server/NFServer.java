@@ -95,6 +95,25 @@ public class NFServer implements Runnable {
 		 * TODO: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 		 * otros peers que soliciten descargar ficheros
 		 */
+		Socket clientSocket;
+		try {
+			clientSocket = this.serverSocket.accept();
+			System.out.println("\n[NFServer]New client connected: " +
+					clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort());
+			
+			/*
+			 * TODO: (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
+			 * comunicación con dicho cliente se hace en el método
+			 * serveFilesToClient(socket), al cual hay que pasarle el socket devuelto por
+			 * accept
+			 */
+			
+			serveFilesToClient(clientSocket);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		/*
 		 * TODO: (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
 		 * comunicación con dicho cliente se hace en el método
@@ -134,7 +153,7 @@ public class NFServer implements Runnable {
 		/*
 		 * TODO: (Boletín SocketsTCP) Crear dis/dos a partir del socket
 		 */
-		
+		System.out.println("[NFServer] serveFilesToClient");
 		try {
 			DataInputStream dis =  new DataInputStream(socket.getInputStream());
 			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());

@@ -45,7 +45,14 @@ public class NFControllerLogicP2P {
 			 * programa
 			 * 
 			 */
-
+			//IGNORANDO LO CONCURRENTE LO DE LOS DOS HILOS
+			try {
+				fileServer = new NFServer();
+				serverRunning = true;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 
 
@@ -173,7 +180,7 @@ public class NFControllerLogicP2P {
 		 * TODO: Devolver el puerto de escucha de nuestro servidor de ficheros
 		 */
 
-
+		port = fileServer.PORT;
 
 		return port;
 	}

@@ -281,21 +281,22 @@ public class NFDirectoryServer {
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PEERS_OK, registeredPeers);
 			break;
 		}case DirMessageOps.OPERATION_SERVE: {
-			String cadIp = String.valueOf(pkt.getAddress());
+			System.out.println("[sendResponse] DEBUG: entra en operacion serve");
+			System.out.println("[sendResponse] DEBUG: cadIp: " + String.valueOf(pkt.getAddress()));
+			String cadIp = pkt.getAddress().getHostAddress();
 			
 			int puerto =  mensajeCliente.getServePort();
 			String nombrePeer = mensajeCliente.getServeNombrePeer();
+			System.out.println("[sendResponse] DEBUG: InetAddrress: " + InetAddress.getByName(cadIp));
 			InetSocketAddress pareja =  new InetSocketAddress(InetAddress.getByName(cadIp), puerto);
+			System.out.println("[sendResponse] DEBUG: InetSocketAddrress: " + pareja);
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_SERVE_OK, nombrePeer, cadIp, puerto);
-			boolean estaRegistrado = false;
-			for(Map.Entry<String, InetSocketAddress> i : registeredPeers.entrySet()) {
-				if(i.getKey().equals(nombrePeer)) {
-					estaRegistrado = true;
-				}
-			}
-			if(!estaRegistrado) {
+			
+			
+			if(!registeredPeers.containsKey(nombrePeer)) {
 				registeredPeers.put(nombrePeer, pareja);	
 			}
+			
 			break;
 		}case DirMessageOps.OPERATION_PEERFILES: {
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PEERFILES_OK, peerfileslist);
