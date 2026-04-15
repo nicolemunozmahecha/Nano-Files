@@ -294,7 +294,7 @@ public class DirMessage {
 				break;
 			}
 			case FIELDNAME_PEERNICKNAME:{
-				cadAux = value;
+				cadAux = value.trim();
 				break;
 			}
 			case FIELDNAME_PEERIP:{
@@ -451,6 +451,8 @@ public class DirMessage {
 			sb.append(FIELDNAME_DIRDLNAME + DELIMITER + dirdlName + END_LINE); 
 			sb.append(FIELDNAME_DIRDLHASH + DELIMITER + dirdlhash + END_LINE); 
 			sb.append(FIELDNAME_DIRDLSIZE + DELIMITER + dirdlSize + END_LINE);
+			break;
+		}case DirMessageOps.OPERATION_DIRDL_ERROR: {
 			break;
 		}
 		default:

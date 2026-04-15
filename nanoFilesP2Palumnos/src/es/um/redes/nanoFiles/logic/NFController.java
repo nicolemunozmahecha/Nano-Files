@@ -224,7 +224,7 @@ public class NFController {
 		case NFCommands.COM_MYFILES: {
 			commandAllowed = true;
 			break;
-		}
+		} 
 		default:
 			// System.err.println("ERROR: undefined behaviour for " + currentCommand + "
 			// command!");

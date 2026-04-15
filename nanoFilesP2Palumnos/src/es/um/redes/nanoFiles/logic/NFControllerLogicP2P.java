@@ -3,11 +3,13 @@ package es.um.redes.nanoFiles.logic;
 import java.net.InetSocketAddress;
 import java.io.IOException;
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
+import es.um.redes.nanoFiles.application.Directory;
 import es.um.redes.nanoFiles.application.NanoFiles;
 
 
 
 import es.um.redes.nanoFiles.tcp.server.NFServer;
+import es.um.redes.nanoFiles.util.FileInfo;
 
 public class NFControllerLogicP2P {
 	// Servidor TCP local para compartir ficheros con otros peers
@@ -50,7 +52,7 @@ public class NFControllerLogicP2P {
 				fileServer = new NFServer();
 				serverRunning = true;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				// Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -108,7 +110,6 @@ public class NFControllerLogicP2P {
 			//NanoFiles.testModeTCP = false;
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -123,9 +124,30 @@ public class NFControllerLogicP2P {
 	 */
 	protected boolean listPeerFiles(InetSocketAddress peerAddr) {
 		boolean success = false;
-
-
-
+		System.out.println("[listPeerFiles] DEBUG: Entrando en listPeerFiles");
+		try {
+			System.out.println("[listPeerFiles] DEBUG: entra en try");
+			NFConnector peerConnector = new NFConnector(peerAddr);
+			System.out.println("[listPeerFiles] DEBUG: conexión establecida");
+			FileInfo[] ficherosDelPeer = peerConnector.getFileList();
+			
+			if (ficherosDelPeer != null) {
+				System.out.println("* Files shared by peer:");
+				FileInfo.printToSysout(ficherosDelPeer);
+				success = true;
+			} else {
+				System.out.println("[listPeerFiles] DEBUG: lista de ficheros nula");
+				System.err.println("* El peer no ha devuelto ningún fichero o hubo un error.");
+			}
+			
+			// TODO: Importante: ¡cerrar la conexión TCP al terminar!
+			// peerConnector.close();
+			
+		} catch (IOException e) {
+			System.err.println("* Error al conectar por TCP con el peer en: " + peerAddr);
+			e.printStackTrace();
+		}
+		
 		return success;
 	}
 
@@ -177,7 +199,7 @@ public class NFControllerLogicP2P {
 	protected int getServerPort() {
 		int port = 0;
 		/*
-		 * TODO: Devolver el puerto de escucha de nuestro servidor de ficheros
+		 * Devolver el puerto de escucha de nuestro servidor de ficheros
 		 */
 
 		port = fileServer.PORT;

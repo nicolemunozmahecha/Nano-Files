@@ -63,4 +63,17 @@ public class NFConnector {
 		return serverAddr;
 	}
 
+	public FileInfo[] getFileList() throws IOException {
+	    PeerMessage peticion = new PeerMessage(PeerMessageOps.OPCODE_PEER_FILES);
+	    
+	    peticion.writeMessageToOutputStream(dos);
+	    
+	    PeerMessage respuesta = PeerMessage.readMessageFromInputStream(dis);
+	    
+	    if (respuesta.getOpcode() == PeerMessageOps.OPCODE_PEER_FILES_OK) {
+	        return respuesta.getPeerfiles();
+	    }
+	    
+	    return null;
+	}
 }

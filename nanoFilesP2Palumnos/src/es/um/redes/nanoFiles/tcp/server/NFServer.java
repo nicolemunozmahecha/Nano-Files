@@ -44,20 +44,16 @@ public class NFServer implements Runnable {
 		} else {
 			System.out.println("[fileServerTestMode] NFServer running on " + serverSocket.getLocalSocketAddress() + ".");
 		}
-		System.out.println("[fileServerTestMode] DEBUG");
 
-		//Socket clientSocket = null;
-		//DataInputStream dis = null;
-		//DataOutputStream dos = null;
 		//utilizamos el serversocket
 		while (true) {
-			System.out.println("[fileServerTestMode] DEBUG entra en el true");
+			//System.out.println("[fileServerTestMode] DEBUG entra en el true");
 			/*
 			 * (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 			 * otros peers que soliciten descargar ficheros.
 			 */
 			try {
-				System.out.println("[fileServerTestMode] DEBUG entra en el try");
+				//System.out.println("[fileServerTestMode] DEBUG entra en el try");
 				Socket clientSocket = this.serverSocket.accept();
 				System.out.println("\nNew client connected: " +
 						clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort());
@@ -68,17 +64,9 @@ public class NFServer implements Runnable {
 				 * socket devuelto por accept.
 				 */
 				serveFilesToClient(clientSocket);
-				/*
-				dis = new DataInputStream(clientSocket.getInputStream());
-				dos = new DataOutputStream(clientSocket.getOutputStream());
 				
-				// leer y escribir 
-				int numero = dis.readInt();
-				System.out.println("Hemos leido el numero: " + numero + " y lo mando de vuelta");
-				dos.writeInt(numero);
-				*/
 			} catch (IOException e) {
-				System.out.println("[fileServerTestMode] DEBUG entra en el cath");
+				//System.out.println("[fileServerTestMode] DEBUG entra en el cath");
 				e.printStackTrace();
 			}
 		}
@@ -92,34 +80,30 @@ public class NFServer implements Runnable {
 	 */
 	public void run() {
 		/*
-		 * TODO: (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
+		 * (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 		 * otros peers que soliciten descargar ficheros
 		 */
-		Socket clientSocket;
-		try {
-			clientSocket = this.serverSocket.accept();
-			System.out.println("\n[NFServer]New client connected: " +
-					clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort());
-			
-			/*
-			 * TODO: (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
-			 * comunicación con dicho cliente se hace en el método
-			 * serveFilesToClient(socket), al cual hay que pasarle el socket devuelto por
-			 * accept
-			 */
-			
-			serveFilesToClient(clientSocket);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		while(true) {
+			Socket clientSocket;
+			try {
+				clientSocket = this.serverSocket.accept();
+				System.out.println("\n[NFServer]New client connected: " +
+						clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort());
+				
+				/*
+				 * (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
+				 * comunicación con dicho cliente se hace en el método
+				 * serveFilesToClient(socket), al cual hay que pasarle el socket devuelto por
+				 * accept
+				 */
+				
+				serveFilesToClient(clientSocket);
+			} catch (IOException e) {
+				// Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
-		/*
-		 * TODO: (Boletín SocketsTCP) Al establecerse la conexión con un peer, la
-		 * comunicación con dicho cliente se hace en el método
-		 * serveFilesToClient(socket), al cual hay que pasarle el socket devuelto por
-		 * accept
-		 */
 		/*
 		 * TODO: (Boletín TCPConcurrente) Crear un hilo nuevo de la clase
 		 * NFServerThread, que llevará a cabo la comunicación con el cliente que se
@@ -151,7 +135,7 @@ public class NFServer implements Runnable {
 	 */
 	public static void serveFilesToClient(Socket socket) {
 		/*
-		 * TODO: (Boletín SocketsTCP) Crear dis/dos a partir del socket
+		 * (Boletín SocketsTCP) Crear dis/dos a partir del socket
 		 */
 		System.out.println("[NFServer] serveFilesToClient");
 		try {
@@ -159,7 +143,7 @@ public class NFServer implements Runnable {
 			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 		
 			/*
-			 * TODO: (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
+			 * (Boletín SocketsTCP) Mientras el cliente esté conectado, leer mensajes
 			 * de socket, convertirlo a un objeto PeerMessage y luego actuar en función del
 			 * tipo de mensaje recibido, enviando los correspondientes mensajes de
 			 * respuesta.

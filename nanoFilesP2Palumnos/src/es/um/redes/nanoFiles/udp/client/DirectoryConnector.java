@@ -282,7 +282,7 @@ public class DirectoryConnector {
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
-		System.out.println("[pingDirectory]] DEBUG: " + dmRespuesta.getOperation() + "= ping_ok"  );
+		//System.out.println("[pingDirectory]] DEBUG: " + dmRespuesta.getOperation() + "= ping_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_PING_OK)) {
 			System.out.println("[pingDirectory] Operación recibida: " + dmRespuesta.getOperation());
 			success = true;
@@ -301,7 +301,7 @@ public class DirectoryConnector {
 	 *         y acepta la lista de ficheros, falso en caso contrario.
 	 */
 	public boolean registerFileServer(int serverPort) {
-		System.out.println("[registerFileServer] DEBUG: ENTRA EN FUNCION");
+		//System.out.println("[registerFileServer] DEBUG: ENTRA EN FUNCION");
 		boolean success = false;
 		DirMessage serve = new DirMessage(DirMessageOps.OPERATION_SERVE);
 		serve.setServeNombrePeer(NanoFiles.peerNickname);
@@ -316,14 +316,11 @@ public class DirectoryConnector {
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
-		System.out.println("[registerFileServer]] DEBUG: " + dmRespuesta.getOperation() + "= serve_ok"  );
+		//System.out.println("[registerFileServer]] DEBUG: " + dmRespuesta.getOperation() + "= serve_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_SERVE_OK)) {
 			System.out.println("[registerFileServer] Operación recibida: " + dmRespuesta.getOperation());
 			success = true;
-		}else {
-			System.err.println("[registerFileServer] ERROR: puerto no compatible");
 		}
-		
 		
 		return success;
 	}
@@ -359,7 +356,7 @@ public class DirectoryConnector {
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
 		
-		System.out.println("[getFileList] DEBUG: " + dmRespuesta.getOperation() + "= dirfiles_ok"  );
+	//	System.out.println("[getFileList] DEBUG: " + dmRespuesta.getOperation() + "= dirfiles_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
 			System.out.println("[getFileList] Operación recibida: " + dmRespuesta.getOperation());
 		}
@@ -382,7 +379,7 @@ public class DirectoryConnector {
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
-		System.out.println("[getPeerList] DEBUG: " + dmRespuesta.getOperation() + "= peers_ok"  );
+		//System.out.println("[getPeerList] DEBUG: " + dmRespuesta.getOperation() + "= peers_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_PEERS_OK)) {
 			System.out.println("[getPeerList] Operación recibida: " + dmRespuesta.getOperation());
 		}
@@ -406,7 +403,7 @@ public class DirectoryConnector {
 		String filehash = null;
 
 		DirMessage dirdl = new DirMessage(DirMessageOps.OPERATION_DIRDL, hashSubstring);
-		System.out.println("DEBUG: Substring: " + dirdl.getDirdlHashSubstring());
+		//System.out.println("DEBUG: Substring: " + dirdl.getDirdlHashSubstring());
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirdl.toString().getBytes());
 		if (bytesRespuesta == null) {
 			return null;
@@ -416,12 +413,14 @@ public class DirectoryConnector {
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
 		
-		System.out.println("[DownloadedFile] DEBUG: " + dmRespuesta.getOperation() + "= dirdl_ok"  );
+		//System.out.println("[DownloadedFile] DEBUG: " + dmRespuesta.getOperation() + "= dirdl_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_OK)) {
 			System.out.println("[DownloadedFile] Operación recibida: " + dmRespuesta.getOperation());
 			filename = dmRespuesta.getDirdlName();
 			filehash = dmRespuesta.getDirdlhash();
 			filesize = dmRespuesta.getDirdlSize();
+		}else if (dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){
+			return null;
 		}
 			
 		return new DownloadedFile(filename, filesize, fileData, filehash);

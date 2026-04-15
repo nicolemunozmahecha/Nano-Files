@@ -65,13 +65,13 @@ public class NFDirectoryServer {
 		directoryFiles = FileInfo.loadFilesFromFolder(directoryFilesPath);
 		System.out.println("* Directory loaded " + directoryFiles.length + " files from " + directoryFilesPath);
 		/*
-		 * TODO: (Boletín SocketsUDP) Inicializar el atributo socket: Crear un socket
+		 * (Boletín SocketsUDP) Inicializar el atributo socket: Crear un socket
 		 * UDP ligado al puerto especificado por el argumento directoryPort en la
 		 * máquina local,
 		 */
 		this.socket = new DatagramSocket(DIRECTORY_PORT);
 		/*
-		 * TODO: (Boletín SocketsUDP) Inicializar atributos que mantienen el estado del
+		 * (Boletín SocketsUDP) Inicializar atributos que mantienen el estado del
 		 * servidor de directorio: peers registrados, etc.)
 		 */
 		this.registeredPeers = new LinkedHashMap<String, InetSocketAddress>();
@@ -270,26 +270,21 @@ public class NFDirectoryServer {
 			
 			// COMPROBAR SI EXISTEN O NO FICHEROS EN LA CARPETA A LEER (DIR-SHARED)
 			if(directoryFiles.length == 0) {
-				System.out.println("[sendResponse] DEBUG: File recibido. File dir-shared vacio, no hay ficheros a imprimir");
+				System.out.println("[sendResponse] File recibido. File dir-shared vacio, no hay ficheros a imprimir");
 			}
 			else {
-				System.err.println("[sendResponse] DEBUG: File recibido. File dir-shared no vacio, hay ficheros a imprimir");
+				System.err.println("[sendResponse] File recibido. File dir-shared no vacio, hay ficheros a imprimir");
 			}
-			System.out.println("[sendResponse] DEBUG: Valores dirfiles: " + mensajeAEnviar.toString() );
 			break;
 		}case DirMessageOps.OPERATION_PEERS: {
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PEERS_OK, registeredPeers);
 			break;
 		}case DirMessageOps.OPERATION_SERVE: {
-			System.out.println("[sendResponse] DEBUG: entra en operacion serve");
-			System.out.println("[sendResponse] DEBUG: cadIp: " + String.valueOf(pkt.getAddress()));
 			String cadIp = pkt.getAddress().getHostAddress();
 			
 			int puerto =  mensajeCliente.getServePort();
 			String nombrePeer = mensajeCliente.getServeNombrePeer();
-			System.out.println("[sendResponse] DEBUG: InetAddrress: " + InetAddress.getByName(cadIp));
 			InetSocketAddress pareja =  new InetSocketAddress(InetAddress.getByName(cadIp), puerto);
-			System.out.println("[sendResponse] DEBUG: InetSocketAddrress: " + pareja);
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_SERVE_OK, nombrePeer, cadIp, puerto);
 			
 			
@@ -303,27 +298,21 @@ public class NFDirectoryServer {
 			
 			// COMPROBAR SI EXISTEN O NO FICHEROS EN LA CARPETA A LEER (DIR-SHARED)
 			if(peerfileslist.length == 0) {
-				System.out.println("[sendResponse] DEBUG: File recibido. File del peer vacio, no hay ficheros a imprimir");
+				System.out.println("[sendResponse] File recibido. File del peer vacio, no hay ficheros a imprimir");
 			}
 			else {
-				System.err.println("[sendResponse] DEBUG: File recibido. File del peer no vacio, hay ficheros a imprimir");
+				System.err.println("[sendResponse] File recibido. File del peer no vacio, hay ficheros a imprimir");
 			}
-			System.out.println("[sendResponse] DEBUG: Valores dirfiles: " + mensajeAEnviar.toString() );
 			break;
 		}
 		// AMPLIACIÓN
 		case DirMessageOps.OPERATION_DIRDL: {
-			System.out.println("[sendResponse] DEBUG: entra en operation_dirdl");
 			String subhash = mensajeCliente.getDirdlHashSubstring();
-			System.out.println("[sendResponse] DEBUG: subhash: " + subhash);
 			String name = null;
 			String hash = null;
 			Long size = (long) 0;
 			for (FileInfo f: directoryFiles) {
-				System.out.println("[sendResponse] DEBUG: Recorriendo ficheros");
-				System.out.println("[sendResponse] DEBUG: Fichero: " + f.fileName + "\n");
 				if (f.fileHash.contains(subhash)) {
-					System.out.println("[sendResponse] DEBUG: El hash esta contenido");
 					hash = f.fileHash;
 					name = f.fileName;
 					size = f.fileSize;

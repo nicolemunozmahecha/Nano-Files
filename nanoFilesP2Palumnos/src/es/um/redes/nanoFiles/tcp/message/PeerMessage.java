@@ -121,6 +121,7 @@ public class PeerMessage {
 		 */
 		PeerMessage message = new PeerMessage();
 		byte opcode = dis.readByte();
+		message.setOpcode(opcode);
 		switch (opcode) {
 		case PeerMessageOps.OPCODE_PEER_FILES:
 			break;
