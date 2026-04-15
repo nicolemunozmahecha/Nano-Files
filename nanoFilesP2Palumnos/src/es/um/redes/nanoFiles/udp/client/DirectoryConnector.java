@@ -400,13 +400,13 @@ public class DirectoryConnector {
 	}
 
 	public DownloadedFile downloadFileFromDirectory(String hashSubstring) {
-		byte[] fileData = null;
+		byte[] fileData = new byte[0]; //null;
 		String filename = null;
 		long filesize = -1;
 		String filehash = null;
 
 		DirMessage dirdl = new DirMessage(DirMessageOps.OPERATION_DIRDL, hashSubstring);
-
+		System.out.println("DEBUG: Substring: " + dirdl.getDirdlHashSubstring());
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirdl.toString().getBytes());
 		if (bytesRespuesta == null) {
 			return null;

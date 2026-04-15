@@ -48,11 +48,15 @@ public class DirMessage {
 	private static final String FIELDNAME_SERVEPEER = "servepeer";
 	private static final String FIELDNAME_SERVEIP = "serveip";
 
-	private static final String FIELDNAME_PEERFILENAME = "peerfileName";
-	private static final String FIELDNAME_PEERFILELENGTH = "peerfileLength";
-	private static final String FIELDNAME_PEERFILESUBHASH = "peerfileSubhash";
+	private static final String FIELDNAME_PEERFILENAME = "peerfilename";
+	private static final String FIELDNAME_PEERFILELENGTH = "peerfilelength";
+	private static final String FIELDNAME_PEERFILESUBHASH = "peerfilesubhash";
 
-	private static final String FIELDNAME_DIRDLHASHSUBSTRING = "dirdlHashSubstring";
+	private static final String FIELDNAME_DIRDLHASHSUBSTRING = "dirdlhashsubstring";
+	private static final String FIELDNAME_DIRDLHASH = "dirdlhash";
+	private static final String FIELDNAME_DIRDLSIZE = "dirdlsize";
+	private static final String FIELDNAME_DIRDLNAME = "dirdlname";
+
 	
 	/**
 	 * Tipo del mensaje, de entre los tipos definidos en PeerMessageOps.
@@ -334,7 +338,17 @@ public class DirMessage {
 			}
 			// AMPLIACIÓN
 			case FIELDNAME_DIRDLHASHSUBSTRING:{
-				//
+				System.out.println("[DirMessage] DEBUG: Actualizar valor subHashstring");
+				m.setDirdlHashSubstring(value);
+				break;
+			}case FIELDNAME_DIRDLHASH:{
+				m.setDirdlhash(value);
+				break;
+			}case FIELDNAME_DIRDLNAME:{
+				m.setDirdlName(value);
+				break;
+			}case FIELDNAME_DIRDLSIZE:{
+				m.setDirdlSize(Long.valueOf(value));
 				break;
 			}
 			default:
@@ -431,8 +445,12 @@ public class DirMessage {
 		}case DirMessageOps.OPERATION_PEERDL_OK: {
 			break;
 		}case DirMessageOps.OPERATION_DIRDL: {
+			sb.append(FIELDNAME_DIRDLHASHSUBSTRING + DELIMITER + dirdlHashSubstring + END_LINE);
 			break;
 		}case DirMessageOps.OPERATION_DIRDL_OK: {
+			sb.append(FIELDNAME_DIRDLNAME + DELIMITER + dirdlName + END_LINE); 
+			sb.append(FIELDNAME_DIRDLHASH + DELIMITER + dirdlhash + END_LINE); 
+			sb.append(FIELDNAME_DIRDLSIZE + DELIMITER + dirdlSize + END_LINE);
 			break;
 		}
 		default:

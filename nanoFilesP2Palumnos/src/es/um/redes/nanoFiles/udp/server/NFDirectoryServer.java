@@ -312,19 +312,24 @@ public class NFDirectoryServer {
 		}
 		// AMPLIACIÓN
 		case DirMessageOps.OPERATION_DIRDL: {
+			System.out.println("[sendResponse] DEBUG: entra en operation_dirdl");
 			String subhash = mensajeCliente.getDirdlHashSubstring();
+			System.out.println("[sendResponse] DEBUG: subhash: " + subhash);
 			String name = null;
 			String hash = null;
 			Long size = (long) 0;
 			for (FileInfo f: directoryFiles) {
+				System.out.println("[sendResponse] DEBUG: Recorriendo ficheros");
+				System.out.println("[sendResponse] DEBUG: Fichero: " + f.fileName + "\n");
 				if (f.fileHash.contains(subhash)) {
+					System.out.println("[sendResponse] DEBUG: El hash esta contenido");
 					hash = f.fileHash;
 					name = f.fileName;
 					size = f.fileSize;
 					break;
 				}
 			}
-			if (name.equals(null)) {
+			if (name == null) {
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_ERROR);
 
 			}else {
