@@ -16,7 +16,18 @@ public class NFController {
 	 * TODO: (Boletín Autómatas) Añadir más constantes que representen los estados
 	 * del autómata del cliente de directorio.
 	 */
-
+	
+	private static final byte ESTADO_INICIAL = 0; //Q0
+	private static final byte ESTADO_PING= 1; //Q1
+	private static final byte ESTADO_OK= 2; //Q2
+	private static final byte ESTADO_PEERS= 3; //Q3
+	//NO SE SI HAY QUE HACER UN ESTADO PARA CADA TIMEOUT ESPECIFICO (COMO HEMOS PUESTO EN LOS AUTOMATAS)
+	//O CON UN ESTADO TIMEOUT TOTAL  VA BIEN
+	private static final byte ESTADO_SERVE= 4; //Q6
+	private static final byte ESTADO_DIRFILES= 5; //Q8
+	//POR AHORA LO HE DEJADO COMO UN ESTADO TIMEOUT TOTAL PERO NO SE SI HAY QUE PONER VARIOS
+	private static final byte ESTADO_TIMEOUT= 6; //Q4,Q7,Q9
+	private static final byte ESTADO_TIMEOUT_5= 7; //Q5
 	/**
 	 * Shell para leer comandos de usuario de la entrada estándar
 	 */
@@ -219,10 +230,33 @@ public class NFController {
 		 * serán válidos en cualquier estado. Este método NO debe modificar
 		 * clientStatus.
 		 */
-		boolean commandAllowed = true;
+		//No se si hay que poner todos porque en la parte de estado me pone que sola ponga cosas del cliente directorio :(
+		//Supongo que no hay que poner los estados de los automatas, porque eso lo hace automatica
+		boolean commandAllowed = false; //esto estaba en true pero lo he cambiado a false para que tenga más sentido
 		switch (currentCommand) {
 		case NFCommands.COM_MYFILES: {
-			commandAllowed = true;
+			//commandAllowed = true;
+			break;
+		} case NFCommands.COM_PING: {
+			if (currentState == ESTADO_INICIAL ) {
+				commandAllowed = true;
+			}
+			break;
+		}  case NFCommands.COM_FILELIST_DIR: {
+			if (currentState == ESTADO_OK ) {
+				commandAllowed = true;
+			}
+			break;
+		} case NFCommands.COM_SERVE: {
+			if (currentState == ESTADO_OK ) {
+				commandAllowed = true;
+			}
+			break;
+		} 
+		case NFCommands.COM_PEERLIST: { //creo que el comando peerlist seria el comando peers en nanofiles
+			if (currentState == ESTADO_OK ) {
+				commandAllowed = true;
+			}
 			break;
 		} 
 		default:
@@ -243,8 +277,25 @@ public class NFController {
 		}
 		switch (currentCommand) {
 		
-		//case :
-			//;
+		case NFCommands.COM_MYFILES: {
+			//
+			break;
+		} case NFCommands.COM_PING: {
+			currentState = ESTADO_OK;
+			
+			break;
+		}  case NFCommands.COM_FILELIST_DIR: {
+			currentState = ESTADO_OK;
+			break;
+		} case NFCommands.COM_SERVE: {
+			currentState = ESTADO_OK;
+			break;
+		} 
+		case NFCommands.COM_PEERLIST: { //creo que el comando peerlist seria el comando peers en nanofiles
+			currentState = ESTADO_OK;
+			break;
+		} 
+			
 		default:
 		}
 
