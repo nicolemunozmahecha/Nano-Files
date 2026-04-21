@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import es.um.redes.nanoFiles.udp.message.DirMessageOps;
 import es.um.redes.nanoFiles.util.FileInfo;
 
 public class PeerMessage {
@@ -145,7 +146,7 @@ public class PeerMessage {
 			break;
 		case PeerMessageOps.OPCODE_PEER_DL_ERROR_CONCORDANCIA:
 			break;	
-		case PeerMessageOps.OPCODE_PEER_DL_ERROR_AMIBGUEDAD:
+		case PeerMessageOps.OPCODE_PEER_DL_ERROR_AMBIGUEDAD:
 			break;	
 		default:
 			System.err.println("PeerMessage.readMessageFromInputStream doesn't know how to parse this message opcode: "
@@ -192,12 +193,48 @@ public class PeerMessage {
 			break;
 		case PeerMessageOps.OPCODE_PEER_DL_ERROR_CONCORDANCIA:
 			break;	
-		case PeerMessageOps.OPCODE_PEER_DL_ERROR_AMIBGUEDAD:
+		case PeerMessageOps.OPCODE_PEER_DL_ERROR_AMBIGUEDAD:
 			break;
 		default:
 			System.err.println("PeerMessage.writeMessageToOutputStream found unexpected message opcode " + opcode + "("
 					+ PeerMessageOps.opcodeToOperation(opcode) + ")");
 		}
+	}
+	
+	public String toDebugString() {
+		StringBuffer sb = new StringBuffer();
+	    sb.append("[PeerMessage.toDebugString()] DEBUG:\n"); 
+	    
+	    // Obtenemos el nombre de la operación usando tu clase PeerMessageOps
+	    String opName = PeerMessageOps.opcodeToOperation(opcode);
+	    sb.append("operation:").append(opName != null ? opName.toLowerCase() : "unknown").append("\n");
+
+	    switch (opcode) {
+	    	case PeerMessageOps.OPCODE_PEER_FILES:{
+	    		sb.append("peerfilenickname:" + "nada" + "\n");
+	    		break;
+	    	}
+	        case PeerMessageOps.OPCODE_PEER_FILES_OK:
+	            if (peerfiles != null) {
+	                for (FileInfo f : peerfiles) {
+	                    sb.append("peerfilename:" + f.fileName + "\n");
+	                    sb.append("peerfilesubhash:" + f.fileHash + "\n");
+	                    sb.append("peerfilesize:"+ f.fileSize +"\n");
+	                }
+	            }
+	            break;
+	        case PeerMessageOps.OPCODE_PEER_DL:
+	        	sb.append("peerdlnickname:" + "nada" + "\n");
+	        	sb.append("peerdlhashsubstring:" + peerfileSubhash + "\n");
+	            break;
+	        case PeerMessageOps.OPCODE_PEER_DL_OK:
+	            break;
+	        case PeerMessageOps.OPCODE_PEER_DL_ERROR_CONCORDANCIA:
+	            break;
+	        case PeerMessageOps.OPCODE_PEER_DL_ERROR_AMBIGUEDAD:
+	            break;
+	    }
+	    return sb.toString();
 	}
 
 }

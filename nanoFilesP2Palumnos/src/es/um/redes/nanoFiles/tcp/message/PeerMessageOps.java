@@ -17,7 +17,7 @@ public class PeerMessageOps {
 	public static final byte OPCODE_PEER_DL = 3;
 	public static final byte OPCODE_PEER_DL_OK = 4;
 	public static final byte OPCODE_PEER_DL_ERROR_CONCORDANCIA = 5;
-	public static final byte OPCODE_PEER_DL_ERROR_AMIBGUEDAD = 6;
+	public static final byte OPCODE_PEER_DL_ERROR_AMBIGUEDAD = 6;
 
 
 
@@ -33,7 +33,7 @@ public class PeerMessageOps {
 			OPCODE_PEER_DL,
 			OPCODE_PEER_DL_OK,
 			OPCODE_PEER_DL_ERROR_CONCORDANCIA,
-			OPCODE_PEER_DL_ERROR_AMIBGUEDAD
+			OPCODE_PEER_DL_ERROR_AMBIGUEDAD
 
 	};
 	private static final String[] _valid_operations_str = { "INVALID_OPCODE",

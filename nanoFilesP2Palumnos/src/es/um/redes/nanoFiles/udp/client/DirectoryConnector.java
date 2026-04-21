@@ -271,7 +271,7 @@ public class DirectoryConnector {
 		
 		DirMessage ping = new DirMessage(DirMessageOps.OPERATION_PING);
 		ping.setProtocolID(NanoFiles.PROTOCOL_ID);
-		System.out.println("[pingDirectory] protocolid: " + ping.getProtocolId().toString());
+		//System.out.println("[pingDirectory] protocolid: " + ping.getProtocolId().toString());
  
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(ping.toString().getBytes());
 		
@@ -432,11 +432,29 @@ public class DirectoryConnector {
 	 * @return Verdadero si el directorio tiene registrado a este peer como servidor
 	 *         y ha dado de baja sus ficheros.
 	 */
+	// ESTE ES EL QUIT
 	public boolean unregisterFileServer() {
 		boolean success = false;
 
-
-
+		// 1. Creamos el mensaje de baja (OP_UNREGISTER_SERVER)
+		// Se suele usar el nickname para identificar qué peer se da de baja
+		DirMessage msg = new DirMessage(DirMessageOps.OPERATION_QUIT);
+		//msg.setNickname(NanoFiles.peerNickname);
+		//MSG.setQuitNickname(NanoFiles.peerNickname);
+	//	try {
+			// 2. Enviamos la solicitud al directorio
+			//this.sendRequest(msg);
+			
+			// 3. Esperamos la respuesta (ACK)
+			//DirMessage response = this.receiveResponse();
+			
+			// 4. Si el directorio responde con éxito, marcamos success
+			//if (response.getOpcode() == DirMessageOps.OP_UNREGISTER_SERVER_OK) {
+				success = true;
+			//}
+		//} catch (IOException e) {
+			//System.err.println("* Error unregistering file server: " + e.getMessage());
+		//}
 
 		return success;
 	}

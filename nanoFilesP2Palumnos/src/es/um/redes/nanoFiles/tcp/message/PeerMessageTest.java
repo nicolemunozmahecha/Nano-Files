@@ -16,7 +16,7 @@ public class PeerMessageTest {
 		DataOutputStream fos = new DataOutputStream(new FileOutputStream(nombreArchivo));
 
 		/*
-		 * TODO: Probar a crear diferentes tipos de mensajes (con los opcodes válidos
+		 * TProbar a crear diferentes tipos de mensajes (con los opcodes válidos
 		 * definidos en PeerMessageOps), estableciendo los atributos adecuados a cada
 		 * tipo de mensaje. Luego, escribir el mensaje a un fichero con
 		 * writeMessageToOutputStream para comprobar que readMessageFromInputStream
@@ -29,7 +29,7 @@ public class PeerMessageTest {
 		DataInputStream fis = new DataInputStream(new FileInputStream(nombreArchivo));
 		//PeerMessage msgIn = PeerMessage.readMessageFromInputStream((DataInputStream) fis);
 		/*
-		 * TODO: Comprobar que coinciden los valores de los atributos relevantes al tipo
+		 *  Comprobar que coinciden los valores de los atributos relevantes al tipo
 		 * de mensaje en ambos mensajes (msgOut y msgIn), empezando por el opcode.
 		 */
 		/*

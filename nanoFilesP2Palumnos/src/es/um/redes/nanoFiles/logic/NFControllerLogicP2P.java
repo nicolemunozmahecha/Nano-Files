@@ -1,6 +1,7 @@
 package es.um.redes.nanoFiles.logic;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.io.IOException;
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
 import es.um.redes.nanoFiles.application.Directory;
@@ -34,11 +35,12 @@ public class NFControllerLogicP2P {
 		 * Comprobar que no existe ya un objeto NFServer previamente creado, en cuyo
 		 * caso el servidor ya está en marcha.
 		 */
-		if (fileServer != null) {
+		if (fileServer != null && fileServer.isRunning()) {
 			System.err.println("File server is already running");
+			serverRunning = true;
 		} else {
 			/*
-			 * TODO: (Boletín Servidor TCP concurrente) Arrancar servidor en segundo plano
+			 * (Boletín Servidor TCP concurrente) Arrancar servidor en segundo plano
 			 * creando un nuevo hilo, comprobar que el servidor está escuchando en un puerto
 			 * válido (>0), imprimir mensaje informando sobre el puerto de escucha, y
 			 * devolver verdadero. Las excepciones que puedan lanzarse deben ser capturadas
@@ -47,17 +49,22 @@ public class NFControllerLogicP2P {
 			 * programa
 			 * 
 			 */
-			//IGNORANDO LO CONCURRENTE LO DE LOS DOS HILOS
 			try {
 				fileServer = new NFServer();
-				serverRunning = true;
+				fileServer.startServer();
+				int port = fileServer.getServerPort();
+				if(port > 0) {
+					System.out.println("[startFileServer] Servidor del fichero corriendo en puerto: " + port);
+					serverRunning = true;
+				} else {
+					System.err.println("[startFileServer] Error: Servidor del fichero con puerto inválido (" + port + ")");
+					fileServer = null; // Limpiamos la referencia si falló
+				}
 			} catch (IOException e) {
-				// Auto-generated catch block
-				e.printStackTrace();
+				System.err.println("[startFileServer] No se pudo iniciar el servidor: " + e.getMessage());
+				fileServer = null; 
+				serverRunning = false;
 			}
-
-
-
 		}
 		return serverRunning;
 
@@ -140,8 +147,7 @@ public class NFControllerLogicP2P {
 				System.err.println("* El peer no ha devuelto ningún fichero o hubo un error.");
 			}
 			
-			// TODO: Importante: ¡cerrar la conexión TCP al terminar!
-			// peerConnector.close();
+			peerConnector.close();
 			
 		} catch (IOException e) {
 			System.err.println("* Error al conectar por TCP con el peer en: " + peerAddr);
@@ -156,15 +162,40 @@ public class NFControllerLogicP2P {
 	 * peers. Si se pasa "*" como nickname, usa el directorio para localizar los
 	 * peers que tienen el hash.
 	 */
-	protected boolean downloadFromPeers(NFControllerLogicDir dirLogic, String targetPeerNickname,
-			String targetHashSubstring) {
-		// TODO: localizar peers con el hash solicitado (o uno concreto) y delegar en
+	// ESTA FUNCION ES PARA EL PEERDL
+	protected boolean downloadFromPeers(NFControllerLogicDir dirLogic, String targetPeerNickname, String targetHashSubstring) {
+		// Localizar peers con el hash solicitado (o uno concreto) y delegar en
 		// downloadFileFromServers
 		boolean success = false;
-		
+		InetSocketAddress[] serverAddressList = null;
 
+		// 1. Obtenemos el censo completo de peers registrados en el directorio
+		Map<String, InetSocketAddress> peerList = dirLogic.fetchPeerList();
 
+		if (targetPeerNickname.equals("*")) {
+			// TODO: VER COMO OBTENER EL HASH
+			//serverAddressList = dirLogic.lookupHash(targetHashSubstring);
+			
+		} else {
+			/*
+			 * CASO B: El usuario quiere un peer específico.
+			 * Usamos el nickname para buscar su dirección en el mapa que nos dio fetchPeerList.
+			 */
+			if (peerList.containsKey(targetPeerNickname)) {
+				InetSocketAddress addr = peerList.get(targetPeerNickname);
+				serverAddressList = new InetSocketAddress[] { addr };
+				System.out.println("[P2P] Peer " + targetPeerNickname + " found at " + addr);
+			} else {
+				System.err.println("* Error: Peer nickname '" + targetPeerNickname + "' is not registered in the directory.");
+				return false;
+			}
+		}
 
+		if (serverAddressList != null && serverAddressList.length > 0) {
+			success = downloadFileFromServers(serverAddressList, targetHashSubstring);
+		} else {
+			System.err.println("* No available peers found for the requested file.");
+		}
 		return success;
 	}
 
@@ -182,13 +213,32 @@ public class NFControllerLogicP2P {
 			System.err.println("* Cannot start download - No list of server addresses provided");
 			return false;
 		}
-		// TODO: crear conectores TCP solo a los servidores que confirmen el hash
+		//  crear conectores TCP solo a los servidores que confirmen el hash
 		// pedido, obtener nombre remoto, reservar nombre local sin colisiones, alternar
 		// descarga de chunks y verificar hash final. Cerrar los sockets al terminar.
 
-
-
-
+		for (InetSocketAddress addr : serverAddressList) {
+	        try {
+	            NFConnector peerConnector = new NFConnector(addr);
+	            
+	            // Pedir el fichero usando el subhash (esto enviará el OPCODE_PEER_DL)
+	            byte[] fileData = peerConnector.downloadFile(targetHashSubstring);
+	            
+	            if (fileData != null) {
+	                // Guardar los bytes en un fichero local
+	                String localFileName = "downloaded_" + targetHashSubstring.substring(0,5);
+	                java.nio.file.Files.write(java.nio.file.Paths.get(localFileName), fileData);
+	                
+	                System.out.println("* Fichero descargado correctamente como: " + localFileName);
+	                downloaded = true;
+	                peerConnector.close();
+	                break; // Salimos del bucle si ya lo tenemos
+	            }
+	            peerConnector.close();
+	        } catch (IOException e) {
+	            System.err.println("* Error descargando de " + addr + ": " + e.getMessage());
+	        }
+	    }
 		return downloaded;
 	}
 
@@ -203,8 +253,9 @@ public class NFControllerLogicP2P {
 		 * Devolver el puerto de escucha de nuestro servidor de ficheros
 		 */
 
-		port = fileServer.PORT;
-
+		if (fileServer != null) {
+	        return fileServer.getServerPort();
+	    }
 		return port;
 	}
 
@@ -214,11 +265,15 @@ public class NFControllerLogicP2P {
 	 */
 	protected void stopFileServer() {
 		/*
-		 * TODO: Enviar señal para detener nuestro servidor de ficheros en segundo plano
+		 * Enviar señal para detener nuestro servidor de ficheros en segundo plano
 		 */
-
-
-
+		if (fileServer != null) {
+	        fileServer.stopServer();
+	        fileServer = null; 
+	        System.out.println("[stopFileServer] File server stopped.");
+	    } else {
+	        System.out.println("[stopFileServer] No server was running.");
+	    }
 	}
 
 	protected boolean serving() {

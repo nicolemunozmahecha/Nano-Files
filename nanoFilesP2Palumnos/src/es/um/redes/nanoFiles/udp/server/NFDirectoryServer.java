@@ -26,7 +26,7 @@ public class NFDirectoryServer {
 	 */
 	private DatagramSocket socket = null;
 	/*
-	 * TODO: Añadir aquí como atributos las estructuras de datos que sean necesarias
+	 * Añadir aquí como atributos las estructuras de datos que sean necesarias
 	 * para mantener en el directorio cualquier información necesaria para la
 	 * funcionalidad del sistema nanoFilesP2P: ficheros alojados, servidores
 	 * registrados, etc.
@@ -184,7 +184,7 @@ public class NFDirectoryServer {
 		// pkt.getAddres y getPort, es la IP y puertos de la direccion a donde lo quiero enviar
 		DatagramPacket pktResponse = new DatagramPacket(responseBytes, responseBytes.length, (InetSocketAddress) pkt.getSocketAddress());// pkt.getAddress(), pkt.getPort());
 		this.socket.send(pktResponse);
-		System.out.println("[sendResponseTestMode] DEBUG: Respuesta enviada: " + response);
+		//System.out.println("[sendResponseTestMode] DEBUG: Respuesta enviada: " + response);
 
 		String messageFromClient = new String(pkt.getData(), 0, pkt.getLength());
 		System.out.println("Data received: " + messageFromClient);
@@ -214,10 +214,10 @@ public class NFDirectoryServer {
 		 * servidor.
 		 */
 		String mensaje = new String(pkt.getData(), 0, pkt.getLength());
-		System.out.println("[sendResponse] DEBUG: Cadena recibida a partir de los datos del datagramPacket: " + mensaje);
+		//System.out.println("[sendResponse] DEBUG: Cadena recibida a partir de los datos del datagramPacket: " + mensaje);
 
 		DirMessage mensajeCliente = DirMessage.fromString(mensaje);
-		System.out.println("[sendResponse] DEBUG: Mensaje cliente: " + mensajeCliente.toString());
+		//System.out.println("[sendResponse] DEBUG: Mensaje cliente: " + mensajeCliente.toString());
 		/*
 		 * Una vez construido un objeto DirMessage con el contenido del datagrama
 		 * recibido, obtener el tipo de operación solicitada por el mensaje y actuar en
@@ -235,7 +235,7 @@ public class NFDirectoryServer {
 		 */
 
 		DirMessage mensajeAEnviar = null;
-		System.out.println("[sendResponse] DEBUG: Operation: " + operation);
+		//System.out.println("[sendResponse] DEBUG: Operation: " + operation);
 		switch (operation) {
 		case DirMessageOps.OPERATION_PING: {
 
@@ -293,7 +293,7 @@ public class NFDirectoryServer {
 			}
 			
 			break;
-		}case DirMessageOps.OPERATION_PEERFILES: {
+		}/*case DirMessageOps.OPERATION_PEERFILES: {
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PEERFILES_OK, peerfileslist);
 			
 			// COMPROBAR SI EXISTEN O NO FICHEROS EN LA CARPETA A LEER (DIR-SHARED)
@@ -304,7 +304,7 @@ public class NFDirectoryServer {
 				System.err.println("[sendResponse] File recibido. File del peer no vacio, hay ficheros a imprimir");
 			}
 			break;
-		}
+		}*/
 		// AMPLIACIÓN
 		case DirMessageOps.OPERATION_DIRDL: {
 			String subhash = mensajeCliente.getDirdlHashSubstring();

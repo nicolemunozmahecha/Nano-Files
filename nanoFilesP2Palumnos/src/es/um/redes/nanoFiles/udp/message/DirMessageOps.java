@@ -28,6 +28,7 @@ public class DirMessageOps {
 	public static final String OPERATION_SERVE = "serve";
 	public static final String OPERATION_SERVE_OK = "serve_ok";
 	
+	/*
 	// PEERFILES
 	public static final String OPERATION_PEERFILES = "peerfiles";
 	public static final String OPERATION_PEERFILES_OK = "peerfiles_ok";
@@ -36,12 +37,17 @@ public class DirMessageOps {
 	public static final String OPERATION_PEERDL = "peerdl";
 	public static final String OPERATION_PEERDL_OK = "peerdl_ok";
 	public static final String OPERATION_PEERDL_ERROR_CONC = "peerdl_error_concordancia";
-	public static final String OPERATION_PEERDL_ERROR_AMB= "peerdl_error_ambiguedad";
+	public static final String OPERATION_PEERDL_ERROR_AMB= "peerdl_error_ambiguedad";*/
 	
 	// AMPLIACIÓN DIRDL
 	public static final String OPERATION_DIRDL = "dirdl";
 	public static final String OPERATION_DIRDL_OK = "dirdl_ok";
 	public static final String OPERATION_DIRDL_ERROR = "dirdl_error";
+	
+	// QUIT
+	public static final String OPERATION_QUIT = "quit";
+	public static final String OPERATION_QUIT_OK = "quit_ok";
+	public static final String OPERATION_QUIT_ERROR = "quit_error";
 
 }
  

@@ -230,45 +230,37 @@ public class NFController {
 		 * serán válidos en cualquier estado. Este método NO debe modificar
 		 * clientStatus.
 		 */
-		//No se si hay que poner todos porque en la parte de estado me pone que sola ponga cosas del cliente directorio :(
-		//Supongo que no hay que poner los estados de los automatas, porque eso lo hace automatica
-		boolean commandAllowed = false; //esto estaba en true pero lo he cambiado a false para que tenga más sentido
+		boolean commandAllowed = false;
 		switch (currentCommand) {
-		case NFCommands.COM_MYFILES: {
-			//commandAllowed = true;
+		case NFCommands.COM_MYFILES: 
+		case NFCommands.COM_QUIT:
+		case NFCommands.COM_NICK:
+			commandAllowed = true; // Estos comandos siempre deberían permitirse
 			break;
-		} case NFCommands.COM_PING: {
-			if (currentState == ESTADO_INICIAL ) {
+		case NFCommands.COM_PING: 
+			if (currentState == ESTADO_INICIAL || currentState == ESTADO_OK) {
 				commandAllowed = true;
 			}
 			break;
-		}  case NFCommands.COM_FILELIST_DIR: {
-			if (currentState == ESTADO_OK ) {
+		case NFCommands.COM_FILELIST_DIR: 
+		case NFCommands.COM_SERVE: 
+		case NFCommands.COM_PEERLIST: 
+		case NFCommands.COM_FILELIST_PEER:
+		case NFCommands.COM_DOWNLOAD_PEER: 
+		case NFCommands.COM_DOWNLOAD_DIR:  // Comando (dirdl)
+			if (currentState == ESTADO_OK) {
 				commandAllowed = true;
 			}
 			break;
-		} case NFCommands.COM_SERVE: {
-			if (currentState == ESTADO_OK ) {
-				commandAllowed = true;
-			}
-			break;
-		} 
-		case NFCommands.COM_PEERLIST: { //creo que el comando peerlist seria el comando peers en nanofiles
-			if (currentState == ESTADO_OK ) {
-				commandAllowed = true;
-			}
-			break;
-		} 
 		default:
-			// System.err.println("ERROR: undefined behaviour for " + currentCommand + "
-			// command!");
+			System.err.println("ERROR: undefined behaviour for " + currentCommand + " command!");
 		}
 		return commandAllowed;
 	}
 
 	private void updateCurrentState(boolean success) {
 		/*
-		 * TODO: (Boletín Autómatas) Si el comando ha sido procesado con éxito, debemos
+		 * (Boletín Autómatas) Si el comando ha sido procesado con éxito, debemos
 		 * actualizar currentState de acuerdo con el autómata diseñado para pasar al
 		 * siguiente estado y así permitir unos u otros comandos en cada caso.
 		 */
@@ -276,26 +268,18 @@ public class NFController {
 			return;
 		}
 		switch (currentCommand) {
-		
-		case NFCommands.COM_MYFILES: {
-			//
-			break;
-		} case NFCommands.COM_PING: {
-			currentState = ESTADO_OK;
-			
-			break;
-		}  case NFCommands.COM_FILELIST_DIR: {
+		case NFCommands.COM_PING:
+		case NFCommands.COM_FILELIST_DIR:
+		case NFCommands.COM_SERVE:
+		case NFCommands.COM_PEERLIST:
+		case NFCommands.COM_FILELIST_PEER:
+		case NFCommands.COM_DOWNLOAD_PEER:
+		case NFCommands.COM_DOWNLOAD_DIR:
 			currentState = ESTADO_OK;
 			break;
-		} case NFCommands.COM_SERVE: {
-			currentState = ESTADO_OK;
+		case NFCommands.COM_QUIT:
+			currentState = ESTADO_INICIAL;
 			break;
-		} 
-		case NFCommands.COM_PEERLIST: { //creo que el comando peerlist seria el comando peers en nanofiles
-			currentState = ESTADO_OK;
-			break;
-		} 
-			
 		default:
 		}
 

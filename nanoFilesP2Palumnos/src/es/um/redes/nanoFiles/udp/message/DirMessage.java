@@ -130,7 +130,7 @@ public class DirMessage {
 	}
 	
 	/*
-	 * TODO: (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
+	 * (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
 	 * valores de los atributos de un mensaje. Se aconseja incluir código que
 	 * compruebe que no se modifica/obtiene el valor de un campo (atributo) que no
 	 * esté definido para el tipo de mensaje dado por "operation".
@@ -247,7 +247,7 @@ public class DirMessage {
 	 */
 	public static DirMessage fromString(String message) {
 		/*
-		 * TODO: (Boletín MensajesASCII) Usar un bucle para parsear el mensaje línea a
+		 * (Boletín MensajesASCII) Usar un bucle para parsear el mensaje línea a
 		 * línea, extrayendo para cada línea el nombre del campo y el valor, usando el
 		 * delimitador DELIMITER, y guardarlo en variables locales.
 		 */
@@ -261,14 +261,15 @@ public class DirMessage {
 		String cadAux = null;
 		String ipAux = null;
 		
-		System.out.println("[DirMessage.fromString()] DEBUG:");
+		
+		//System.out.println("[DirMessage.fromString()] DEBUG:");
 		for (String line : lines) {
-			System.out.println("[DirMessage] DEBUG: Linea: " + line);
+			//System.out.println("[DirMessage] DEBUG: Linea: " + line);
 			
 			int idx = line.indexOf(DELIMITER); // Posición del delimitador
 			String fieldName = line.substring(0, idx).toLowerCase(); // minúsculas
 			String value = line.substring(idx + 1).trim();			// valor que hay después de los 2 puntos.
-			System.out.println("[fromString] DEBUG: fieldname: " + fieldName + "\n[fromString] DEBUG: value: " + value);
+			//System.out.println("[fromString] DEBUG: fieldname: " + fieldName + "\n[fromString] DEBUG: value: " + value);
 			switch (fieldName) {
 			case FIELDNAME_OPERATION: {
 				assert (m == null);
@@ -322,6 +323,7 @@ public class DirMessage {
 				break;
 			}
 			// IGUAL QUE CON LOS CAMPOS DE DIRFILES
+			/*
 			case FIELDNAME_PEERFILENAME:{
 				aux = new FileInfo();
 				aux.fileName = value;
@@ -335,10 +337,10 @@ public class DirMessage {
 				aux.fileSize = Long.valueOf(value);
 				temporal.add(aux);
 				break;
-			}
+			}*/
 			// AMPLIACIÓN
 			case FIELDNAME_DIRDLHASHSUBSTRING:{
-				System.out.println("[DirMessage] DEBUG: Actualizar valor subHashstring");
+				//System.out.println("[DirMessage] DEBUG: Actualizar valor subHashstring");
 				m.setDirdlHashSubstring(value);
 				break;
 			}case FIELDNAME_DIRDLHASH:{
@@ -365,10 +367,10 @@ public class DirMessage {
 		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_PEERS_OK)) {
 	        m.peers = mapaTemp;
 	    }
-		
+		/*
 		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_PEERFILES_OK)) {
 	        m.peerfiles = temporal.toArray(new FileInfo[0]);
-	    }
+	    }*/
 
 		return m;
 	}
@@ -385,7 +387,7 @@ public class DirMessage {
 		StringBuffer sb = new StringBuffer();
 		sb.append(FIELDNAME_OPERATION + DELIMITER + operation + END_LINE); // Construimos el campo
 		/*
-		 * TODO: (Boletín MensajesASCII) En función de la operación del mensaje, crear
+		 * (Boletín MensajesASCII) En función de la operación del mensaje, crear
 		 * una cadena la operación y concatenar el resto de campos necesarios usando los
 		 * valores de los atributos del objeto.
 		 */
@@ -433,7 +435,7 @@ public class DirMessage {
 			sb.append(FIELDNAME_SERVEPORT + DELIMITER + servePort + END_LINE);
 
 			break;
-		}case DirMessageOps.OPERATION_PEERFILES: {
+		}/*case DirMessageOps.OPERATION_PEERFILES: {
 			break;
 		}case DirMessageOps.OPERATION_PEERFILES_OK: {
 			for(FileInfo f : filelist) {
@@ -444,7 +446,7 @@ public class DirMessage {
 			break;
 		}case DirMessageOps.OPERATION_PEERDL_OK: {
 			break;
-		}case DirMessageOps.OPERATION_DIRDL: {
+		}*/case DirMessageOps.OPERATION_DIRDL: {
 			sb.append(FIELDNAME_DIRDLHASHSUBSTRING + DELIMITER + dirdlHashSubstring + END_LINE);
 			break;
 		}case DirMessageOps.OPERATION_DIRDL_OK: {
@@ -453,6 +455,15 @@ public class DirMessage {
 			sb.append(FIELDNAME_DIRDLSIZE + DELIMITER + dirdlSize + END_LINE);
 			break;
 		}case DirMessageOps.OPERATION_DIRDL_ERROR: {
+			break;
+		}
+		case DirMessageOps.OPERATION_QUIT: {
+			break;
+		}
+		case DirMessageOps.OPERATION_QUIT_OK: {
+			break;
+		}
+		case DirMessageOps.OPERATION_QUIT_ERROR: {
 			break;
 		}
 		default:
