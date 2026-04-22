@@ -143,10 +143,12 @@ public class NFController {
 			 */
 			java.util.Map<String, InetSocketAddress> peers = controllerDir.fetchPeerList();
 			InetSocketAddress peerAddr = peers.get(targetPeerNickname);
+			
 			if (peerAddr == null) {
 				System.err.println("* Peer '" + targetPeerNickname + "' not found in directory");
 				break;
 			}
+			controllerPeer.setNickp2p(targetPeerNickname);
 			commandSucceeded = controllerPeer.listPeerFiles(peerAddr);
 			break;
 		case NFCommands.COM_DOWNLOAD_PEER:
@@ -235,7 +237,7 @@ public class NFController {
 		case NFCommands.COM_MYFILES: 
 		case NFCommands.COM_QUIT:
 		case NFCommands.COM_NICK:
-			commandAllowed = true; // Estos comandos siempre deberían permitirse
+			commandAllowed = true; 
 			break;
 		case NFCommands.COM_PING: 
 			if (currentState == ESTADO_INICIAL || currentState == ESTADO_OK) {

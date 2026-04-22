@@ -18,11 +18,13 @@ public class NFConnector {
 	private InetSocketAddress serverAddr;
 	private DataInputStream dis;
 	private DataOutputStream dos;
+	private String nickname;
 
 
 
-	public NFConnector(InetSocketAddress fserverAddr) throws UnknownHostException, IOException {
+	public NFConnector(InetSocketAddress fserverAddr, String nickname) throws UnknownHostException, IOException {
 		serverAddr = fserverAddr;
+		this.nickname = nickname;
 		/*
 		 * (Boletín SocketsTCP) Se crea el socket a partir de la dirección del
 		 * servidor (IP, puerto). La creación exitosa del socket significa que la
@@ -66,9 +68,12 @@ public class NFConnector {
 	public FileInfo[] getFileList() throws IOException {
 		try {
 	        PeerMessage peticion = new PeerMessage(PeerMessageOps.OPCODE_PEER_FILES);
+	        peticion.setNicknamep2p(nickname);
+
 	        peticion.writeMessageToOutputStream(dos);
 	        
 	        PeerMessage respuesta = PeerMessage.readMessageFromInputStream(dis);
+	        respuesta.setNicknamep2p(nickname);
 	        System.out.println(respuesta.toDebugString());
 	        
 	        if (respuesta.getOpcode() == PeerMessageOps.OPCODE_PEER_FILES_OK) {
@@ -89,10 +94,12 @@ public class NFConnector {
 	    byte[] fileData = null;
 	    try {
 	        PeerMessage request = new PeerMessage(PeerMessageOps.OPCODE_PEER_DL);
+	        request.setNicknamep2p(nickname);
 	        request.setPeerfileSubhash(targetHashSubstring);
 	        request.writeMessageToOutputStream(this.dos);
 
 	        PeerMessage response = PeerMessage.readMessageFromInputStream(this.dis);
+	        response.setNicknamep2p(nickname);
 	        System.out.println(response.toDebugString());
 
 	        if (response.getOpcode() == PeerMessageOps.OPCODE_PEER_DL_OK) {

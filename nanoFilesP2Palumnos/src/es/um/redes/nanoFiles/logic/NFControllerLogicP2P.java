@@ -4,7 +4,6 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.io.IOException;
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
-import es.um.redes.nanoFiles.application.Directory;
 import es.um.redes.nanoFiles.application.NanoFiles;
 
 
@@ -15,9 +14,11 @@ import es.um.redes.nanoFiles.util.FileInfo;
 public class NFControllerLogicP2P {
 	// Servidor TCP local para compartir ficheros con otros peers
 	private NFServer fileServer = null;
+	private String nickp2p = "unknown";
 
-
-
+	public void setNickp2p(String nick) {
+		this.nickp2p = nick;
+	}
 	protected NFControllerLogicP2P() {
 	}
 
@@ -112,7 +113,7 @@ public class NFControllerLogicP2P {
 
 		try {
 			System.out.println("DEBUG: entra en el try testTCPClient");
-			NFConnector nfConnector = new NFConnector(new InetSocketAddress(NFServer.PORT));
+			NFConnector nfConnector = new NFConnector(new InetSocketAddress(NFServer.PORT), "nada");
 			nfConnector.test();
 			//NanoFiles.testModeTCP = false;
 			
@@ -129,13 +130,15 @@ public class NFControllerLogicP2P {
 	 * @return Verdadero si se ha obtenido exitosamente el listado de fichero del
 	 *         peer
 	 */
+	// COMANDO PEERFILES
 	protected boolean listPeerFiles(InetSocketAddress peerAddr) {
 		boolean success = false;
-		System.out.println("[listPeerFiles] DEBUG: Entrando en listPeerFiles");
+		//System.out.println("[listPeerFiles] DEBUG: Entrando en listPeerFiles");
+		
 		try {
-			System.out.println("[listPeerFiles] DEBUG: entra en try");
-			NFConnector peerConnector = new NFConnector(peerAddr);
-			System.out.println("[listPeerFiles] DEBUG: conexión establecida");
+			//System.out.println("[listPeerFiles] DEBUG: entra en try");
+			NFConnector peerConnector = new NFConnector(peerAddr, nickp2p);
+			//System.out.println("[listPeerFiles] DEBUG: conexión establecida");
 			FileInfo[] ficherosDelPeer = peerConnector.getFileList();
 			
 			if (ficherosDelPeer != null) {
@@ -143,7 +146,7 @@ public class NFControllerLogicP2P {
 				FileInfo.printToSysout(ficherosDelPeer);
 				success = true;
 			} else {
-				System.out.println("[listPeerFiles] DEBUG: lista de ficheros nula");
+				//System.out.println("[listPeerFiles] DEBUG: lista de ficheros nula");
 				System.err.println("* El peer no ha devuelto ningún fichero o hubo un error.");
 			}
 			
@@ -174,7 +177,8 @@ public class NFControllerLogicP2P {
 
 		if (targetPeerNickname.equals("*")) {
 			// TODO: VER COMO OBTENER EL HASH
-			//serverAddressList = dirLogic.lookupHash(targetHashSubstring);
+			//serverAddressList = dirLogic.lookupHashSub(targetHashSubstring);
+			//FileInfo[] fi = FileInfo.lookupHashSubstring(dirLogic.getDirectoryHostname(),targetHashSubstring);
 			
 		} else {
 			/*
@@ -206,6 +210,7 @@ public class NFControllerLogicP2P {
 	 *                            que se conectará
 	 * @param targetHashSubstring Subcadena del hash del fichero a descargar
 	 */
+	// COMANDO DIRDL
 	protected boolean downloadFileFromServers(InetSocketAddress[] serverAddressList, String targetHashSubstring) {
 		boolean downloaded = false;
 
@@ -219,7 +224,7 @@ public class NFControllerLogicP2P {
 
 		for (InetSocketAddress addr : serverAddressList) {
 	        try {
-	            NFConnector peerConnector = new NFConnector(addr);
+	            NFConnector peerConnector = new NFConnector(addr, nickp2p);
 	            
 	            // Pedir el fichero usando el subhash (esto enviará el OPCODE_PEER_DL)
 	            byte[] fileData = peerConnector.downloadFile(targetHashSubstring);

@@ -114,7 +114,7 @@ public class NFServer implements Runnable {
 				
 				//serveFilesToClient(clientSocket); LO QUITAMOS PARA QUE EL SERVIDOR NO SE QUEDE ATASCADO
 				/*
-				 * TODO: (Boletín TCPConcurrente) Crear un hilo nuevo de la clase
+				 * (Boletín TCPConcurrente) Crear un hilo nuevo de la clase
 				 * NFServerThread, que llevará a cabo la comunicación con el cliente que se
 				 * acaba de conectar, mientras este hilo vuelve a quedar a la escucha de
 				 * conexiones de nuevos clientes (para soportar múltiples clientes). Si este
@@ -239,6 +239,7 @@ public class NFServer implements Runnable {
 	
 	                            // Crear mensaje de respuesta OK
 	                            PeerMessage response = new PeerMessage(PeerMessageOps.OPCODE_PEER_DL_OK);
+	                            
 	                            response.setPeerfileData(fileBytes);
 	                            response.writeMessageToOutputStream(dos);
 	                            System.out.println("[serveFilesToClient] Archivo enviado con éxito (" + fileBytes.length + " bytes)");

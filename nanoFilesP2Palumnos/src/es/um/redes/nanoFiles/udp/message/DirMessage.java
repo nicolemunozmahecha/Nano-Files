@@ -48,14 +48,17 @@ public class DirMessage {
 	private static final String FIELDNAME_SERVEPEER = "servepeer";
 	private static final String FIELDNAME_SERVEIP = "serveip";
 
+	/*
 	private static final String FIELDNAME_PEERFILENAME = "peerfilename";
 	private static final String FIELDNAME_PEERFILELENGTH = "peerfilelength";
 	private static final String FIELDNAME_PEERFILESUBHASH = "peerfilesubhash";
-
+	 */
+	
 	private static final String FIELDNAME_DIRDLHASHSUBSTRING = "dirdlhashsubstring";
 	private static final String FIELDNAME_DIRDLHASH = "dirdlhash";
 	private static final String FIELDNAME_DIRDLSIZE = "dirdlsize";
 	private static final String FIELDNAME_DIRDLNAME = "dirdlname";
+	private static final String FIELDNAME_DIRDLDATA = "dirdldata";
 
 	
 	/**
@@ -88,6 +91,7 @@ public class DirMessage {
 	private String dirdlHashSubstring;
 	private String dirdlName;
 	private Long dirdlSize;
+	private byte[] dirdlData;
 	
 	
 	public DirMessage(String op) {
@@ -116,11 +120,12 @@ public class DirMessage {
 		servePort = puerto;
 	}
 	
-	public DirMessage(String op, String hash, String name, Long size) {
+	public DirMessage(String op, String hash, String name, Long size, byte[] data) {
 		this(op);
 		dirdlhash = hash;
 		dirdlName = name;
 		dirdlSize = size;
+		dirdlData = data;
 		
 	}
 	public DirMessage(String op, String subhash) {
@@ -234,6 +239,15 @@ public class DirMessage {
 
 	public void setDirdlhash(String dirdlhash) {
 		this.dirdlhash = dirdlhash;
+	}
+
+	
+	public byte[] getDirdlData() {
+		return dirdlData;
+	}
+
+	public void setDirdlData(byte[] dirdlData) {
+		this.dirdlData = dirdlData;
 	}
 
 	/**
@@ -352,8 +366,10 @@ public class DirMessage {
 			}case FIELDNAME_DIRDLSIZE:{
 				m.setDirdlSize(Long.valueOf(value));
 				break;
-			}
-			default:
+			}case FIELDNAME_DIRDLDATA:{
+				m.setDirdlData(value.getBytes());
+				break;
+			}default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
 				System.err.println("Message was:\n" + message);
 				System.exit(-1);
@@ -453,6 +469,8 @@ public class DirMessage {
 			sb.append(FIELDNAME_DIRDLNAME + DELIMITER + dirdlName + END_LINE); 
 			sb.append(FIELDNAME_DIRDLHASH + DELIMITER + dirdlhash + END_LINE); 
 			sb.append(FIELDNAME_DIRDLSIZE + DELIMITER + dirdlSize + END_LINE);
+			sb.append(FIELDNAME_DIRDLDATA + DELIMITER + dirdlData + END_LINE);
+			
 			break;
 		}case DirMessageOps.OPERATION_DIRDL_ERROR: {
 			break;

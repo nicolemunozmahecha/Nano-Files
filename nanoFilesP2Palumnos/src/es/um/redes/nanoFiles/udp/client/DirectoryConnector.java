@@ -397,7 +397,7 @@ public class DirectoryConnector {
 	}
 
 	public DownloadedFile downloadFileFromDirectory(String hashSubstring) {
-		byte[] fileData = new byte[0]; //null;
+		byte[] fileData = new byte[0]; //TODO : null;
 		String filename = null;
 		long filesize = -1;
 		String filehash = null;
@@ -409,6 +409,7 @@ public class DirectoryConnector {
 			return null;
 		}
 		
+		
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
@@ -419,6 +420,7 @@ public class DirectoryConnector {
 			filename = dmRespuesta.getDirdlName();
 			filehash = dmRespuesta.getDirdlhash();
 			filesize = dmRespuesta.getDirdlSize();
+			fileData = dmRespuesta.getDirdlData();
 		}else if (dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){
 			return null;
 		}
@@ -436,25 +438,9 @@ public class DirectoryConnector {
 	public boolean unregisterFileServer() {
 		boolean success = false;
 
-		// 1. Creamos el mensaje de baja (OP_UNREGISTER_SERVER)
 		// Se suele usar el nickname para identificar qué peer se da de baja
 		DirMessage msg = new DirMessage(DirMessageOps.OPERATION_QUIT);
-		//msg.setNickname(NanoFiles.peerNickname);
-		//MSG.setQuitNickname(NanoFiles.peerNickname);
-	//	try {
-			// 2. Enviamos la solicitud al directorio
-			//this.sendRequest(msg);
-			
-			// 3. Esperamos la respuesta (ACK)
-			//DirMessage response = this.receiveResponse();
-			
-			// 4. Si el directorio responde con éxito, marcamos success
-			//if (response.getOpcode() == DirMessageOps.OP_UNREGISTER_SERVER_OK) {
-				success = true;
-			//}
-		//} catch (IOException e) {
-			//System.err.println("* Error unregistering file server: " + e.getMessage());
-		//}
+		
 
 		return success;
 	}

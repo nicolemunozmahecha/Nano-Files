@@ -23,6 +23,9 @@ public class PeerMessage {
 	// NO ESTAMOS INCLUYENDO EL OFFSET, TAMAÑO Y NOMBRE PORQUE EN EL FORMATO NO LOS HEMOS PUESTO
     private String peerfileSubhash;     // Para guardar el hash solicitado (Opcode 3)
     private byte[] peerfileData;		// Para guardar el fichero descargado
+    
+    // PARA EL NICKNAME DE PEERDL Y PEERFILES
+    private String nicknamep2p;
 
 	public PeerMessage() {
 		opcode = PeerMessageOps.OPCODE_INVALID_CODE;
@@ -81,8 +84,17 @@ public class PeerMessage {
         checkValidOpcode("fileData", PeerMessageOps.OPCODE_PEER_DL_OK);
         this.peerfileData = fileData;
     }
+    
 	
-    /**
+    public String getNicknamep2p() {
+		return nicknamep2p;
+	}
+
+	public void setNicknamep2p(String nicknamep2p) {
+		this.nicknamep2p = nicknamep2p;
+	}
+
+	/**
      * Método auxiliar para validar si el opcode actual permite el acceso al campo.
      * @param fieldName Nombre del atributo que se intenta acceder.
      * @param validOpcodes Lista de opcodes en los que este campo tiene sentido.
@@ -208,14 +220,15 @@ public class PeerMessage {
 	    // Obtenemos el nombre de la operación usando tu clase PeerMessageOps
 	    String opName = PeerMessageOps.opcodeToOperation(opcode);
 	    sb.append("operation:").append(opName != null ? opName.toLowerCase() : "unknown").append("\n");
-
+	    
 	    switch (opcode) {
 	    	case PeerMessageOps.OPCODE_PEER_FILES:{
-	    		sb.append("peerfilenickname:" + "nada" + "\n");
+	    		sb.append("peerfilenickname:").append(nicknamep2p).append("\n");
 	    		break;
 	    	}
 	        case PeerMessageOps.OPCODE_PEER_FILES_OK:
 	            if (peerfiles != null) {
+		        	sb.append("peerfilenickname:").append(nicknamep2p).append("\n");
 	                for (FileInfo f : peerfiles) {
 	                    sb.append("peerfilename:" + f.fileName + "\n");
 	                    sb.append("peerfilesubhash:" + f.fileHash + "\n");
@@ -224,7 +237,7 @@ public class PeerMessage {
 	            }
 	            break;
 	        case PeerMessageOps.OPCODE_PEER_DL:
-	        	sb.append("peerdlnickname:" + "nada" + "\n");
+	        	sb.append("peerdlnickname:").append(nicknamep2p).append("\n");
 	        	sb.append("peerdlhashsubstring:" + peerfileSubhash + "\n");
 	            break;
 	        case PeerMessageOps.OPCODE_PEER_DL_OK:
