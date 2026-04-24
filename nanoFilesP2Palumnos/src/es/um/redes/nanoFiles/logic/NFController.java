@@ -13,21 +13,13 @@ public class NFController {
 	 */
 	private static final byte OFFLINE = 0;
 	/*
-	 * TODO: (Boletín Autómatas) Añadir más constantes que representen los estados
+	 * (Boletín Autómatas) Añadir más constantes que representen los estados
 	 * del autómata del cliente de directorio.
 	 */
 	
-	private static final byte ESTADO_INICIAL = 0; //Q0
-	private static final byte ESTADO_PING= 1; //Q1
-	private static final byte ESTADO_OK= 2; //Q2
-	private static final byte ESTADO_PEERS= 3; //Q3
-	//NO SE SI HAY QUE HACER UN ESTADO PARA CADA TIMEOUT ESPECIFICO (COMO HEMOS PUESTO EN LOS AUTOMATAS)
-	//O CON UN ESTADO TIMEOUT TOTAL  VA BIEN
-	private static final byte ESTADO_SERVE= 4; //Q6
-	private static final byte ESTADO_DIRFILES= 5; //Q8
-	//POR AHORA LO HE DEJADO COMO UN ESTADO TIMEOUT TOTAL PERO NO SE SI HAY QUE PONER VARIOS
-	private static final byte ESTADO_TIMEOUT= 6; //Q4,Q7,Q9
-	private static final byte ESTADO_TIMEOUT_5= 7; //Q5
+	private static final byte ESTADO_INICIAL = 0; 
+	private static final byte ESTADO_OK= 1; 
+	private static final byte ESTADO_SERVE= 2; 
 	/**
 	 * Shell para leer comandos de usuario de la entrada estándar
 	 */
@@ -132,7 +124,6 @@ public class NFController {
 			 * Pedir al controllerDir que obtenga del directorio la lista de pares que están
 			 * sirviendo ficheros y la imprima por pantalla.
 			 */
-			System.err.println("[NFController] DEBUG: pasa por controler case PEERLIST");
 			controllerDir.getAndPrintPeerList();
 			break;
 		case NFCommands.COM_FILELIST_PEER:
@@ -226,38 +217,50 @@ public class NFController {
 	 */
 	private boolean canProcessCommandInCurrentState() {
 		/*
-		 * TODO: (Boletín Autómatas) Para cada comando tecleado en el shell
+		 * (Boletín Autómatas) Para cada comando tecleado en el shell
 		 * (currentCommand), comprobar "currentState" para ver si dicho comando es
 		 * válido según el estado actual del autómata, ya que no todos los comandos
 		 * serán válidos en cualquier estado. Este método NO debe modificar
 		 * clientStatus.
 		 */
 		boolean commandAllowed = false;
-		switch (currentCommand) {
-		case NFCommands.COM_MYFILES: 
-		case NFCommands.COM_QUIT:
-		case NFCommands.COM_NICK:
-			commandAllowed = true; 
-			break;
-		case NFCommands.COM_PING: 
-			if (currentState == ESTADO_INICIAL || currentState == ESTADO_OK) {
-				commandAllowed = true;
-			}
-			break;
-		case NFCommands.COM_FILELIST_DIR: 
-		case NFCommands.COM_SERVE: 
-		case NFCommands.COM_PEERLIST: 
-		case NFCommands.COM_FILELIST_PEER:
-		case NFCommands.COM_DOWNLOAD_PEER: 
-		case NFCommands.COM_DOWNLOAD_DIR:  // Comando (dirdl)
-			if (currentState == ESTADO_OK) {
-				commandAllowed = true;
-			}
-			break;
-		default:
-			System.err.println("ERROR: undefined behaviour for " + currentCommand + " command!");
-		}
-		return commandAllowed;
+	    switch (currentCommand) {
+	        case NFCommands.COM_MYFILES: 
+	        case NFCommands.COM_QUIT:
+	        case NFCommands.COM_NICK:
+	        case NFCommands.COM_PING: 
+	            // Se puede hacer ping en cualquier momento para comprobar la conexión
+	            commandAllowed = true;
+	            break;
+	            
+	        case NFCommands.COM_SERVE: 
+	            // Solo si hemos hecho ping (OK) pero NO estamos ya sirviendo
+	            if (currentState == ESTADO_OK) {
+	                commandAllowed = true;
+	            } else if (currentState == ESTADO_INICIAL) {
+	                System.err.println("* Debes hacer 'ping' antes de usar este comando.");
+	            } else if (currentState == ESTADO_SERVE) {
+	                System.err.println("* Ya estás sirviendo ficheros.");
+	            }
+	            break;
+	            
+	        case NFCommands.COM_FILELIST_DIR: 
+	        case NFCommands.COM_PEERLIST: 
+	        case NFCommands.COM_FILELIST_PEER:
+	        case NFCommands.COM_DOWNLOAD_PEER: 
+	        case NFCommands.COM_DOWNLOAD_DIR:
+	            // requieren haber hecho ping (OK o SIRVIENDO)
+	            if (currentState == ESTADO_OK || currentState == ESTADO_SERVE) {
+	                commandAllowed = true;
+	            } else {
+	                System.err.println("* Debes hacer 'ping' antes de usar este comando.");
+	            }
+	            break;
+	            
+	        default:
+	            System.err.println("ERROR: undefined behaviour for " + currentCommand + " command!");
+	    }
+	    return commandAllowed;
 	}
 
 	private void updateCurrentState(boolean success) {
@@ -270,20 +273,32 @@ public class NFController {
 			return;
 		}
 		switch (currentCommand) {
-		case NFCommands.COM_PING:
-		case NFCommands.COM_FILELIST_DIR:
-		case NFCommands.COM_SERVE:
-		case NFCommands.COM_PEERLIST:
-		case NFCommands.COM_FILELIST_PEER:
-		case NFCommands.COM_DOWNLOAD_PEER:
-		case NFCommands.COM_DOWNLOAD_DIR:
-			currentState = ESTADO_OK;
-			break;
-		case NFCommands.COM_QUIT:
-			currentState = ESTADO_INICIAL;
-			break;
-		default:
-		}
+        case NFCommands.COM_PING:
+            // Solo pasamos a OK si veníamos del inicio.
+            if (currentState == ESTADO_INICIAL) {
+                currentState = ESTADO_OK;
+            }
+            break;
+            
+        case NFCommands.COM_SERVE:
+            currentState = ESTADO_SERVE;
+            break;
+            
+        case NFCommands.COM_QUIT:
+            // Volvemos al inicio al salir
+            currentState = ESTADO_INICIAL;
+            break;
+            
+        // El resto de comandos (peers, dirfiles, descargas...) NO modifican el estado.
+        case NFCommands.COM_FILELIST_DIR:
+        case NFCommands.COM_PEERLIST:
+        case NFCommands.COM_FILELIST_PEER:
+        case NFCommands.COM_DOWNLOAD_PEER:
+        case NFCommands.COM_DOWNLOAD_DIR:
+            break;
+            
+        default:
+    }
 
 	}
 

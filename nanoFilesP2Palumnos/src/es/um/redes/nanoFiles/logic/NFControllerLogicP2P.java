@@ -218,15 +218,11 @@ public class NFControllerLogicP2P {
 			System.err.println("* Cannot start download - No list of server addresses provided");
 			return false;
 		}
-		//  crear conectores TCP solo a los servidores que confirmen el hash
-		// pedido, obtener nombre remoto, reservar nombre local sin colisiones, alternar
-		// descarga de chunks y verificar hash final. Cerrar los sockets al terminar.
-
 		for (InetSocketAddress addr : serverAddressList) {
 	        try {
 	            NFConnector peerConnector = new NFConnector(addr, nickp2p);
 	            
-	            // Pedir el fichero usando el subhash (esto enviará el OPCODE_PEER_DL)
+	            // Pedir el fichero usando el subhash 
 	            byte[] fileData = peerConnector.downloadFile(targetHashSubstring);
 	            
 	            if (fileData != null) {
@@ -237,7 +233,7 @@ public class NFControllerLogicP2P {
 	                System.out.println("* Fichero descargado correctamente como: " + localFileName);
 	                downloaded = true;
 	                peerConnector.close();
-	                break; // Salimos del bucle si ya lo tenemos
+	                break; 
 	            }
 	            peerConnector.close();
 	        } catch (IOException e) {
@@ -283,9 +279,10 @@ public class NFControllerLogicP2P {
 
 	protected boolean serving() {
 		boolean result = false;
-
-
-
+		// Si fileServer existe y está corriendo, devuelve true
+	    if (fileServer != null && fileServer.isRunning()) {
+	    	 result = true;
+	    }
 		return result;
 
 	}

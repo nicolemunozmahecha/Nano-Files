@@ -97,10 +97,10 @@ public class NFServer implements Runnable {
 		/*
 		 * (Boletín SocketsTCP) Usar el socket servidor para esperar conexiones de
 		 * otros peers que soliciten descargar ficheros
-		 */
-		while(isRunning) {
-			Socket clientSocket;
-			try {
+		 */	
+		Socket clientSocket;
+		try {
+			while(isRunning) {
 				clientSocket = this.serverSocket.accept();
 				System.out.println("\n[NFServer]New client connected: " +
 						clientSocket.getInetAddress().toString() + ":" + clientSocket.getPort());
@@ -125,17 +125,16 @@ public class NFServer implements Runnable {
 				NFServerThread clientThread = new NFServerThread(clientSocket);
 				clientThread.start();
 				
-			} catch (IOException e) {
+			} 
+		}catch (java.net.SocketException e) {
+	        // Capturamos el cierre del socket sin imprimir el error gigante
+	        System.out.println("[NFServer] Server socket cerrado correctamente.");
+	    }
+		catch (IOException e) {
 				// Auto-generated catch block
 				e.printStackTrace();
-			}
 		}
 		
-		
-
-
-
-
 	}
 	/*
 	 * (Boletín SocketsTCP) Añadir métodos a esta clase para: 1) Arrancar el
@@ -221,7 +220,7 @@ public class NFServer implements Runnable {
 					 * método lookupFilePath() de FileDatabase devuelve la ruta al fichero a partir
 					 * de su hash completo.
 					 */
-                    
+                    //TODO: ARREGLAR NICKNAME
 	                    case PeerMessageOps.OPCODE_PEER_DL: // El cliente quiere descargar algo
 	                        String subhash = msgFromClient.getPeerfileSubhash();
 	                        System.out.println("[serveFilesToClient] Client requests file with subhash: " + subhash);

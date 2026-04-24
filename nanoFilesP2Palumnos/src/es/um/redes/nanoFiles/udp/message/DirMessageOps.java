@@ -12,7 +12,7 @@ public class DirMessageOps {
 	public static final String OPERATION_INVALID = "invalid_operation";
 	public static final String OPERATION_PING = "ping";
 	
-	// TODO: definir las operaciones del protocolo de directorio
+	// definir las operaciones del protocolo de directorio
 	public static final String OPERATION_PING_OK = "ping_ok";
 	public static final String OPERATION_PING_ERROR = "ping_error";
 	
@@ -27,17 +27,6 @@ public class DirMessageOps {
 	// SERVE
 	public static final String OPERATION_SERVE = "serve";
 	public static final String OPERATION_SERVE_OK = "serve_ok";
-	
-	/*
-	// PEERFILES
-	public static final String OPERATION_PEERFILES = "peerfiles";
-	public static final String OPERATION_PEERFILES_OK = "peerfiles_ok";
-
-	// PEERDL
-	public static final String OPERATION_PEERDL = "peerdl";
-	public static final String OPERATION_PEERDL_OK = "peerdl_ok";
-	public static final String OPERATION_PEERDL_ERROR_CONC = "peerdl_error_concordancia";
-	public static final String OPERATION_PEERDL_ERROR_AMB= "peerdl_error_ambiguedad";*/
 	
 	// AMPLIACIÓN DIRDL
 	public static final String OPERATION_DIRDL = "dirdl";

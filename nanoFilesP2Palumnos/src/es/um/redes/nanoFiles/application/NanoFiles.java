@@ -8,10 +8,10 @@ public class NanoFiles {
 
 	public static final String DEFAULT_SHARED_DIRNAME = "nf-shared";
 	/**
-	 * Identificador único para cada grupo de prácticas. TODO: Establecer a un valor
+	 * Identificador único para cada grupo de prácticas. Establecer a un valor
 	 * que combine los DNIs de ambos miembros del grupo de prácticas.
 	 */
-	public static final String PROTOCOL_ID = "123456789A";
+	public static final String PROTOCOL_ID = "49476475W74386391K";
 	private static final String DEFAULT_DIRECTORY_HOSTNAME = "localhost";
 	public static String sharedDirname = DEFAULT_SHARED_DIRNAME;
 	public static FileDatabase db;

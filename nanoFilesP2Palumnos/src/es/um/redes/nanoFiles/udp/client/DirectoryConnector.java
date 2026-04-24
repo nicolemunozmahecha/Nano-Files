@@ -332,6 +332,7 @@ public class DirectoryConnector {
 	 * @return Los ficheros disponibles en el directorio, o null si el directorio no
 	 *         pudo satisfacer nuestra solicitud
 	 */
+	// TODO: AMPLIACION
 	public FileInfo[] getFileList() {
 		/*
 		 * (Boletín MensajesASCII)
@@ -438,15 +439,23 @@ public class DirectoryConnector {
 	public boolean unregisterFileServer() {
 		boolean success = false;
 
-		// Se suele usar el nickname para identificar qué peer se da de baja
 		DirMessage msg = new DirMessage(DirMessageOps.OPERATION_QUIT);
-		
+		msg.setServeNombrePeer(NanoFiles.peerNickname);
 
+		byte[] bytesRespuesta = sendAndReceiveDatagrams(msg.toString().getBytes());
+		
+		if (bytesRespuesta == null) {
+			return success;
+		}
+		
+		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
+		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
+		
+		System.out.println("[unregisterFileServer] DEBUG: " + dmRespuesta.getOperation() + "= quit_ok"  );
+		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_QUIT_OK)) {
+			System.out.println("[unregisterFileServer] Operación recibida: " + dmRespuesta.getOperation());
+			success = true;
+		}
 		return success;
 	}
-
-
-
-
-
 }

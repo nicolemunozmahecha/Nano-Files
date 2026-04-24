@@ -40,9 +40,6 @@ public class NFDirectoryServer {
 	 */
 	private LinkedHashMap<String, InetSocketAddress> registeredPeers;
 
-	// AÑADIDO
-	//LISTA DE FICHEROS DE UN PEER
-	private FileInfo[] peerfileslist;
 	/**
 	 * Probabilidad de descartar un mensaje recibido en el directorio (para simular
 	 * enlace no confiable y testear el código de retransmisión)
@@ -293,24 +290,14 @@ public class NFDirectoryServer {
 			}
 			
 			break;
-		}/*case DirMessageOps.OPERATION_PEERFILES: {
-			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PEERFILES_OK, peerfileslist);
-			
-			// COMPROBAR SI EXISTEN O NO FICHEROS EN LA CARPETA A LEER (DIR-SHARED)
-			if(peerfileslist.length == 0) {
-				System.out.println("[sendResponse] File recibido. File del peer vacio, no hay ficheros a imprimir");
-			}
-			else {
-				System.err.println("[sendResponse] File recibido. File del peer no vacio, hay ficheros a imprimir");
-			}
-			break;
-		}*/
+		}
 		// AMPLIACIÓN
 		case DirMessageOps.OPERATION_DIRDL: {
 			String subhash = mensajeCliente.getDirdlHashSubstring();
 			String name = null;
 			String hash = null;
 			Long size = (long) 0;
+			byte[] data = new byte[0];
 			for (FileInfo f: directoryFiles) {
 				if (f.fileHash.contains(subhash)) {
 					hash = f.fileHash;
@@ -319,12 +306,34 @@ public class NFDirectoryServer {
 					break;
 				}
 			}
+			// TODO: ABRIR FICHERO PARA METER DATOS EN DATA
+			
 			if (name == null) {
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_ERROR);
 
 			}else {
-				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size);
+				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size, data);
 			}
+			break;
+		}case DirMessageOps.OPERATION_QUIT: {			
+			String nombrePeer = mensajeCliente.getServeNombrePeer();
+			String ipPeticion = pkt.getAddress().getHostAddress();
+						
+			if(registeredPeers.containsKey(nombrePeer)) {
+				InetSocketAddress datosGuardados = registeredPeers.get(nombrePeer);
+				// el peer y la ip coinciden y ademas esta en la lista de peers registrados
+				if (datosGuardados.getAddress().getHostAddress().equals(ipPeticion)) {
+		            registeredPeers.remove(nombrePeer);
+		            mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_QUIT_OK);
+		        } else {
+		        	// el peer y la ip no coinciden
+		            mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_QUIT_ERROR);
+		        }
+			}else {
+				// el peer no esta en la lista de peers registrados
+		        mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_QUIT_ERROR);
+		    }
+			
 			break;
 		}
 		default:
@@ -338,7 +347,6 @@ public class NFDirectoryServer {
 		 * codifica el string y finalmente enviarlos en un datagrama
 		 */
 		
-		// VER LO DE SERIALIZAR O NO
 		byte[] bytesPayload = mensajeAEnviar.toString().getBytes();
 		this.socket.send(new DatagramPacket(bytesPayload, bytesPayload.length, (InetSocketAddress)pkt.getSocketAddress()));
 	}

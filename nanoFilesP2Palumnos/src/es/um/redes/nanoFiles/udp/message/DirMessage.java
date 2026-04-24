@@ -29,7 +29,7 @@ public class DirMessage {
 	 */
 	private static final String FIELDNAME_OPERATION = "operation";
 	/*
-	 * TODO: (Boletín MensajesASCII) Definir de manera simbólica los nombres de
+	 * (Boletín MensajesASCII) Definir de manera simbólica los nombres de
 	 * todos los campos que pueden aparecer en los mensajes de este protocolo
 	 * (formato campo:valor) --> protocolo: ping, dirId: hash
 	 */
@@ -47,18 +47,14 @@ public class DirMessage {
 	private static final String FIELDNAME_SERVEPORT = "serveport";
 	private static final String FIELDNAME_SERVEPEER = "servepeer";
 	private static final String FIELDNAME_SERVEIP = "serveip";
-
-	/*
-	private static final String FIELDNAME_PEERFILENAME = "peerfilename";
-	private static final String FIELDNAME_PEERFILELENGTH = "peerfilelength";
-	private static final String FIELDNAME_PEERFILESUBHASH = "peerfilesubhash";
-	 */
 	
 	private static final String FIELDNAME_DIRDLHASHSUBSTRING = "dirdlhashsubstring";
 	private static final String FIELDNAME_DIRDLHASH = "dirdlhash";
 	private static final String FIELDNAME_DIRDLSIZE = "dirdlsize";
 	private static final String FIELDNAME_DIRDLNAME = "dirdlname";
 	private static final String FIELDNAME_DIRDLDATA = "dirdldata";
+	
+	private static final String FIELDNAME_QUITNICKNAME = "quitnickname";
 
 	
 	/**
@@ -70,7 +66,7 @@ public class DirMessage {
 	 */
 	private String protocolId;
 	/*
-	 * TODO: (Boletín MensajesASCII) Crear un atributo correspondiente a cada uno de
+	 * (Boletín MensajesASCII) Crear un atributo correspondiente a cada uno de
 	 * los campos de los diferentes mensajes de este protocolo.
 	 */
 
@@ -99,7 +95,7 @@ public class DirMessage {
 	}
 
 	/*
-	 * TODO: (Boletín MensajesASCII) Crear diferentes constructores adecuados para
+	 * (Boletín MensajesASCII) Crear diferentes constructores adecuados para
 	 * construir mensajes de diferentes tipos con sus correspondientes argumentos
 	 * (campos del mensaje)
 	 */
@@ -326,7 +322,8 @@ public class DirMessage {
 					e.printStackTrace();
 				}
 				break;
-			}case FIELDNAME_SERVEPEER :{
+			}case FIELDNAME_SERVEPEER :
+			 case FIELDNAME_QUITNICKNAME:{
 				m.setServeNombrePeer(value);
 				break;
 			}case FIELDNAME_SERVEIP:{
@@ -336,22 +333,6 @@ public class DirMessage {
 				m.setServePort(Integer.valueOf(value));
 				break;
 			}
-			// IGUAL QUE CON LOS CAMPOS DE DIRFILES
-			/*
-			case FIELDNAME_PEERFILENAME:{
-				aux = new FileInfo();
-				aux.fileName = value;
-				break;
-			}
-			case FIELDNAME_PEERFILESUBHASH:{
-				aux.fileHash = value;
-				break;		
-			}
-			case FIELDNAME_PEERFILELENGTH:{
-				aux.fileSize = Long.valueOf(value);
-				temporal.add(aux);
-				break;
-			}*/
 			// AMPLIACIÓN
 			case FIELDNAME_DIRDLHASHSUBSTRING:{
 				//System.out.println("[DirMessage] DEBUG: Actualizar valor subHashstring");
@@ -383,10 +364,6 @@ public class DirMessage {
 		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_PEERS_OK)) {
 	        m.peers = mapaTemp;
 	    }
-		/*
-		if (m != null && m.getOperation().equals(DirMessageOps.OPERATION_PEERFILES_OK)) {
-	        m.peerfiles = temporal.toArray(new FileInfo[0]);
-	    }*/
 
 		return m;
 	}
@@ -408,90 +385,74 @@ public class DirMessage {
 		 * valores de los atributos del objeto.
 		 */
 		String operacion = getOperation();
-		switch(operacion) {
-		case DirMessageOps.OPERATION_PING: {
-			sb.append(FIELDNAME_PROTOCOLID + DELIMITER + protocolId + END_LINE); // Construimos el campo
-			break;
+		switch (operacion) {
+			case DirMessageOps.OPERATION_PING:
+				sb.append(FIELDNAME_PROTOCOLID).append(DELIMITER).append(protocolId).append(END_LINE);
+				break;
+	
+			case DirMessageOps.OPERATION_DIRFILES_OK:
+				for (FileInfo f : filelist) {
+					sb.append(FIELDNAME_FILENAME).append(DELIMITER).append(f.fileName).append(END_LINE);
+					sb.append(FIELDNAME_FILEHASH).append(DELIMITER).append(f.fileHash).append(END_LINE);
+					sb.append(FIELDNAME_FILESIZE).append(DELIMITER).append(f.fileSize).append(END_LINE);
+				}
+				break;
+	
+			case DirMessageOps.OPERATION_PEERS_OK:
+				for (Map.Entry<String, InetSocketAddress> entry : peers.entrySet()) {
+					sb.append(FIELDNAME_PEERNICKNAME).append(DELIMITER).append(entry.getKey()).append(END_LINE);
+					sb.append(FIELDNAME_PEERIP).append(DELIMITER).append(entry.getValue().getHostName()).append(END_LINE);
+					sb.append(FIELDNAME_PEERPORT).append(DELIMITER).append(entry.getValue().getPort()).append(END_LINE);
+				}
+				break;
+	
+			case DirMessageOps.OPERATION_SERVE:
+				sb.append(FIELDNAME_SERVEPEER).append(DELIMITER).append(serveNombrePeer).append(END_LINE);
+				sb.append(FIELDNAME_SERVEPORT).append(DELIMITER).append(servePort).append(END_LINE);
+				break;
+	
+			case DirMessageOps.OPERATION_SERVE_OK:
+				sb.append(FIELDNAME_SERVEPEER).append(DELIMITER).append(serveNombrePeer).append(END_LINE);
+				sb.append(FIELDNAME_SERVEIP).append(DELIMITER).append(serveIp).append(END_LINE);
+				sb.append(FIELDNAME_SERVEPORT).append(DELIMITER).append(servePort).append(END_LINE);
+				break;
+	
+			case DirMessageOps.OPERATION_DIRDL:
+				sb.append(FIELDNAME_DIRDLHASHSUBSTRING).append(DELIMITER).append(dirdlHashSubstring).append(END_LINE);
+				break;
+	
+			case DirMessageOps.OPERATION_DIRDL_OK:
+				sb.append(FIELDNAME_DIRDLNAME).append(DELIMITER).append(dirdlName).append(END_LINE);
+				sb.append(FIELDNAME_DIRDLHASH).append(DELIMITER).append(dirdlhash).append(END_LINE);
+				sb.append(FIELDNAME_DIRDLSIZE).append(DELIMITER).append(dirdlSize).append(END_LINE);
+				sb.append(FIELDNAME_DIRDLDATA).append(DELIMITER).append(dirdlData).append(END_LINE);
+				break;
+	
+			case DirMessageOps.OPERATION_QUIT:
+				sb.append(FIELDNAME_QUITNICKNAME).append(DELIMITER).append(serveNombrePeer).append(END_LINE);
+				break;
+	
+			case DirMessageOps.OPERATION_PING_OK:
+			case DirMessageOps.OPERATION_PING_ERROR:
+			case DirMessageOps.OPERATION_DIRFILES:
+			case DirMessageOps.OPERATION_PEERS:
+			case DirMessageOps.OPERATION_DIRDL_ERROR:
+			case DirMessageOps.OPERATION_QUIT_OK:
+			case DirMessageOps.OPERATION_QUIT_ERROR:
+				break;
+	
+			default:
+				System.err.println("PANIC: DirMessage.toString - message with unknown operation name " + getOperation());
+				System.exit(-1);
 		}
-		case DirMessageOps.OPERATION_PING_OK: {
-			break;
-		}
-		case DirMessageOps.OPERATION_PING_ERROR: {
-			break;
-		}
-		case DirMessageOps.OPERATION_DIRFILES_OK: {
-			for(FileInfo f : filelist) {
-				sb.append(FIELDNAME_FILENAME + DELIMITER + f.fileName + END_LINE); 
-				sb.append(FIELDNAME_FILEHASH + DELIMITER + f.fileHash + END_LINE); 
-				sb.append(FIELDNAME_FILESIZE + DELIMITER + f.fileSize + END_LINE); 
-			}
 
-			break;
-		}
-		case DirMessageOps.OPERATION_DIRFILES: {
-			break;
-		}
-		case DirMessageOps.OPERATION_PEERS: {
-			break;
-		}
-		case DirMessageOps.OPERATION_PEERS_OK: {
-			for(Map.Entry<String, InetSocketAddress> i : peers.entrySet()) {
-				sb.append(FIELDNAME_PEERNICKNAME + DELIMITER + i.getKey() + END_LINE); 
-				sb.append(FIELDNAME_PEERIP+ DELIMITER + i.getValue().getHostName() + END_LINE); 
-				sb.append(FIELDNAME_PEERPORT + DELIMITER + i.getValue().getPort() + END_LINE); 
-			}
-			break;
-		}case DirMessageOps.OPERATION_SERVE: {
-			sb.append(FIELDNAME_SERVEPEER + DELIMITER + serveNombrePeer + END_LINE);
-			sb.append(FIELDNAME_SERVEPORT + DELIMITER + servePort + END_LINE);
-			break;
-		}case DirMessageOps.OPERATION_SERVE_OK: {
-			sb.append(FIELDNAME_SERVEPEER + DELIMITER + serveNombrePeer + END_LINE);
-			sb.append(FIELDNAME_SERVEIP + DELIMITER + serveIp + END_LINE);
-			sb.append(FIELDNAME_SERVEPORT + DELIMITER + servePort + END_LINE);
-
-			break;
-		}/*case DirMessageOps.OPERATION_PEERFILES: {
-			break;
-		}case DirMessageOps.OPERATION_PEERFILES_OK: {
-			for(FileInfo f : filelist) {
-				sb.append(FIELDNAME_FILENAME + DELIMITER + f.fileName + END_LINE); 
-				sb.append(FIELDNAME_FILEHASH + DELIMITER + f.fileHash + END_LINE); 
-				sb.append(FIELDNAME_FILESIZE + DELIMITER + f.fileSize + END_LINE); 
-			}
-			break;
-		}case DirMessageOps.OPERATION_PEERDL_OK: {
-			break;
-		}*/case DirMessageOps.OPERATION_DIRDL: {
-			sb.append(FIELDNAME_DIRDLHASHSUBSTRING + DELIMITER + dirdlHashSubstring + END_LINE);
-			break;
-		}case DirMessageOps.OPERATION_DIRDL_OK: {
-			sb.append(FIELDNAME_DIRDLNAME + DELIMITER + dirdlName + END_LINE); 
-			sb.append(FIELDNAME_DIRDLHASH + DELIMITER + dirdlhash + END_LINE); 
-			sb.append(FIELDNAME_DIRDLSIZE + DELIMITER + dirdlSize + END_LINE);
-			sb.append(FIELDNAME_DIRDLDATA + DELIMITER + dirdlData + END_LINE);
-			
-			break;
-		}case DirMessageOps.OPERATION_DIRDL_ERROR: {
-			break;
-		}
-		case DirMessageOps.OPERATION_QUIT: {
-			break;
-		}
-		case DirMessageOps.OPERATION_QUIT_OK: {
-			break;
-		}
-		case DirMessageOps.OPERATION_QUIT_ERROR: {
-			break;
-		}
-		default:
-			System.err.println("PANIC: DirMessage.toString - message with unknown operation name " + operacion);
-			System.exit(-1);
-		
-		}
 		sb.append(END_LINE); // Marcamos el final del mensaje
-		System.out.println("[toString] DEBUG:\nCampos unidos:\n" + sb.toString());
-		return sb.toString();
+	
+		// Guardamos el resultado en una variable para no llamar a toString() dos veces
+		String result = sb.toString();
+		System.out.println("[toString] DEBUG:\nCampos unidos:\n" + result);
+		
+		return result;
 	}
 
 }

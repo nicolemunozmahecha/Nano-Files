@@ -127,11 +127,11 @@ public class NFControllerLogicDir {
 	 * @return Verdadero si el registro se hace con éxito
 	 */
 	protected boolean registerFileServer(int serverPort) {
-		System.out.println("DEBUG: Entra a registerFileServer");
+		//System.out.println("DEBUG: Entra a registerFileServer");
 		boolean result = false;
 		// RECORRER LISTA DE PEERS 
 		for(Map.Entry<String, InetSocketAddress> p : directoryConnector.getPeerList().entrySet()) {
-			System.out.println("DEBUG: Recorre lista de peers");
+			//System.out.println("DEBUG: Recorre lista de peers");
 			if (NanoFiles.peerNickname.equals(p.getKey())) {
 				System.out.println("DEBUG: Ya hay un nickname registrado, generamos nuevo");
 				NanoFiles.peerNickname = NickGenerator.randomNickname();
@@ -139,14 +139,10 @@ public class NFControllerLogicDir {
 			}
 		}
 		if (this.directoryConnector.registerFileServer(serverPort)) {
-			
 			System.out.println("* File server successfully registered with the directory");
 			result = true;
 		} else {
 			System.err.println("* File server failed to register with the directory");
-
-
-
 		}
 		return result;
 	}
