@@ -277,7 +277,7 @@ public class NFDirectoryServer {
 				System.out.println("[sendResponse] File recibido. File dir-shared vacio, no hay ficheros a imprimir");
 			}
 			else {
-				System.err.println("[sendResponse] File recibido. File dir-shared no vacio, hay ficheros a imprimir");
+				System.out.println("[sendResponse] File recibido. File dir-shared no vacio, hay ficheros a imprimir");
 			}
 			break;
 		}case DirMessageOps.OPERATION_PEERS: {
@@ -303,14 +303,16 @@ public class NFDirectoryServer {
 			String subhash = mensajeCliente.getDirdlHashSubstring();
 			String name = null;
 			String hash = null;
+			String path = null;
 			Long size = (long) 0;
 			byte[] data = new byte[0];
+			
 			for (FileInfo f: directoryFiles) {
 				if (f.fileHash.contains(subhash)) {
 					hash = f.fileHash;
 					name = f.fileName;
 					size = f.fileSize;
-					
+					path = f.filePath;
 					break;
 				}
 			}
@@ -322,13 +324,15 @@ public class NFDirectoryServer {
 			}else {
 				//tengoq que buscar el max que puede haber en un paquete
 				
-				File fichero = new File(name);
+				// buscamos fichero en la ruta 
+				File fichero = new File(path);
 				DataInputStream dis = new DataInputStream(new FileInputStream(fichero)); //para poder leer el fichero
-				long filelenght = fichero.length();
-				data = new byte[(int) filelenght]; //data ya tiene todo el contenido del fichero
-				for (int i=0; i<filelenght;i++) {
-					data[i]=dis.readByte();
-				}
+				long filelength = fichero.length();
+				data = new byte[(int) filelength]; //data ya tiene todo el contenido del fichero
+				
+				// leemos el archivo entero
+				dis.readFully(data);
+				dis.close();
 				
 				//dis.readByte();
 				/*
@@ -351,6 +355,7 @@ public class NFDirectoryServer {
 				
 				System.out.print("DEBUG [NFDIRECTORYSERVE] tamañoarchivo: "+ archivosize + " tamañodata: " + data.length);				
 				*/
+				System.out.println("[sendResponse] DEBUG: Enviando datos con longitud " + data.length);
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size, data);
 			}
 			break;

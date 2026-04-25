@@ -1,5 +1,6 @@
 package es.um.redes.nanoFiles.udp.message;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -101,32 +102,32 @@ public class DirMessage {
 	 */
 	public DirMessage(String op, FileInfo[] lista) {
 		this(op);
-		filelist = lista;
+		this.filelist = lista;
 	}
 	
 	public DirMessage(String op, Map<String, InetSocketAddress> lista) {
 		this(op);
-		peers = lista;
+		this.peers = lista;
 	}
 	
 	public DirMessage(String op, String nombre, String ip, int puerto) {
 		this(op);
-		serveNombrePeer = nombre;
-		serveIp = ip;
-		servePort = puerto;
+		this.serveNombrePeer = nombre;
+		this.serveIp = ip;
+		this.servePort = puerto;
 	}
 	
 	public DirMessage(String op, String hash, String name, Long size, byte[] data) {
 		this(op);
-		dirdlhash = hash;
-		dirdlName = name;
-		dirdlSize = size;
-		dirdlData = data;
+		this.dirdlhash = hash;
+		this.dirdlName = name;
+		this.dirdlSize = size;
+		this.dirdlData = data;
 		
 	}
 	public DirMessage(String op, String subhash) {
 		this(op);
-		dirdlHashSubstring = subhash;
+		this.dirdlHashSubstring = subhash;
 		
 	}
 	
@@ -348,7 +349,15 @@ public class DirMessage {
 				m.setDirdlSize(Long.valueOf(value));
 				break;
 			}case FIELDNAME_DIRDLDATA:{
-				m.setDirdlData(value.getBytes());
+				//m.setDirdlData(value.getBytes());
+				try {
+			        // Deserializamos el texto de vuelta a bytes reales
+					System.out.println("[fromString] DEBUG: Intentando decodificar esto: " + value);
+			        byte[] originalBytes = deserializeData(value);
+			        m.setDirdlData(originalBytes);
+			    } catch (IOException e) {
+			        System.err.println("Error deserializing file data");
+			    }
 				break;
 			}default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
@@ -425,7 +434,14 @@ public class DirMessage {
 				sb.append(FIELDNAME_DIRDLNAME).append(DELIMITER).append(dirdlName).append(END_LINE);
 				sb.append(FIELDNAME_DIRDLHASH).append(DELIMITER).append(dirdlhash).append(END_LINE);
 				sb.append(FIELDNAME_DIRDLSIZE).append(DELIMITER).append(dirdlSize).append(END_LINE);
-				sb.append(FIELDNAME_DIRDLDATA).append(DELIMITER).append(dirdlData).append(END_LINE);
+				try {
+			        // Serializamos los bytes a formato texto
+					System.out.println("[toString] DEBUG: Convirtiendo a Base64...");
+			        String dataSerialized = serializeData(dirdlData);
+			        sb.append(FIELDNAME_DIRDLDATA).append(DELIMITER).append(dataSerialized).append(END_LINE);
+			    } catch (IOException e) {
+			        System.err.println("Error serializing file data");
+			    }
 				break;
 	
 			case DirMessageOps.OPERATION_QUIT:
@@ -454,5 +470,16 @@ public class DirMessage {
 		
 		return result;
 	}
+	// Convierte el array de bytes 'data' en una cadena Base64 para el toString()
+	private String serializeData(byte[] data) throws IOException {
+	    if (data == null) return "";
+	    // Usamos Base64 para que los bytes serializados puedan viajar en un mensaje de texto
+	    return java.util.Base64.getEncoder().encodeToString(data);
+	}
 
+	// Convierte la cadena Base64 de vuelta a byte[] para el fromString()
+	private static byte[] deserializeData(String base64Data) throws IOException {
+	    if (base64Data == null || base64Data.isEmpty()) return new byte[0];
+	    return java.util.Base64.getDecoder().decode(base64Data);
+	}
 }
