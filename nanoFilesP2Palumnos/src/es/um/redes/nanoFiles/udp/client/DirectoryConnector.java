@@ -422,6 +422,8 @@ public class DirectoryConnector {
 			filehash = dmRespuesta.getDirdlhash();
 			filesize = dmRespuesta.getDirdlSize();
 			fileData = dmRespuesta.getDirdlData();
+			System.out.println("DEBUG [DownloadedFile] Nombre: " + filename + " Hash: " + filehash + " Size: " + filesize + " Data: " + fileData + " tamaño fileData " + fileData.length);
+			
 		}else if (dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){
 			return null;
 		}

@@ -1,12 +1,19 @@
 package es.um.redes.nanoFiles.udp.server;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -303,6 +310,7 @@ public class NFDirectoryServer {
 					hash = f.fileHash;
 					name = f.fileName;
 					size = f.fileSize;
+					
 					break;
 				}
 			}
@@ -312,6 +320,37 @@ public class NFDirectoryServer {
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_ERROR);
 
 			}else {
+				//tengoq que buscar el max que puede haber en un paquete
+				
+				File fichero = new File(name);
+				DataInputStream dis = new DataInputStream(new FileInputStream(fichero)); //para poder leer el fichero
+				long filelenght = fichero.length();
+				data = new byte[(int) filelenght]; //data ya tiene todo el contenido del fichero
+				for (int i=0; i<filelenght;i++) {
+					data[i]=dis.readByte();
+				}
+				
+				//dis.readByte();
+				/*
+				RandomAccessFile archivo = new RandomAccessFile(name, hash);
+				long archivosize = archivo.length();
+				int chunkSize = 10;
+				//byte[] buffer = new byte[chunkSize];
+				int posicion = 0;
+				while(posicion < archivosize) {
+					archivo.seek(posicion);
+					int cantidadbytes = chunkSize;
+					if((archivosize - posicion)< chunkSize) {
+						cantidadbytes = (int) (archivosize - posicion); //por si quedan menos bytes que el chunk
+				
+					}
+					//lo que leemos lo ponemos en data, en la posicion, y la cantidad de bytes necesrais
+					archivo.readFully(data, posicion, cantidadbytes);
+					
+				}
+				
+				System.out.print("DEBUG [NFDIRECTORYSERVE] tamañoarchivo: "+ archivosize + " tamañodata: " + data.length);				
+				*/
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size, data);
 			}
 			break;
