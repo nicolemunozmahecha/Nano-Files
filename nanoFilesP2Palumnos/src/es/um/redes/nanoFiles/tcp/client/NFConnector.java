@@ -39,7 +39,10 @@ public class NFConnector {
 		dis = new DataInputStream(socket.getInputStream());
 		dos = new DataOutputStream(socket.getOutputStream());
 	}
-
+	
+	public void setNickname(String nick) {
+		this.nickname = nick;
+	}
 	public void test() {
 		/*
 		 * (Boletín SocketsTCP) Enviar entero cualquiera a través del socket y
@@ -69,9 +72,9 @@ public class NFConnector {
 		try {
 	        PeerMessage peticion = new PeerMessage(PeerMessageOps.OPCODE_PEER_FILES);
 	        peticion.setNicknamep2p(nickname);
-
 	        peticion.writeMessageToOutputStream(dos);
-	        
+	        System.out.println(peticion.toDebugString());
+
 	        PeerMessage respuesta = PeerMessage.readMessageFromInputStream(dis);
 	        respuesta.setNicknamep2p(nickname);
 	        System.out.println(respuesta.toDebugString());
@@ -89,14 +92,17 @@ public class NFConnector {
         if (socket != null) socket.close();
     }
 	
+
 	// siguiendo cuerpo de getFileList
 	public byte[] downloadFile(String targetHashSubstring) {
 	    byte[] fileData = null;
 	    try {
 	        PeerMessage request = new PeerMessage(PeerMessageOps.OPCODE_PEER_DL);
 	        request.setNicknamep2p(nickname);
+
 	        request.setPeerfileSubhash(targetHashSubstring);
 	        request.writeMessageToOutputStream(this.dos);
+	        System.out.println(request.toDebugString());
 
 	        PeerMessage response = PeerMessage.readMessageFromInputStream(this.dis);
 	        response.setNicknamep2p(nickname);

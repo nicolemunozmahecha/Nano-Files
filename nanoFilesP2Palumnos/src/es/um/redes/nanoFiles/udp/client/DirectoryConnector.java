@@ -118,23 +118,23 @@ public class DirectoryConnector {
 		while((intento <=MAX_NUMBER_OF_ATTEMPTS) && (response == null)) {	// BUCLE TERCER TO-do
 			try {
 				// Mandamos el socket
-				System.out.printf("[sendAndReceiveDatagram] Enviamos datagrama [%d/%d]...%n", intento, MAX_NUMBER_OF_ATTEMPTS);
+				System.out.printf("Enviamos datagrama [%d/%d]...%n", intento, MAX_NUMBER_OF_ATTEMPTS);
 				this.socket.send(datagrama);
 				
 				// aqui debemos esperar una respuesta
 				byte[] bufferRespuesta = new byte[10000];	// LUEGO CAMBIAREMOS EL VALOR 1000 POR LA CONSTANTE DE ARRIBA
 				
-				System.out.println("[sendAndReceiveDatagram] Esperamos la respuesta del otro peer. ");
+				System.out.println("Esperamos la respuesta del otro peer. ");
 				DatagramPacket respuesta = new DatagramPacket(bufferRespuesta, bufferRespuesta.length);
 				
-				System.out.println("[sendAndReceiveDatagram] Respuesta recibida");
+				System.out.println("Respuesta recibida");
 				this.socket.setSoTimeout(TIMEOUT);
 				socket.receive(respuesta);
 				
 				// ya tengo mi respuesta
 				response = new byte[respuesta.getLength()];
 				System.arraycopy(bufferRespuesta, 0, response, 0, response.length);
-				System.out.println("[sendAndReceiveDatagram] Respuesta: " + new String(response));
+				System.out.println("Respuesta: " + new String(response));
 				
 				/*
 				 * (Boletín SocketsUDP) Una vez el envío y recepción asumiendo un canal
@@ -158,7 +158,7 @@ public class DirectoryConnector {
 				
 			} catch(SocketTimeoutException s) {
 				intento++;
-				System.out.println("[sendAndReceiveDatagrams] Timeout vencido. Reintentamos");
+				System.out.println("Timeout vencido. Reintentamos");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -334,17 +334,6 @@ public class DirectoryConnector {
 	 */
 	// TODO: AMPLIACION
 	public FileInfo[] getFileList() {
-		/*
-		 * (Boletín MensajesASCII)
-		 * 1.Crear el mensaje a enviar (objeto DirMessage) con atributos adecuados (operation, etc.) 
-		 * NOTA:Usar como operaciones las constantes definidas en la clase DirMessageOps :
-		 * 2.Convertir el objeto DirMessage a enviar a un string (método toString)
-		 * 3.Crear un datagrama con los bytes en que se codifica la cadena : 
-		 * 4.Enviar datagrama y recibir una respuesta (sendAndReceiveDatagrams). : 
-		 * 5.Convertir respuesta recibida en un objeto DirMessage (método DirMessage.fromString)
-		 * 6.Extraer datos del objeto DirMessage y procesarlos 
-		 * 7.Devolver éxito/fracaso de la operación
-		 */
 
 		DirMessage dirfiles = new DirMessage(DirMessageOps.OPERATION_DIRFILES);
 		
@@ -422,7 +411,7 @@ public class DirectoryConnector {
 			filehash = dmRespuesta.getDirdlhash();
 			filesize = dmRespuesta.getDirdlSize();
 			fileData = dmRespuesta.getDirdlData();
-			System.out.println("DEBUG [DownloadedFile] Nombre: " + filename + " Hash: " + filehash + " Size: " + filesize + " Data: " + fileData + " tamaño fileData " + fileData.length);
+			//System.out.println("DEBUG [DownloadedFile] Nombre: " + filename + " Hash: " + filehash + " Size: " + filesize + " Data: " + fileData + " tamaño fileData " + fileData.length);
 			
 		}else if (dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){
 			return null;
@@ -453,7 +442,6 @@ public class DirectoryConnector {
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
-		System.out.println("[unregisterFileServer] DEBUG: " + dmRespuesta.getOperation() + "= quit_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_QUIT_OK)) {
 			System.out.println("[unregisterFileServer] Operación recibida: " + dmRespuesta.getOperation());
 			success = true;

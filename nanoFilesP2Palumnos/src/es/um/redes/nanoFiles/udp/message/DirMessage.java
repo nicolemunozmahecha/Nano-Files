@@ -450,7 +450,7 @@ public class DirMessage {
 	
 		// Guardamos el resultado en una variable para no llamar a toString() dos veces
 		String result = sb.toString();
-		System.out.println("[toString] DEBUG:\nCampos unidos:\n" + result);
+		System.out.println("Campos unidos:\n" + result);
 		
 		return result;
 	}

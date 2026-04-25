@@ -223,8 +223,9 @@ public class PeerMessage {
 	    
 	    switch (opcode) {
 	    	case PeerMessageOps.OPCODE_PEER_FILES:{
-	    		sb.append("peerfilenickname:").append(nicknamep2p).append("\n");
-	    		break;
+	    		if (nicknamep2p != null) {
+	    	        sb.append("peerfilenickname:").append(nicknamep2p).append("\n");
+	    	    }
 	    	}
 	        case PeerMessageOps.OPCODE_PEER_FILES_OK:
 	            if (peerfiles != null) {
@@ -237,7 +238,9 @@ public class PeerMessage {
 	            }
 	            break;
 	        case PeerMessageOps.OPCODE_PEER_DL:
-	        	sb.append("peerdlnickname:").append(nicknamep2p).append("\n");
+	        	if (nicknamep2p != null) {
+	                sb.append("peerdlnickname:").append(nicknamep2p).append("\n");
+	            }
 	        	sb.append("peerdlhashsubstring:" + peerfileSubhash + "\n");
 	            break;
 	        case PeerMessageOps.OPCODE_PEER_DL_OK:

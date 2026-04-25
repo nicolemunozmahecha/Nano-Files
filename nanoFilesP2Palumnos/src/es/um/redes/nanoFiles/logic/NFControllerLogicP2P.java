@@ -20,6 +20,7 @@ public class NFControllerLogicP2P {
 		this.nickp2p = nick;
 	}
 	protected NFControllerLogicP2P() {
+		this.nickp2p = "unknown";
 	}
 
 	/**
@@ -138,7 +139,9 @@ public class NFControllerLogicP2P {
 		try {
 			//System.out.println("[listPeerFiles] DEBUG: entra en try");
 			NFConnector peerConnector = new NFConnector(peerAddr, nickp2p);
+			//System.out.println("[listPeerFiles] DEBUG: PROBANDO PEERFILES nickp2p = " + nickp2p);
 			//System.out.println("[listPeerFiles] DEBUG: conexión establecida");
+			peerConnector.setNickname(nickp2p);
 			FileInfo[] ficherosDelPeer = peerConnector.getFileList();
 			
 			if (ficherosDelPeer != null) {
@@ -171,15 +174,12 @@ public class NFControllerLogicP2P {
 		// downloadFileFromServers
 		boolean success = false;
 		InetSocketAddress[] serverAddressList = null;
-
-		// 1. Obtenemos el censo completo de peers registrados en el directorio
 		Map<String, InetSocketAddress> peerList = dirLogic.fetchPeerList();
 
+
 		if (targetPeerNickname.equals("*")) {
-			// TODO: VER COMO OBTENER EL HASH
-			//serverAddressList = dirLogic.lookupHashSub(targetHashSubstring);
-			//FileInfo[] fi = FileInfo.lookupHashSubstring(dirLogic.getDirectoryHostname(),targetHashSubstring);
-			
+			System.out.println("* Buscando peers con el fichero en el directorio...");
+			serverAddressList = peerList.values().toArray(new InetSocketAddress[0]);
 		} else {
 			/*
 			 * CASO B: El usuario quiere un peer específico.
@@ -194,7 +194,7 @@ public class NFControllerLogicP2P {
 				return false;
 			}
 		}
-
+		this.setNickp2p(targetPeerNickname);
 		if (serverAddressList != null && serverAddressList.length > 0) {
 			success = downloadFileFromServers(serverAddressList, targetHashSubstring);
 		} else {
@@ -210,7 +210,7 @@ public class NFControllerLogicP2P {
 	 *                            que se conectará
 	 * @param targetHashSubstring Subcadena del hash del fichero a descargar
 	 */
-	// COMANDO DIRDL
+	// COMANDO PEERDL
 	protected boolean downloadFileFromServers(InetSocketAddress[] serverAddressList, String targetHashSubstring) {
 		boolean downloaded = false;
 
@@ -221,7 +221,8 @@ public class NFControllerLogicP2P {
 		for (InetSocketAddress addr : serverAddressList) {
 	        try {
 	            NFConnector peerConnector = new NFConnector(addr, nickp2p);
-	            
+				peerConnector.setNickname(nickp2p);
+
 	            // Pedir el fichero usando el subhash 
 	            byte[] fileData = peerConnector.downloadFile(targetHashSubstring);
 	            

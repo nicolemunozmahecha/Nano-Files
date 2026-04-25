@@ -206,7 +206,7 @@ public class NFServer implements Runnable {
 				try {
 					// Leer mensaje del cliente
 					PeerMessage msgFromClient = PeerMessage.readMessageFromInputStream(dis);
-					System.out.println("[serveFilesToClient] Opcode Recibido: " + msgFromClient.getOpcode());
+					//System.out.println("[serveFilesToClient] Opcode Recibido: " + msgFromClient.getOpcode());
 					System.out.println(msgFromClient.toDebugString());
 					switch (msgFromClient.getOpcode()) {
 
@@ -220,7 +220,6 @@ public class NFServer implements Runnable {
 					 * método lookupFilePath() de FileDatabase devuelve la ruta al fichero a partir
 					 * de su hash completo.
 					 */
-                    //TODO: ARREGLAR NICKNAME
 	                    case PeerMessageOps.OPCODE_PEER_DL: // El cliente quiere descargar algo
 	                        String subhash = msgFromClient.getPeerfileSubhash();
 	                        System.out.println("[serveFilesToClient] Client requests file with subhash: " + subhash);
