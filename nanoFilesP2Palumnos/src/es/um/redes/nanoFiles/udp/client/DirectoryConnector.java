@@ -387,31 +387,26 @@ public class DirectoryConnector {
 	}
 
 	public DownloadedFile downloadFileFromDirectory(String hashSubstring) {
-		byte[] fileData = new byte[0]; //TODO : null;
+		byte[] fileData = new byte[0]; 
 		String filename = null;
 		long filesize = -1;
 		String filehash = null;
 
 		DirMessage dirdl = new DirMessage(DirMessageOps.OPERATION_DIRDL, hashSubstring);
-		//System.out.println("DEBUG: Substring: " + dirdl.getDirdlHashSubstring());
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirdl.toString().getBytes());
 		if (bytesRespuesta == null) {
 			return null;
 		}
 		
-		
 		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
 		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
 		
-		
-		//System.out.println("[DownloadedFile] DEBUG: " + dmRespuesta.getOperation() + "= dirdl_ok"  );
 		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_OK)) {
 			System.out.println("[DownloadedFile] Operación recibida: " + dmRespuesta.getOperation());
 			filename = dmRespuesta.getDirdlName();
 			filehash = dmRespuesta.getDirdlhash();
 			filesize = dmRespuesta.getDirdlSize();
 			fileData = dmRespuesta.getDirdlData();
-			//System.out.println("DEBUG [DownloadedFile] Nombre: " + filename + " Hash: " + filehash + " Size: " + filesize + " Data: " + fileData + " tamaño fileData " + fileData.length);
 			
 		}else if (dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){
 			return null;
