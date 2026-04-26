@@ -4,6 +4,7 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -313,6 +314,11 @@ public class NFDirectoryServer {
 					name = f.fileName;
 					size = f.fileSize;
 					path = f.filePath;
+					
+					
+					
+					
+					
 					break;
 				}
 			}
@@ -324,37 +330,16 @@ public class NFDirectoryServer {
 			}else {
 				//tengoq que buscar el max que puede haber en un paquete
 				
-				// buscamos fichero en la ruta 
-				File fichero = new File(path);
-				DataInputStream dis = new DataInputStream(new FileInputStream(fichero)); //para poder leer el fichero
+			
+				File fichero = new File (path);
+				DataInputStream dis = new DataInputStream(new FileInputStream(fichero));
 				long filelength = fichero.length();
 				data = new byte[(int) filelength]; //data ya tiene todo el contenido del fichero
-				
-				// leemos el archivo entero
 				dis.readFully(data);
 				dis.close();
 				
-				//dis.readByte();
-				/*
-				RandomAccessFile archivo = new RandomAccessFile(name, hash);
-				long archivosize = archivo.length();
-				int chunkSize = 10;
-				//byte[] buffer = new byte[chunkSize];
-				int posicion = 0;
-				while(posicion < archivosize) {
-					archivo.seek(posicion);
-					int cantidadbytes = chunkSize;
-					if((archivosize - posicion)< chunkSize) {
-						cantidadbytes = (int) (archivosize - posicion); //por si quedan menos bytes que el chunk
 				
-					}
-					//lo que leemos lo ponemos en data, en la posicion, y la cantidad de bytes necesrais
-					archivo.readFully(data, posicion, cantidadbytes);
-					
-				}
-				
-				System.out.print("DEBUG [NFDIRECTORYSERVE] tamañoarchivo: "+ archivosize + " tamañodata: " + data.length);				
-				*/
+			
 				System.out.println("[sendResponse] DEBUG: Enviando datos con longitud " + data.length);
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size, data);
 			}

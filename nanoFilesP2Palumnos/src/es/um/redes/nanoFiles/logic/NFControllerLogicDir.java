@@ -165,7 +165,7 @@ public class NFControllerLogicDir {
 			java.nio.file.Path dest = es.um.redes.nanoFiles.util.FileNameUtil.chooseAvailableName(dl.filename);
 			java.nio.file.Files.write(dest, dl.data);
 			String checksum = es.um.redes.nanoFiles.util.FileDigest.computeFileChecksumString(dest.toString());
-			// dl.data.length , lo he cambbaido por dl.size
+			
 			System.out.println("* Downloaded directory file to " + dest + " (" + dl.data.length + " bytes)");
 			System.out.println("* SHA-256: " + checksum);
 			return true;

@@ -1,5 +1,7 @@
 package es.um.redes.nanoFiles.udp.client;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -407,6 +409,24 @@ public class DirectoryConnector {
 			filehash = dmRespuesta.getDirdlhash();
 			filesize = dmRespuesta.getDirdlSize();
 			fileData = dmRespuesta.getDirdlData();
+			
+			
+			//creamos un fich3ro nuevo, para opder descrgar los datos
+			File descargado = new File (NanoFiles.DEFAULT_SHARED_DIRNAME,filename);
+			if (!descargado.exists()) {
+				try {
+					descargado.createNewFile();
+					FileOutputStream fos = new FileOutputStream(descargado);
+					fos.write(fileData);
+					fos.close();
+					System.out.print("DEBUG [DirectoryConector] supuestamente se ha descargado en path " + descargado.getAbsolutePath() );
+					} catch (IOException e) {
+					System.out.print("DEBUG [DirectoryConector] cath en DridlOK");
+					e.printStackTrace();
+				}
+				
+			}
+			
 			
 		}else if (dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){
 			return null;
