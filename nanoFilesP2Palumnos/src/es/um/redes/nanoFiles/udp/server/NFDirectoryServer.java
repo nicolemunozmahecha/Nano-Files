@@ -315,29 +315,21 @@ public class NFDirectoryServer {
 					size = f.fileSize;
 					path = f.filePath;
 					
-					
-					
-					
-					
 					break;
 				}
 			}
-			// TODO: ABRIR FICHERO PARA METER DATOS EN DATA
-			
+
 			if (name == null) {
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_ERROR);
 
 			}else {
-				//tengoq que buscar el max que puede haber en un paquete
-				
-			
+
 				File fichero = new File (path);
 				DataInputStream dis = new DataInputStream(new FileInputStream(fichero));
 				long filelength = fichero.length();
 				data = new byte[(int) filelength]; //data ya tiene todo el contenido del fichero
 				dis.readFully(data);
 				dis.close();
-				
 				
 			
 				System.out.println("[sendResponse] DEBUG: Enviando datos con longitud " + data.length);

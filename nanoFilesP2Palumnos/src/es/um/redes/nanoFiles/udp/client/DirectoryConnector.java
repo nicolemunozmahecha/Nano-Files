@@ -419,9 +419,9 @@ public class DirectoryConnector {
 					FileOutputStream fos = new FileOutputStream(descargado);
 					fos.write(fileData);
 					fos.close();
-					System.out.print("DEBUG [DirectoryConector] supuestamente se ha descargado en path " + descargado.getAbsolutePath() );
+					System.out.print("DEBUG [DirectoryConector] descargado en path " + descargado.getAbsolutePath() );
 					} catch (IOException e) {
-					System.out.print("DEBUG [DirectoryConector] cath en DridlOK");
+					System.out.print("DEBUG [DirectoryConector] cathc en DridlOK");
 					e.printStackTrace();
 				}
 				
@@ -436,7 +436,7 @@ public class DirectoryConnector {
 	}
 
 	/**
-	 * Método para darse de baja como servidor de ficheros.
+	 * Método para darse de baja como servidor de ficheros. 
 	 * 
 	 * @return Verdadero si el directorio tiene registrado a este peer como servidor
 	 *         y ha dado de baja sus ficheros.
