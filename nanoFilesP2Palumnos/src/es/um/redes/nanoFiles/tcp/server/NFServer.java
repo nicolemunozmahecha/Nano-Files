@@ -31,7 +31,8 @@ public class NFServer implements Runnable {
 		 * (Boletín SocketsTCP) Crear una direción de socket a partir del puerto
 		 * especificado (PORT)
 		 */
-		InetSocketAddress dirSocket = new InetSocketAddress(PORT);
+		//el 0 es para que el tcp concurrente funcione :)
+		InetSocketAddress dirSocket = new InetSocketAddress(0);
 		/*
 		 * (Boletín SocketsTCP) Crear un socket servidor y ligarlo a la dirección
 		 * de socket anterior
