@@ -177,9 +177,7 @@ public class PeerMessage {
 		 * dos.write para leer un array de bytes, dos.writeInt para escribir un entero,
 		 * etc.
 		 */
-		
-		//CREO RECORDAR QUE ESTA FUNCION ESTA TERMINADA
-		//EL OPCODE ES VACIO?
+
 
 		dos.writeByte(opcode);
 		switch (opcode) {

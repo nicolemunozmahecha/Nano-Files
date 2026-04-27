@@ -412,8 +412,9 @@ public class DirectoryConnector {
 			
 			
 			//creamos un fich3ro nuevo, para opder descrgar los datos
+			/*
 			File descargado = new File (NanoFiles.DEFAULT_SHARED_DIRNAME,filename);
-			if (!descargado.exists()) {
+			//if (!descargado.exists()) {
 				try {
 					descargado.createNewFile();
 					FileOutputStream fos = new FileOutputStream(descargado);
@@ -425,7 +426,9 @@ public class DirectoryConnector {
 					e.printStackTrace();
 				}
 				
-			}
+			//}
+			 * 
+			 */
 			
 			
 		}else if (dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){

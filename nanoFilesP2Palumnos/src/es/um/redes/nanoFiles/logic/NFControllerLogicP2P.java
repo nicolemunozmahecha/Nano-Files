@@ -2,8 +2,6 @@ package es.um.redes.nanoFiles.logic;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
 import es.um.redes.nanoFiles.application.NanoFiles;
@@ -230,16 +228,17 @@ public class NFControllerLogicP2P {
 	            
 	            if (fileData != null) {
 	                // Guardar los bytes en un fichero local
-	                String localFileName = "downloaded_" + targetHashSubstring.substring(0,5);
-	                java.nio.file.Files.write(java.nio.file.Paths.get(localFileName), fileData);
+	                String localFileName = NanoFiles.sharedDirname + java.io.File.separator  + "downloaded_" + targetHashSubstring.substring(0,5);
+	    			java.nio.file.Path dest = es.um.redes.nanoFiles.util.FileNameUtil.chooseAvailableName(localFileName);
+	                java.nio.file.Files.write(dest, fileData);
 	                
-	                File descargado = new File (NanoFiles.DEFAULT_SHARED_DIRNAME,localFileName);
+	                /*File descargado = new File (NanoFiles.DEFAULT_SHARED_DIRNAME,localFileName);
 	                descargado.createNewFile();
 	                FileOutputStream fos = new FileOutputStream(descargado);
 	                fos.write(fileData);
-	                fos.close();
+	                fos.close();*/
 	                
-	                System.out.println("* Fichero descargado correctamente como: " + localFileName);
+	                System.out.println("* Fichero descargado correctamente como: " + dest);
 	                downloaded = true;
 	                peerConnector.close();
 	                break; 

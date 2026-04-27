@@ -162,7 +162,9 @@ public class NFControllerLogicDir {
 			return false;
 		}
 		try {
-			java.nio.file.Path dest = es.um.redes.nanoFiles.util.FileNameUtil.chooseAvailableName(dl.filename);
+			String rutaCompleta = NanoFiles.sharedDirname + java.io.File.separator + dl.filename;
+
+			java.nio.file.Path dest = es.um.redes.nanoFiles.util.FileNameUtil.chooseAvailableName(rutaCompleta);
 			java.nio.file.Files.write(dest, dl.data);
 			String checksum = es.um.redes.nanoFiles.util.FileDigest.computeFileChecksumString(dest.toString());
 			

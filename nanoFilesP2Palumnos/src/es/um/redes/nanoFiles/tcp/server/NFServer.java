@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 
+import es.um.redes.boletinTCP.TCPServer;
 import es.um.redes.nanoFiles.application.NanoFiles;
 import es.um.redes.nanoFiles.tcp.message.PeerMessage;
 import es.um.redes.nanoFiles.tcp.message.PeerMessageOps;
@@ -18,7 +19,7 @@ import es.um.redes.nanoFiles.util.FileInfo;
 
 public class NFServer implements Runnable {
 
-	public static final int PORT = 10000;
+	public static final int PORT = 6868;
 	private ServerSocket serverSocket = null;
 	
 	// variables para los metodos de más adelante
