@@ -454,7 +454,7 @@ public class DirMessage {
 			case DirMessageOps.OPERATION_PEERS:
 			case DirMessageOps.OPERATION_DIRDL_ERROR:
 			case DirMessageOps.OPERATION_QUIT_OK:
-			case DirMessageOps.OPERATION_QUIT_ERROR:
+			
 				break;
 	
 			default:

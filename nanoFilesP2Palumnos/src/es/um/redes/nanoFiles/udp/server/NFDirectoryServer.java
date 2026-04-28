@@ -347,12 +347,10 @@ public class NFDirectoryServer {
 		            registeredPeers.remove(nombrePeer);
 		            mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_QUIT_OK);
 		        } else {
-		        	// el peer y la ip no coinciden
-		            mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_QUIT_ERROR);
+		        	
 		        }
 			}else {
-				// el peer no esta en la lista de peers registrados
-		        mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_QUIT_ERROR);
+				
 		    }
 			
 			break;

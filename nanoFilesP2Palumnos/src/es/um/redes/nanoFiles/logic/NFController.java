@@ -18,8 +18,12 @@ public class NFController {
 	 */
 	
 	private static final byte ESTADO_INICIAL = 0; 
-	private static final byte ESTADO_OK= 1; 
+	 
+	private static final byte ESTADO_PINGOK= 1; 
 	private static final byte ESTADO_SERVE= 2; 
+	private static final byte ESTADO_SERVEOK= 1; 
+	
+	private static final byte ESTADO_QUITOK= 1; 
 	/**
 	 * Shell para leer comandos de usuario de la entrada estándar
 	 */
@@ -226,16 +230,25 @@ public class NFController {
 		boolean commandAllowed = false;
 	    switch (currentCommand) {
 	        case NFCommands.COM_MYFILES: 
+	        	commandAllowed = true;
+	            break;
 	        case NFCommands.COM_QUIT:
+	        	commandAllowed = true;
+	            break;
 	        case NFCommands.COM_NICK:
+	        	commandAllowed = true;
+	            break;
 	        case NFCommands.COM_PING: 
-	            // Se puede hacer ping en cualquier momento para comprobar la conexión
-	            commandAllowed = true;
+	            // Se puede hacer ping en cualquier momento para comprobar la conexión //como?
+	        	if (currentState == ESTADO_INICIAL) {
+	        		commandAllowed = true;
+	        	}
+	           // commandAllowed = true;
 	            break;
 	            
 	        case NFCommands.COM_SERVE: 
 	            // Solo si hemos hecho ping (OK) pero NO estamos ya sirviendo
-	            if (currentState == ESTADO_OK) {
+	            if (currentState == ESTADO_PINGOK) {
 	                commandAllowed = true;
 	            } else if (currentState == ESTADO_INICIAL) {
 	                System.err.println("* Debes hacer 'ping' antes de usar este comando.");
@@ -245,13 +258,27 @@ public class NFController {
 	            break;
 	            
 	        case NFCommands.COM_FILELIST_DIR: 
+	        	if (currentState == ESTADO_PINGOK || currentState == ESTADO_SERVEOK) {
+	        		commandAllowed = true;
+	        	}
+	        	break;
 	        case NFCommands.COM_PEERLIST: 
+	        	if (currentState == ESTADO_PINGOK || currentState == ESTADO_SERVEOK) {
+	        		commandAllowed = true;
+	        	}
+	        	break;
 	        case NFCommands.COM_FILELIST_PEER:
+	        	//tiene que ir siempre depues del serve?
+	        	commandAllowed = true;
+	        	break;
 	        case NFCommands.COM_DOWNLOAD_PEER: 
+	        	//ni idea si se puede hacer siempre o tiene que ser despues del serve
+	        	commandAllowed = true;
+	        	break;
 	        case NFCommands.COM_DOWNLOAD_DIR:
-	            // requieren haber hecho ping (OK o SIRVIENDO)
-	            if (currentState == ESTADO_OK || currentState == ESTADO_SERVE) {
-	                commandAllowed = true;
+	        	if (currentState == ESTADO_PINGOK || currentState == ESTADO_SERVEOK) {
+	        		commandAllowed = true;
+	        	
 	            } else {
 	                System.err.println("* Debes hacer 'ping' antes de usar este comando.");
 	            }
@@ -275,22 +302,23 @@ public class NFController {
 		switch (currentCommand) {
         case NFCommands.COM_PING:
             // Solo pasamos a OK si veníamos del inicio.
-            if (currentState == ESTADO_INICIAL) {
-                currentState = ESTADO_OK;
-            }
+           
+                currentState = ESTADO_PINGOK;
+            
             break;
             
         case NFCommands.COM_SERVE:
-            currentState = ESTADO_SERVE;
+            currentState = ESTADO_SERVEOK;
             break;
             
         case NFCommands.COM_QUIT:
-            // Volvemos al inicio al salir
-            currentState = ESTADO_INICIAL;
+            
+            currentState = ESTADO_QUITOK;
             break;
             
         // El resto de comandos (peers, dirfiles, descargas...) NO modifican el estado.
         case NFCommands.COM_FILELIST_DIR:
+        	//el resto se queda como esta.+, ya que si vuelve de un pingok, se queda en ping ok
         case NFCommands.COM_PEERLIST:
         case NFCommands.COM_FILELIST_PEER:
         case NFCommands.COM_DOWNLOAD_PEER:

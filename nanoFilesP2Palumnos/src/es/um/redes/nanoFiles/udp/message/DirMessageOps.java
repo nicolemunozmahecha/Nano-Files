@@ -36,7 +36,7 @@ public class DirMessageOps {
 	// QUIT
 	public static final String OPERATION_QUIT = "quit";
 	public static final String OPERATION_QUIT_OK = "quit_ok";
-	public static final String OPERATION_QUIT_ERROR = "quit_error";
+	
 
 }
  
