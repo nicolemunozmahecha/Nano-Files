@@ -40,6 +40,9 @@ public class DirMessage {
 	private static final String FIELDNAME_FILENAME = "filename";
 	private static final String FIELDNAME_FILESIZE = "filesize";
 	private static final String FIELDNAME_FILEHASH = "filehash";
+	//ampliación dirfiles
+	private static final String FIELDNAME_CHUNKACTUAL = "chunkactual";
+	private static final String FIELDNAME_CHUNKTOTAL = "chunkstotales";
 	
 	private static final String FIELDNAME_PEERNICKNAME = "peernickname";
 	private static final String FIELDNAME_PEERIP = "peerip";
@@ -90,6 +93,9 @@ public class DirMessage {
 	private Long dirdlSize;
 	private byte[] dirdlData;
 	
+	// AMPLIACION DIRFILES
+	private int chunkActual;
+	private int chunksTotales;
 	
 	public DirMessage(String op) {
 		operation = op;
@@ -131,6 +137,12 @@ public class DirMessage {
 		
 	}
 	
+	public DirMessage(String op, int totalChunks) {
+		this(op);
+		this.chunksTotales= totalChunks;
+		
+	}
+	 
 	/*
 	 * (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
 	 * valores de los atributos de un mensaje. Se aconseja incluir código que
@@ -247,6 +259,22 @@ public class DirMessage {
 		this.dirdlData = dirdlData;
 	}
 
+	public int getChunkActual() {
+		return chunkActual;
+	}
+
+	public void setChunkActual(int chunkActual) {
+		this.chunkActual = chunkActual;
+	}
+
+	public int getChunksTotales() {
+		return chunksTotales;
+	}
+
+	public void setChunksTotales(int chunksTotales) {
+		this.chunksTotales = chunksTotales;
+	}
+
 	/**
 	 * Método que convierte un mensaje codificado como una cadena de caracteres, a
 	 * un objeto de la clase PeerMessage, en el cual los atributos correspondientes
@@ -304,6 +332,13 @@ public class DirMessage {
 				aux.fileSize = Long.valueOf(value);
 				temporal.add(aux);
 				break;
+			}case FIELDNAME_CHUNKACTUAL: {
+				int actual = Integer.parseInt(value);
+				m.setChunkActual(actual);
+
+			}case FIELDNAME_CHUNKTOTAL:{
+				int totales = Integer.parseInt(value);
+				m.setChunksTotales(totales);
 			}
 			case FIELDNAME_PEERNICKNAME:{
 				cadAux = value.trim();
@@ -400,6 +435,8 @@ public class DirMessage {
 				break;
 	
 			case DirMessageOps.OPERATION_DIRFILES_OK:
+				sb.append(FIELDNAME_CHUNKACTUAL).append(DELIMITER).append(chunkActual).append(END_LINE);
+				sb.append(FIELDNAME_CHUNKTOTAL).append(DELIMITER).append(chunksTotales).append(END_LINE);
 				for (FileInfo f : filelist) {
 					sb.append(FIELDNAME_FILENAME).append(DELIMITER).append(f.fileName).append(END_LINE);
 					sb.append(FIELDNAME_FILEHASH).append(DELIMITER).append(f.fileHash).append(END_LINE);
@@ -454,7 +491,6 @@ public class DirMessage {
 			case DirMessageOps.OPERATION_PEERS:
 			case DirMessageOps.OPERATION_DIRDL_ERROR:
 			case DirMessageOps.OPERATION_QUIT_OK:
-			
 				break;
 	
 			default:

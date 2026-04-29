@@ -88,7 +88,10 @@ public class NFControllerLogicDir {
 	 * Método para obtener y mostrar la lista de ficheros alojados en el directorio
 	 */
 	protected void getAndPrintFileList() {
-		FileInfo[] trackedFiles = directoryConnector.getFileList(); //
+		FileInfo[] trackedFiles = directoryConnector.getFileList(); 
+		if (trackedFiles == null) {
+			System.err.println("* No se ha podido descargar la lista completa. Inténtalo de nuevo.");
+		}
 		System.out.println(
 				"* These are the files tracked by the directory at " + directoryConnector.getDirectoryHostname());
 		FileInfo.printToSysout(trackedFiles);

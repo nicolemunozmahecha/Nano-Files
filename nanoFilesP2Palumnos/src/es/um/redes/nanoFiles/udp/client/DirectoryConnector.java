@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import es.um.redes.nanoFiles.tcp.client.NFConnector;
 import es.um.redes.nanoFiles.application.Directory;
@@ -124,7 +125,7 @@ public class DirectoryConnector {
 				this.socket.send(datagrama);
 				
 				// aqui debemos esperar una respuesta
-				byte[] bufferRespuesta = new byte[10000];	// LUEGO CAMBIAREMOS EL VALOR 1000 POR LA CONSTANTE DE ARRIBA
+				byte[] bufferRespuesta = new byte[DirMessage.PACKET_MAX_SIZE];	// LUEGO CAMBIAREMOS EL VALOR 1000 POR LA CONSTANTE DE ARRIBA
 				
 				System.out.println("Esperamos la respuesta del otro peer. ");
 				DatagramPacket respuesta = new DatagramPacket(bufferRespuesta, bufferRespuesta.length);
@@ -334,11 +335,68 @@ public class DirectoryConnector {
 	 * @return Los ficheros disponibles en el directorio, o null si el directorio no
 	 *         pudo satisfacer nuestra solicitud
 	 */
-	// TODO: AMPLIACION
 	public FileInfo[] getFileList() {
-
 		DirMessage dirfiles = new DirMessage(DirMessageOps.OPERATION_DIRFILES);
+		byte[] datosEnvio = dirfiles.toString().getBytes();
 		
+		int intento = 1;
+		
+		while (intento <= MAX_NUMBER_OF_ATTEMPTS) {
+			try {
+				ArrayList<FileInfo> ficherosTotales = new ArrayList<>();
+				int fragmentosEsperados = -1;
+				int fragmentosRecibidos = 0;
+		
+				// 1. Enviamos la petición
+				DatagramPacket paqueteEnvio = new DatagramPacket(datosEnvio, datosEnvio.length, directoryAddress);
+				socket.send(paqueteEnvio);
+	
+				socket.setSoTimeout(TIMEOUT); 
+	
+				while (fragmentosEsperados == -1 || fragmentosRecibidos < fragmentosEsperados) {
+	
+					byte[] bufRcv = new byte[DirMessage.PACKET_MAX_SIZE];
+					DatagramPacket paqueteRecibo = new DatagramPacket(bufRcv, bufRcv.length);
+
+					socket.receive(paqueteRecibo); 
+	
+					String strRecepcion = new String(paqueteRecibo.getData(), 0, paqueteRecibo.getLength());
+					DirMessage respuesta = DirMessage.fromString(strRecepcion);
+	
+					if (respuesta.getOperation().equals(DirMessageOps.OPERATION_DIRFILES_OK)) {
+						
+						if (fragmentosEsperados == -1) {
+							fragmentosEsperados = respuesta.getChunksTotales();
+						}
+						
+						FileInfo[] ficherosChunk = respuesta.getFilelist();
+						if (ficherosChunk != null) {
+							ficherosTotales.addAll(java.util.Arrays.asList(ficherosChunk));
+						}
+						
+						fragmentosRecibidos++;
+						System.out.println("[getFileList] Recibido fragmento " + respuesta.getChunkActual() + "/" + fragmentosEsperados);
+					}
+				}
+				
+				socket.setSoTimeout(0); // Restauramos el timeout por seguridad
+				return ficherosTotales.toArray(new FileInfo[0]); // Devolvemos la lista directamente
+	
+			} catch (SocketTimeoutException e) {
+				System.err.println("[getFileList] Error de red: Se perdió un fragmento (Timeout). Intento " + intento + "/" + MAX_NUMBER_OF_ATTEMPTS);
+				intento++;
+				
+			} catch (IOException e) {
+				System.err.println("[getFileList] Error I/O: " + e.getMessage());
+				return null; // Los errores I/O sí son graves, aquí sí abortamos.
+			}
+		}
+		
+		// Si el bucle termina porque hemos superado el máximo de intentos sin éxito:
+		System.err.println("[getFileList] Operación abortada tras " + MAX_NUMBER_OF_ATTEMPTS + " intentos fallidos.");
+		return null;
+	}
+		/*
 		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirfiles.toString().getBytes());
 		if (bytesRespuesta == null) {
 			return null;
@@ -354,8 +412,7 @@ public class DirectoryConnector {
 		}
 		
 		FileInfo[] filelist = dmRespuesta.getFilelist();
-		return filelist;
-	}
+		return filelist;*/
 
 	public Map<String, InetSocketAddress> getPeerList() {
 		Map<String, InetSocketAddress> peers = new LinkedHashMap<String, InetSocketAddress>();

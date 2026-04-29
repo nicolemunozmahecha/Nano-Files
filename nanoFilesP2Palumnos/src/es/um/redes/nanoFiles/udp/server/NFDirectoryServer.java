@@ -271,16 +271,39 @@ public class NFDirectoryServer {
 			break;
 
 		}case DirMessageOps.OPERATION_DIRFILES: {
-			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_OK, directoryFiles);
-			
-			// COMPROBAR SI EXISTEN O NO FICHEROS EN LA CARPETA A LEER (DIR-SHARED)
-			if(directoryFiles.length == 0) {
+			int MAX_FICHEROS_CHUNK = 2;	// TODO: Modificar este valor al final --> PONER 10/15
+			int totalFicheros = directoryFiles.length;
+
+			if(totalFicheros == 0) {
 				System.out.println("[sendResponse] File recibido. File dir-shared vacio, no hay ficheros a imprimir");
+				break;
 			}
 			else {
 				System.out.println("[sendResponse] File recibido. File dir-shared no vacio, hay ficheros a imprimir");
+				// calcular chunks totales
+				int chunksTotales = (totalFicheros + MAX_FICHEROS_CHUNK - 1) / MAX_FICHEROS_CHUNK;
+				
+				// Bucle para crear y enviar cada chunk
+				for (int i = 1; i <= chunksTotales; i++) {
+					int inicio = (i - 1) * MAX_FICHEROS_CHUNK;
+					int fin = Math.min(inicio + MAX_FICHEROS_CHUNK, totalFicheros);
+
+					// Copiamos el trozo del array
+					FileInfo[] ficherosFragmento = java.util.Arrays.copyOfRange(directoryFiles, inicio, fin);
+
+					// Creamos el mensaje de respuesta
+					mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_OK, ficherosFragmento);
+					mensajeAEnviar.setChunkActual(i);
+					mensajeAEnviar.setChunksTotales(chunksTotales);
+					
+					// Enviamos este fragmento inmediatamente
+					byte[] bytesPayload = mensajeAEnviar.toString().getBytes();
+					this.socket.send(new DatagramPacket(bytesPayload, bytesPayload.length, pkt.getSocketAddress()));
+					
+					System.out.println("[sendResponse] Enviado fragmento " + i + "/" + chunksTotales);
+				}
+				return;
 			}
-			break;
 		}case DirMessageOps.OPERATION_PEERS: {
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_PEERS_OK, registeredPeers);
 			break;
@@ -291,7 +314,6 @@ public class NFDirectoryServer {
 			String nombrePeer = mensajeCliente.getServeNombrePeer();
 			InetSocketAddress pareja =  new InetSocketAddress(InetAddress.getByName(cadIp), puerto);
 			mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_SERVE_OK, nombrePeer, cadIp, puerto);
-			
 			
 			if(!registeredPeers.containsKey(nombrePeer)) {
 				registeredPeers.put(nombrePeer, pareja);	
@@ -314,7 +336,6 @@ public class NFDirectoryServer {
 					name = f.fileName;
 					size = f.fileSize;
 					path = f.filePath;
-					
 					break;
 				}
 			}
@@ -323,15 +344,12 @@ public class NFDirectoryServer {
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_ERROR);
 
 			}else {
-
 				File fichero = new File (path);
 				DataInputStream dis = new DataInputStream(new FileInputStream(fichero));
 				long filelength = fichero.length();
 				data = new byte[(int) filelength]; //data ya tiene todo el contenido del fichero
 				dis.readFully(data);
 				dis.close();
-				
-			
 				System.out.println("[sendResponse] DEBUG: Enviando datos con longitud " + data.length);
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size, data);
 			}
