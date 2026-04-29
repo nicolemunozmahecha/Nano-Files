@@ -346,13 +346,8 @@ public class NFDirectoryServer {
 				if (datosGuardados.getAddress().getHostAddress().equals(ipPeticion)) {
 		            registeredPeers.remove(nombrePeer);
 		            mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_QUIT_OK);
-		        } else {
-		        	
 		        }
-			}else {
-				
-		    }
-			
+			}
 			break;
 		}
 		default:
