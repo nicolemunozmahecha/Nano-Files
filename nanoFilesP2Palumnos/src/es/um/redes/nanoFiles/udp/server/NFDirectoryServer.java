@@ -271,7 +271,7 @@ public class NFDirectoryServer {
 			break;
 
 		}case DirMessageOps.OPERATION_DIRFILES: {
-			int MAX_FICHEROS_CHUNK = 2;	// TODO: Modificar este valor al final --> PONER 10/15
+			int MAX_FICHEROS_CHUNK = 10;	// PONER 10/15
 			int totalFicheros = directoryFiles.length;
 
 			if(totalFicheros == 0) {
