@@ -193,6 +193,8 @@ public class NFController {
 			if (controllerPeer.serving()) {
 				controllerPeer.stopFileServer();
 				commandSucceeded = controllerDir.unregisterFileServer();
+			}else {
+				commandSucceeded = true;
 			}
 			break;
 		case NFCommands.COM_NICK:
@@ -268,11 +270,11 @@ public class NFController {
 	        	}
 	        	break;
 	        case NFCommands.COM_FILELIST_PEER:
-	        	//tiene que ir siempre depues del serve?
+	        	//tiene que ir siempre depues del serve? --> NO
 	        	commandAllowed = true;
 	        	break;
 	        case NFCommands.COM_DOWNLOAD_PEER: 
-	        	//ni idea si se puede hacer siempre o tiene que ser despues del serve
+	        	//ni idea si se puede hacer siempre o tiene que ser despues del serve --> NO
 	        	commandAllowed = true;
 	        	break;
 	        case NFCommands.COM_DOWNLOAD_DIR:
