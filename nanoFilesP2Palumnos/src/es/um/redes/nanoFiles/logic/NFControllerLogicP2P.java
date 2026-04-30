@@ -39,7 +39,7 @@ public class NFControllerLogicP2P {
 		 */
 		if (fileServer != null && fileServer.isRunning()) {
 			System.err.println("File server is already running");
-			serverRunning = true;
+			serverRunning = false;
 		} else {
 			/*
 			 * (Boletín Servidor TCP concurrente) Arrancar servidor en segundo plano
