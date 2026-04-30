@@ -276,6 +276,7 @@ public class NFDirectoryServer {
 
 			if(totalFicheros == 0) {
 				System.out.println("[sendResponse] File recibido. File dir-shared vacio, no hay ficheros a imprimir");
+				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRFILES_OK, directoryFiles);
 				break;
 			}
 			else {
