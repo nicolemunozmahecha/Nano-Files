@@ -52,6 +52,8 @@ public class DirMessage {
 	private static final String FIELDNAME_SERVEPEER = "servepeer";
 	private static final String FIELDNAME_SERVEIP = "serveip";
 	
+	private static final String FIELDNAME_POSICION = "posicion";
+	
 	private static final String FIELDNAME_DIRDLHASHSUBSTRING = "dirdlhashsubstring";
 	private static final String FIELDNAME_DIRDLHASH = "dirdlhash";
 	private static final String FIELDNAME_DIRDLSIZE = "dirdlsize";
@@ -96,6 +98,9 @@ public class DirMessage {
 	// AMPLIACION DIRFILES
 	private int chunkActual;
 	private int chunksTotales;
+	
+	// AMPLIACION DIRDL
+	private long posicion;
 	
 	public DirMessage(String op) {
 		operation = op;
@@ -143,6 +148,11 @@ public class DirMessage {
 		
 	}
 	 
+	public DirMessage(String op, long posicon) {
+		this(op);
+		this.posicion= posicon;
+		
+	}
 	/*
 	 * (Boletín MensajesASCII) Crear métodos getter y setter para obtener los
 	 * valores de los atributos de un mensaje. Se aconseja incluir código que
@@ -275,6 +285,15 @@ public class DirMessage {
 		this.chunksTotales = chunksTotales;
 	}
 
+	
+	public long getPosicion() {
+		return posicion;
+	}
+
+	public void setPosicion(long posicion) {
+		this.posicion = posicion;
+	}
+
 	/**
 	 * Método que convierte un mensaje codificado como una cadena de caracteres, a
 	 * un objeto de la clase PeerMessage, en el cual los atributos correspondientes
@@ -394,6 +413,9 @@ public class DirMessage {
 			        System.err.println("Error deserializing file data");
 			    }
 				break;
+			}case FIELDNAME_POSICION:{
+				m.setPosicion(Long.valueOf(value));
+				break;
 			}default:
 				System.err.println("PANIC: DirMessage.fromString - message with unknown field name " + fieldName);
 				System.err.println("Message was:\n" + message);
@@ -464,10 +486,16 @@ public class DirMessage {
 				break;
 	
 			case DirMessageOps.OPERATION_DIRDL:
+				
 				sb.append(FIELDNAME_DIRDLHASHSUBSTRING).append(DELIMITER).append(dirdlHashSubstring).append(END_LINE);
 				break;
 	
 			case DirMessageOps.OPERATION_DIRDL_OK:
+				sb.append(FIELDNAME_CHUNKACTUAL).append(DELIMITER).append(chunkActual).append(END_LINE);
+				sb.append(FIELDNAME_CHUNKTOTAL).append(DELIMITER).append(chunksTotales).append(END_LINE);
+				
+				sb.append(FIELDNAME_POSICION).append(DELIMITER).append(posicion).append(END_LINE);
+				
 				sb.append(FIELDNAME_DIRDLNAME).append(DELIMITER).append(dirdlName).append(END_LINE);
 				sb.append(FIELDNAME_DIRDLHASH).append(DELIMITER).append(dirdlhash).append(END_LINE);
 				sb.append(FIELDNAME_DIRDLSIZE).append(DELIMITER).append(dirdlSize).append(END_LINE);
