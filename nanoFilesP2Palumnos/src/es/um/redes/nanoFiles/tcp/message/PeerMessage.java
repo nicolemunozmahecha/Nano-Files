@@ -213,7 +213,7 @@ public class PeerMessage {
 	
 	public String toDebugString() {
 		StringBuffer sb = new StringBuffer();
-	    sb.append("[PeerMessage.toDebugString()] DEBUG:\n"); 
+	  //  sb.append("[PeerMessage.toDebugString()] DEBUG:\n"); 
 	    
 	    // Obtenemos el nombre de la operación usando tu clase PeerMessageOps
 	    String opName = PeerMessageOps.opcodeToOperation(opcode);

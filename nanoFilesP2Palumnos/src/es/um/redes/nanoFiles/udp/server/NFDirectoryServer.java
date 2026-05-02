@@ -346,49 +346,38 @@ public class NFDirectoryServer {
 				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_ERROR);
 
 			}else {
-				/*
+				
 				File fichero = new File (path);
 				DataInputStream dis = new DataInputStream(new FileInputStream(fichero));
 				long filelength = fichero.length();
-				data = new byte[(int) filelength]; //data ya tiene todo el contenido del fichero
-				dis.readFully(data);
-				dis.close();
-				System.out.println("[sendResponse] DEBUG: Enviando datos con longitud " + data.length);
-				mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size, data);
-				*/
-				File fichero = new File (path);
-				DataInputStream dis = new DataInputStream(new FileInputStream(fichero));
-				long filelength = fichero.length();
-				int tchunk = 10; //DirMessage.PACKET_MAX_SIZE, hemos puesto 10, pero se puede poner los que sean
-				byte[] datachunk = new byte[tchunk]; //data ya tiene todo el contenido del fichero
-				long posicion = 0;
-				int tdata=tchunk;
+				int tchunk = 10; //hemos puesto 10 como ejemplo, pero se pueden poner chunks de mayor tamaño
+				byte[] datachunk = new byte[tchunk]; //data de cada chunck
+				long posicion = 0; //posicion en la cual hemos leido en el fichero
+				int tdata=tchunk;	//tamaño del chunk data
 				int chunkactual = 0;
 				int chunktotales = (int)filelength / tchunk;
-				if(filelength % tchunk !=0) { //si no es exacto se sumna 1
+				if(filelength % tchunk !=0) { //si no es exacto se suma 1
 					chunktotales++;
 				}
-				System.out.println("[sendResponse] DEBUG: Chunkstoatles para  " + (filelength) + " / " + chunktotales );
+			
 				while(chunkactual<chunktotales) {
-				
 					dis.read(datachunk);
+					
 					if(posicion+tchunk > filelength) {
-						//tdata =   (int)(posicion + tchunk) -  (int)filelength;
 						tdata = (int) (filelength - posicion);
 						data = Arrays.copyOf(datachunk, tdata);
 					}else {
 						data = Arrays.copyOf(datachunk, tchunk);
 					}
-					System.out.println("[sendResponse] DEBUG: Chunks dirdlOK " + (chunkactual) + " / " + chunktotales );
-					System.out.println("[sendResponse] DEBUG: Posicion dirdlOK " + (posicion) + " / " + filelength);
-					System.out.println("[sendResponse] DEBUG: Enviando datos con longitud " + data.length );
+					
+					System.out.println("[sendResponse] Chunk: " + (chunkactual) + " / " + chunktotales );
 					mensajeAEnviar = new DirMessage(DirMessageOps.OPERATION_DIRDL_OK, hash, name, size, data);
-					mensajeAEnviar.setChunkActual(chunkactual+1); //posicion del chunk enviado
-					mensajeAEnviar.setChunksTotales(chunktotales); //ultima posiciom
+					mensajeAEnviar.setChunkActual(chunkactual+1); 
+					mensajeAEnviar.setChunksTotales(chunktotales); 
 					mensajeAEnviar.setPosicion(posicion);
+					
 					posicion += tdata;
 					chunkactual++;
-					
 					byte[] bytesPayload = mensajeAEnviar.toString().getBytes();
 					this.socket.send(new DatagramPacket(bytesPayload, bytesPayload.length, (InetSocketAddress)pkt.getSocketAddress()));
 				}

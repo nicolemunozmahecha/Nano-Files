@@ -94,13 +94,14 @@ public class DirMessage {
 	private String dirdlName;
 	private Long dirdlSize;
 	private byte[] dirdlData;
-	
+	// AMPLIACION DIRDL
+	private long posicion;
+		
 	// AMPLIACION DIRFILES
 	private int chunkActual;
 	private int chunksTotales;
 	
-	// AMPLIACION DIRDL
-	private long posicion;
+	
 	
 	public DirMessage(String op) {
 		operation = op;
@@ -390,7 +391,6 @@ public class DirMessage {
 			}
 			// AMPLIACIÓN
 			case FIELDNAME_DIRDLHASHSUBSTRING:{
-				//System.out.println("[DirMessage] DEBUG: Actualizar valor subHashstring");
 				m.setDirdlHashSubstring(value);
 				break;
 			}case FIELDNAME_DIRDLHASH:{
@@ -406,7 +406,7 @@ public class DirMessage {
 				//m.setDirdlData(value.getBytes());
 				try {
 			        // Deserializamos el texto de vuelta a bytes reales
-					System.out.println("[fromString] DEBUG: Intentando decodificar esto: " + value);
+					//System.out.println("[fromString] DEBUG: Intentando decodificar esto: " + value);
 			        byte[] originalBytes = deserializeData(value);
 			        m.setDirdlData(originalBytes);
 			    } catch (IOException e) {
@@ -501,7 +501,7 @@ public class DirMessage {
 				sb.append(FIELDNAME_DIRDLSIZE).append(DELIMITER).append(dirdlSize).append(END_LINE);
 				try {
 			        // Serializamos los bytes a formato texto
-					System.out.println("[toString] DEBUG: Convirtiendo a Base64...");
+					//System.out.println("[toString] DEBUG: Convirtiendo a Base64...");
 			        String dataSerialized = serializeData(dirdlData);
 			        sb.append(FIELDNAME_DIRDLDATA).append(DELIMITER).append(dataSerialized).append(END_LINE);
 			    } catch (IOException e) {

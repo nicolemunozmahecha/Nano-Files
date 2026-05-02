@@ -448,53 +448,7 @@ public class DirectoryConnector {
 	}
 
 	public DownloadedFile downloadFileFromDirectory(String hashSubstring) {
-		/*
-		byte[] fileData = new byte[0]; 
-		String filename = null;
-		long filesize = -1;
-		String filehash = null;
-
-		DirMessage dirdl = new DirMessage(DirMessageOps.OPERATION_DIRDL, hashSubstring);
-		byte[] bytesRespuesta = sendAndReceiveDatagrams(dirdl.toString().getBytes());
-		if (bytesRespuesta == null) {
-			return null;
-		}
-		
-		String stringRespuesta = new String(bytesRespuesta, 0 , bytesRespuesta.length);
-		DirMessage dmRespuesta = DirMessage.fromString(stringRespuesta);
-		
-		if(dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_OK)) {
-			System.out.println("[DownloadedFile] Operación recibida: " + dmRespuesta.getOperation());
-			filename = dmRespuesta.getDirdlName();
-			filehash = dmRespuesta.getDirdlhash();
-			filesize = dmRespuesta.getDirdlSize();
-			fileData = dmRespuesta.getDirdlData();
-			
-			
-			//creamos un fich3ro nuevo, para opder descrgar los datos
-			/*
-			File descargado = new File (NanoFiles.DEFAULT_SHARED_DIRNAME,filename);
-			//if (!descargado.exists()) {
-				try {
-					descargado.createNewFile();
-					FileOutputStream fos = new FileOutputStream(descargado);
-					fos.write(fileData);
-					fos.close();
-					System.out.print("DEBUG [DirectoryConector] descargado en path " + descargado.getAbsolutePath() );
-					} catch (IOException e) {
-					System.out.print("DEBUG [DirectoryConector] cathc en DridlOK");
-					e.printStackTrace();
-				}
-				
-			//}
-			 * 
-			 
-			
-			
-		}else if (dmRespuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){
-			return null;
-		}
-		*/
+	
 		byte[] fileData = new byte[0]; 
 		String filename = null;
 		long filesize = -1;
@@ -504,8 +458,7 @@ public class DirectoryConnector {
 		DirMessage dirdl = new DirMessage(DirMessageOps.OPERATION_DIRDL, hashSubstring);
 		
 		byte responseData[] = dirdl.toString().getBytes();
-		byte response[] = null;
-		// Si no tenemos directorio, constructor previo, no podemos hacer nada, no hay servidor al que mandar los paquetes
+	
 		if (directoryAddress == null) {
 			System.err.println("DirectoryConnector.sendAndReceiveDatagrams: UDP server destination address is null!");
 			System.err.println(
@@ -513,7 +466,7 @@ public class DirectoryConnector {
 			System.exit(-1);
 
 		}
-		// Si no tenemos socket, no podemos hacer nada
+	
 		if (socket == null) {
 			System.err.println("DirectoryConnector.sendAndReceiveDatagrams: UDP socket is null!");
 			System.err.println(
@@ -523,21 +476,19 @@ public class DirectoryConnector {
 	
 		DatagramPacket datagrama = new DatagramPacket(responseData, responseData.length, directoryAddress);
 		
-		
 		int chunktotales = 0;
 		int chunckactual = -1;
-		long posicion=0;
+		long posicion=0;	//posicion del data
 		int intento = 1;
-		while(intento <=MAX_NUMBER_OF_ATTEMPTS) {	// BUCLE TERCER TO-do
+		while(intento <=MAX_NUMBER_OF_ATTEMPTS) {	
+			
 			try {
 				// Mandamos el socket
 				System.out.printf("Enviamos datagrama [%d/%d]...%n", intento, MAX_NUMBER_OF_ATTEMPTS);
 				this.socket.send(datagrama);
 				
 				// aqui debemos esperar una respuesta
-				//byte[] bufferRespuesta = new byte[DirMessage.PACKET_MAX_SIZE];	// LUEGO CAMBIAREMOS EL VALOR 1000 POR LA CONSTANTE DE ARRIBA
-				
-				byte[] bufferRespuesta = new byte[DirMessage.PACKET_MAX_SIZE];	// LUEGO CAMBIAREMOS EL VALOR 1000 POR LA CONSTANTE DE ARRIBA
+				byte[] bufferRespuesta = new byte[DirMessage.PACKET_MAX_SIZE];	
 				while(chunckactual<chunktotales || chunckactual == -1) {
 				
 					System.out.println("Esperamos la respuesta del otro peer. ");
@@ -553,46 +504,26 @@ public class DirectoryConnector {
 				
 					chunckactual =respuesta.getChunkActual();
 					chunktotales = respuesta.getChunksTotales();
-					System.out.println("DEBUG: Chunks: " + chunckactual + " / " + chunktotales);
-					System.out.println("DEBUG: OP: " + respuesta.getOperation()) ;
+					System.out.println("[downloadFileFromDirectory] Chunk: " + chunckactual + " / " + chunktotales);
 					
 					if (respuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_OK))  {
 						filename = respuesta.getDirdlName();
 						filehash = respuesta.getDirdlhash();
 						filesize = respuesta.getDirdlSize();
-					
-						System.out.println("DEBUG: Posicion: " + respuesta.getPosicion()) ;
 						posicion =  respuesta.getPosicion();
+						bufferdata = Arrays.copyOf(bufferdata,(int) filesize); //actualizamos el buffer con el tamaño del fichero
 						
-						bufferdata = Arrays.copyOf(bufferdata,(int) filesize);
-						
+						//Añadimos al buffer el nuevo chunk de data, teniendo en cuenta su posicion y sin borrar los chunks anteriores
 						System.arraycopy(respuesta.getDirdlData(), 0, bufferdata, (int)posicion, respuesta.getDirdlData().length);
-						
-						System.out.println("DEBUG: data: " + bufferdata + " tamaño: " + bufferdata.length);
-						
-						
 						
 					}else if (respuesta.getOperation().equals(DirMessageOps.OPERATION_DIRDL_ERROR)){
 						return null;
 					}
 					
-					//chunckactual = chunckactual + bufferdata.length; //esto es lo que llevamos del chunk
-					System.out.println("DEBUG: Tamañodata: " + bufferdata.length);
-					System.out.println("DEBUG: Chunk: " + chunckactual + " / " + chunktotales);
-	
-					System.out.println("DEBUG: datoschunck1,  name : " + filename  +
-							"\n size: " + filesize + "\n hash: " + filehash + "\n datazize: " +  bufferdata.length);
 				}
+				
 				fileData =  bufferdata;
-				
-				
-				
-				System.out.println("DEBUG: datos downloadfile0,  name : " + filename  +
-						"\n size: " + filesize + "\n hash: " + filehash + "\n datazize: " +  fileData.length);
-						
-				
 				socket.setSoTimeout(0); // Restauramos el timeout por seguridad
-			
 				return new DownloadedFile(filename, filesize, fileData, filehash);
 				
 			} catch(SocketTimeoutException s) {
@@ -602,9 +533,6 @@ public class DirectoryConnector {
 				e.printStackTrace();
 			}
 		}
-
-
-			
 		return null;
 	}
 
