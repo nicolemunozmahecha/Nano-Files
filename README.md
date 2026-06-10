@@ -262,11 +262,11 @@ operation: quit_ok\n
 
 **Autómata rol cliente de directorio**
 
-> **Figura 1.** Autómata cliente-directorio (UDP)
+![Autómata rol cliente de directorio](Autómatas/cliente-directorio.png)
 
 **Autómata rol servidor de directorio**
 
-> **Figura 2.** Autómata servidor-directorio (UDP)
+![Autómata rol servidor de dicretorio](Autómatas/servidor-directorio.png)
 
 ### 2.2 Peers (TCP)
 
@@ -384,11 +384,11 @@ operation: peerdl_error_ambiguedad\n
 
 **Autómata rol cliente de ficheros**
 
-> **Figura 3.** Autómata cliente de ficheros (TCP)
+![Autómata rol cliente de ficheros](Autómatas/cliente-ficheros.png)
 
 **Autómata rol servidor de ficheros**
 
-> **Figura 4.** Autómata servidor de ficheros (TCP)
+![Autómata rol servidor de ficheros](Autómatas/servidor-ficheros.png)
 
 ---
 
@@ -398,42 +398,26 @@ operation: peerdl_error_ambiguedad\n
 
 El comando `dirdl` descarga del directorio ficheros de texto o binarios de cualquier tamaño a partir de una cadena hash.
 
-Para descargar cualquier fichero necesitamos su `dirdlname`, `dirdlsize`, `dirdlhash` y `dirdldata`. Además, como podemos descargar ficheros de cualquier tamaño, necesitamos unos atributos extra: `chunkActual`, `chunksTotales` y `posicion`. Todos estos atributos forman parte del mensaje, como se puede ver en las figuras 6 y 7. Para implementarlo correctamente, se han debido crear dos funciones adicionales para la serialización y deserialización de los datos del fichero a descargar.
-
-> **Figura 5.** `serializeData` / `deserializeData` (`DirMessage`)
+Para descargar cualquier fichero necesitamos su `dirdlname`, `dirdlsize`, `dirdlhash` y `dirdldata`. Además, como podemos descargar ficheros de cualquier tamaño, necesitamos unos atributos extra: `chunkActual`, `chunksTotales` y `posicion`. Todos estos atributos forman parte del mensaje. Para implementarlo correctamente, se han debido crear dos funciones adicionales para la serialización y deserialización de los datos del fichero a descargar.
 
 - **`serializeData`:** convierte el contenido binario del fichero en una cadena de texto Base64. Este proceso transforma los bytes en caracteres alfanuméricos seguros para ser transportados dentro de un `String`, sin que los caracteres de control (como los saltos de línea) interfieran en el protocolo.
 - **`deserializeData`:** el receptor toma la cadena Base64 y la decodifica para recuperar el array de bytes original, garantizando que el fichero guardado en disco sea idéntico al del servidor.
 
 Además, en la clase `DirMessage`, debido a que el protocolo de comunicación es de tipo ASCII, el campo `dirdldata` viaja codificado en formato Base64. Por ello, antes de asignar la información al atributo del mensaje, se realiza un proceso de deserialización mediante el cual la cadena de texto se decodifica para recuperar el array de bytes original del fichero, garantizando así la integridad de los datos binarios.
 
-> **Figura 6.1.** `fromString` (`DirMessage`)
-
-> **Figura 6.2.** `fromString` (`DirMessage`)
-
-> **Figura 7.** `toString` (`DirMessage`)
-
 A la hora de imprimir los datos en el método `toString`, se imprimieron los datos de los atributos previamente modificados. En el caso de `dirdlData`, se procedió a la serialización de los datos para que el contenido binario del fichero pudiera transportarse de forma segura dentro de un mensaje de texto ASCII.
-
-> **Figura 8.** `downloadFileFromDirectory` (`DirectoryConnector`)
 
 La función `downloadFileFromDirectory`, de la clase `DirectoryConnector`, se encarga de enviar y recibir los mensajes de descarga. Envía el mensaje de solicitud de descarga con el fragmento del hash correspondiente, insertándolo en un datagrama. Este proceso se repite hasta que llega una respuesta o hasta que se alcanza el número máximo de intentos. El mensaje de respuesta contiene el *chunk* actual y el total; gracias a esto, podemos esperar un determinado número de *chunks* para obtener el contenido completo del fichero. Si la operación de la respuesta es `dirdl_error`, se devuelve `null`, ya que no se ha encontrado el fichero que se quiere descargar.
 
 En cambio, si la operación recibida es `dirdl_ok`, se guardan en `filename`, `filehash`, `filesize` y `bufferdata` los datos correspondientes. Este último se almacena en un buffer, en el que se añade el `data` correspondiente de cada *chunk* en la posición adecuada. Cuando se han completado todos los *chunks*, se guarda el buffer en `fileData` y se devuelve un objeto `DownloadedFile` con todos sus datos.
 
-> **Figura 9.** `sendResponse` (`NFDirectoryServer`)
-
 En la función `sendResponse` de la clase `NFDirectoryServer` se crea la respuesta a la solicitud de descarga. Primero se busca si algún fichero de `directoryFiles` contiene el hash correspondiente. Si es así, se guardan todos los datos necesarios para descargar dicho fichero. El fichero se divide en varios *chunks* de tamaño `tchunk` para poder enviar todo su contenido. Por cada *chunk* se guarda la información del fichero, como los fragmentos de `data` y su posición. En caso de que no se encuentre el fichero, se envía un mensaje `dirdl_error`.
-
-> **Figura 10.** `downloadAndSaveFromDirectory` (`NFControllerLogicDir`)
 
 En la clase `NFDirectoryLogicDir`, la función `downloadAndSaveFromDirectory` se encarga de descargar el fichero y comprobar dicha descarga. El fichero se guarda en la carpeta `nf-shared`.
 
 ### 3.2 dirfiles ampliado
 
 Para realizar esta ampliación se ha usado la técnica de los *chunks*. Puesto que se especifica que se deben enviar varios datagramas cuando el listado de ficheros es demasiado largo, se realizaron los siguientes cambios:
-
-> **Figura 11.** `sendResponse` (`NFDirectoryServer`)
 
 En la función `sendResponse` de la clase `NFDirectoryServer`:
 
@@ -442,8 +426,6 @@ En la función `sendResponse` de la clase `NFDirectoryServer`:
 3. **Segmentación del listado:** se emplea un bucle que recorre la colección completa de ficheros, utilizando subíndices calculados dinámicamente para extraer y copiar rangos específicos del array original (`Arrays.copyOfRange`) en cada iteración.
 4. **Enriquecimiento del protocolo:** se asignan metadatos de secuencia a cada objeto `DirMessage` (`chunkActual` y `chunksTotales`, definidos en dicha clase), lo que permite que el cliente identifique el orden y sepa cuándo finalizar la recepción de la ráfaga.
 5. **Transmisión inmediata:** se fuerza el envío del datagrama dentro del propio bucle para generar la ráfaga de red, finalizando el método mediante una instrucción `return` para evitar duplicidades debidas a la impresión del mensaje para los otros comandos.
-
-> **Figura 12.** `getFileList` (`DirectoryConnector`)
 
 El método `getFileList` de la clase `DirectoryConnector` se reestructuró por completo para adaptar a las necesidades del método la lógica de la función `sendAndReceiveDatagrams`:
 
@@ -455,11 +437,7 @@ El método `getFileList` de la clase `DirectoryConnector` se reestructuró por c
 
 ### 3.3 quit
 
-> **Figura 13.** `unregisterFileServer` (`DirectoryConnector`)
-
 Se implementó el método `unregisterFileServer` de la clase `DirectoryConnector` siguiendo de nuevo la estructura del protocolo. En el mensaje a enviar se asignó el nombre del peer servidor al atributo `serveNombrePeer`, puesto que es el peer que se desea dar de baja.
-
-> **Figura 14.** `sendResponse` (`NFDirectoryServer`)
 
 Se añadió la operación en la función `sendResponse` de la clase `NFDirectoryServer` para gestionar la lógica de servidor necesaria para procesar las solicitudes de baja.
 
