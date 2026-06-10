@@ -25,28 +25,6 @@
 4. [Wireshark](#4-wireshark)
 5. [Conclusiones](#5-conclusiones)
 
-## Índice de figuras
-
-- **Figura 1.** Autómata cliente-directorio (UDP)
-- **Figura 2.** Autómata servidor-directorio (UDP)
-- **Figura 3.** Autómata cliente de ficheros (TCP)
-- **Figura 4.** Autómata servidor de ficheros (TCP)
-- **Figura 5.** `serializeData` / `deserializeData` (`DirMessage`)
-- **Figura 6.1.** `fromString` (`DirMessage`)
-- **Figura 6.2.** `fromString` (`DirMessage`)
-- **Figura 7.** `toString` (`DirMessage`)
-- **Figura 8.** `downloadFileFromDirectory` (`DirectoryConnector`)
-- **Figura 9.** `sendResponse` (`NFDirectoryServer`)
-- **Figura 10.** `downloadAndSaveFromDirectory` (`NFControllerLogicDir`)
-- **Figura 11.** `sendResponse` (`NFDirectoryServer`)
-- **Figura 12.** `getFileList` (`DirectoryConnector`)
-- **Figura 13.** `unregisterFileServer` (`DirectoryConnector`)
-- **Figura 14.** `sendResponse` (`NFDirectoryServer`)
-- **Figura 15.** NanoFiles.ping
-- **Figura 16.** Directory.ping
-- **Figura 17.** NanoFiles.dirfiles
-- **Figura 18.** Directory.dirfiles
-- **Figura 19.** Traza
 
 ---
 
